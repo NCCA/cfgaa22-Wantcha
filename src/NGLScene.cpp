@@ -10,6 +10,19 @@
 NGLScene::NGLScene()
 {
   m_camera = Camera(45.0f, 1280.0f / 720.0f, 0.01f, 100.0f);
+  QGLFormat format;
+  format.setSamples(4);
+  #if defined( __APPLE__)
+    // at present mac osx Mountain Lion only supports GL3.2
+    // the new mavericks will have GL 4.x so can change
+    format.toSurfaceFormat(format).setMajorVersion(4);
+    format.toSurfaceFormat(format).setMajorVersion(1);
+  #else
+    // with luck we have the latest GL version so set to this
+    format.toSurfaceFormat(format).setMajorVersion(4);
+    format.toSurfaceFormat(format).setMajorVersion(3);
+  #endif
+  setFormat(format);
 }
 
 
@@ -55,8 +68,10 @@ void NGLScene::paintGL()
   ngl::Transformation model;
   model.addPosition(m_modelPos);
 
-  //ngl::Mat4 MV = m_camera.GetView() * model.getMatrix();
-  ngl::ShaderLib::setUniform("MVP", m_camera.GetViewProjection() * model.getMatrix());
+  ngl::Mat4 MV = m_camera.GetView() * model.getMatrix();
+  ngl::Mat3 normalMatrix = MV.inverse().transpose();
+  ngl::ShaderLib::setUniform("MVP", m_camera.GetProjection() * MV);
+  ngl::ShaderLib::setUniform("NormalMatrix", normalMatrix);
 
   ngl::VAOPrimitives::draw(ngl::troll);
   
@@ -73,8 +88,8 @@ void NGLScene::keyPressEvent(QKeyEvent *_event)
   // escape key to quite
   case Qt::Key_Escape : QGuiApplication::exit(EXIT_SUCCESS); break;
   case Qt::Key_Space :
-      m_win.spinXFace=0;
-      m_win.spinYFace=0;
+      //m_win.spinXFace=0;
+      //m_win.spinYFace=0;
       m_modelPos.set(ngl::Vec3::zero());
 
   break;
@@ -84,3 +99,15 @@ void NGLScene::keyPressEvent(QKeyEvent *_event)
 
     update();
 }
+
+/*void NGLScene::keyReleaseEvent(QKeyEvent *_event)
+{
+  switch (_event->key())
+  {
+  break;
+  default : break;
+  }
+  // finally update the GLWindow and re-draw
+
+    //update();
+}*/
