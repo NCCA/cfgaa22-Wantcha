@@ -48,9 +48,13 @@ target_sources(${TargetName} PRIVATE ${PROJECT_SOURCE_DIR}/src/main.cpp
 			${PROJECT_SOURCE_DIR}/src/NGLSceneMouseControls.cpp  
             ${PROJECT_SOURCE_DIR}/src/MainWindow.cpp 
             ${PROJECT_SOURCE_DIR}/src/Camera.cpp 
+            ${PROJECT_SOURCE_DIR}/src/Lights.cpp 
+            ${PROJECT_SOURCE_DIR}/src/PBRShaderManager.cpp 
 			${PROJECT_SOURCE_DIR}/include/NGLScene.h 
             ${PROJECT_SOURCE_DIR}/include/MainWindow.h 
             ${PROJECT_SOURCE_DIR}/include/Camera.h 
+            ${PROJECT_SOURCE_DIR}/include/Lights.h 
+            ${PROJECT_SOURCE_DIR}/include/PBRShaderManager.h 
             ${PROJECT_SOURCE_DIR}/ui/MainWindow.ui
 )
 

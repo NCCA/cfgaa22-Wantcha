@@ -3,8 +3,10 @@
 #include <ngl/Vec3.h>
 #include <ngl/Transformation.h>
 #include <ngl/Mat4.h>
+#include <memory>
 #include "Camera.h"
 #include "WindowParams.h"
+#include "PBRShaderManager.h"
 // this must be included after NGL includes else we get a clash with gl libs
 //#include <QOpenGLWindow>
 #include <QGLWidget>
@@ -81,9 +83,12 @@ private:
     void wheelEvent( QWheelEvent *_event) override;
     /// @brief windows parameters for mouse control etc.
     WinParams m_win;
-    /// position for our model
+
     ngl::Vec3 m_modelPos = {0.0f, 0.0f, 0.0f};
     Camera m_camera;
+    std::vector<DirectionalLight> m_directionalLights;
+    std::vector<PointLight> m_pointLights;
+    std::unique_ptr<PBRShaderManager> m_shaderManager;
 };
 
 

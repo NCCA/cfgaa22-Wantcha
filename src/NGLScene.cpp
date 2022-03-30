@@ -6,9 +6,12 @@
 #include <ngl/VAOPrimitives.h>
 #include <ngl/ShaderLib.h>
 #include <iostream>
+#include <fstream>
 
 NGLScene::NGLScene()
 {
+  setFocusPolicy(Qt::FocusPolicy::StrongFocus);
+
   m_camera = Camera(45.0f, 1280.0f / 720.0f, 0.01f, 100.0f);
   QGLFormat format;
   format.setSamples(4);
@@ -23,6 +26,8 @@ NGLScene::NGLScene()
     format.toSurfaceFormat(format).setMajorVersion(3);
   #endif
   setFormat(format);
+
+  m_shaderManager = std::make_unique<PBRShaderManager>("Basic", "shaders/BasicVert.glsl", "shaders/BasicFrag.glsl");
 }
 
 
@@ -53,8 +58,19 @@ void NGLScene::initializeGL()
   // enable multisampling for smoother drawing
   glEnable(GL_MULTISAMPLE);
 
-  ngl::ShaderLib::loadShader("Basic", "shaders/BasicVert.glsl", "shaders/BasicFrag.glsl");
-  ngl::ShaderLib::use("Basic");
+  DirectionalLight l1({0.0f, 1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, 0.5f);
+  //DirectionalLight l2({0.0f, -1.0f, 0.0f}, {1.0f, 1.0f, 0.0f}, 2.0f);
+  //DirectionalLight l3({0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f});
+
+  m_directionalLights.push_back(l1);
+  //m_directionalLights.push_back(l2);
+
+  PointLight pl1(ngl::Vec3(0.5f, 0.0f, -0.5f));
+  m_pointLights.push_back(pl1);
+
+  m_shaderManager->UpdateLightCounts(m_directionalLights, m_pointLights);
+
+  //ngl::ShaderLib::setUniform("directionalLightCount", static_cast<int>(m_directionalLights.size()));
 }
 
 
@@ -71,7 +87,7 @@ void NGLScene::paintGL()
   ngl::Mat4 MV = m_camera.GetView() * model.getMatrix();
   ngl::Mat3 normalMatrix = MV.inverse().transpose();
   ngl::ShaderLib::setUniform("MVP", m_camera.GetProjection() * MV);
-  ngl::ShaderLib::setUniform("NormalMatrix", normalMatrix);
+  //ngl::ShaderLib::setUniform("NormalMatrix", normalMatrix);
 
   ngl::VAOPrimitives::draw(ngl::troll);
   
@@ -83,21 +99,24 @@ void NGLScene::keyPressEvent(QKeyEvent *_event)
 {
   // this method is called every time the main window recives a key event.
   // we then switch on the key value and set the camera in the GLWindow
+  //std::cout<<"NUUU";
   switch (_event->key())
   {
   // escape key to quite
   case Qt::Key_Escape : QGuiApplication::exit(EXIT_SUCCESS); break;
-  case Qt::Key_Space :
-      //m_win.spinXFace=0;
-      //m_win.spinYFace=0;
-      m_modelPos.set(ngl::Vec3::zero());
+  case Qt::Key_A :
+      //m_modelPos.set(ngl::Vec3::zero());
+      //m_directionalLights.push_back(DirectionalLight({0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}));
+      m_directionalLights.push_back(DirectionalLight({0.0f, -1.0f, 0.0f}, {1.0f, 1.0f, 0.0f}, 2.0f));
+      m_shaderManager->UpdateLightCounts(m_directionalLights, m_pointLights);
+      std::cout<<"DAAAAAA\n";
 
   break;
   default : break;
   }
   // finally update the GLWindow and re-draw
 
-    update();
+  update();
 }
 
 /*void NGLScene::keyReleaseEvent(QKeyEvent *_event)
