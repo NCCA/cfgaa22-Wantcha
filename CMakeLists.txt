@@ -41,7 +41,7 @@ set(CMAKE_CXX_EXTENSIONS ON)
 add_executable(${TargetName})
 
 # Add NGL include path
-include_directories(include $ENV{HOME}/NGL/include ui ${PROJECT_SOURCE_DIR}/vendor/CGAL-5.4/include)
+include_directories(include $ENV{HOME}/NGL/include ui)
 
 target_sources(${TargetName} PRIVATE ${PROJECT_SOURCE_DIR}/src/main.cpp  
 			${PROJECT_SOURCE_DIR}/src/NGLScene.cpp  

@@ -5,6 +5,7 @@
 #include <ngl/NGLInit.h>
 #include <ngl/VAOPrimitives.h>
 #include <ngl/ShaderLib.h>
+#include <ngl/Shader.h>
 #include <iostream>
 #include <fstream>
 //#include <CGAL/Bbox_3.h>
@@ -13,7 +14,7 @@ NGLScene::NGLScene()
 {
   setFocusPolicy(Qt::FocusPolicy::StrongFocus);
 
-  m_camera = Camera(45.0f, 1280.0f / 720.0f, 0.01f, 1000.0f);
+  m_camera = Camera(45.0f, 1600.0f / 900.0f, 0.01f, 1000.0f);
   QGLFormat format;
   format.setSamples(4);
   #if defined( __APPLE__)
@@ -84,16 +85,25 @@ void NGLScene::paintGL()
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glViewport(0,0,m_win.width,m_win.height);
 
-  ngl::Transformation model;
-  model.addPosition(m_modelPos);
-
-  ngl::Mat4 MV = m_camera.GetView() * model.getMatrix();
+  ngl::Mat4 MV = m_camera.GetView() * m_mesh->GetTransform().getMatrix();
   ngl::Mat3 normalMatrix = MV.inverse().transpose();
-  ngl::ShaderLib::setUniform("MVP", m_camera.GetProjection() * MV);
+  ngl::Mat4 MVP = m_camera.GetProjection() * MV;
+
+  m_shaderManager->UseShader();
+  ngl::ShaderLib::setUniform("MVP", MVP);
   //ngl::ShaderLib::setUniform("NormalMatrix", normalMatrix);
 
   //ngl::VAOPrimitives::draw(ngl::troll);
   m_mesh->Draw();
+
+  ngl::ShaderLib::use(ngl::nglColourShader);
+  ngl::ShaderLib::setUniform("MVP", MVP);
+  ngl::ShaderLib::setUniform("Colour", ngl::Vec4(1.0f, 0.7f, 0.05f, 1.0f));
+  //glPointSize(2);
+  glLineWidth(1);
+  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  m_mesh->Draw();
+  glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
   
 }
 

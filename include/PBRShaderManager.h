@@ -18,6 +18,8 @@ public:
 
     void UpdateLightCounts(const std::vector<DirectionalLight>& dl,
                             const std::vector<PointLight>& pl);
+    
+    void UseShader();
 
 private:
     std::string m_fragPath;

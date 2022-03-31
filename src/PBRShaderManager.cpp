@@ -66,3 +66,8 @@ void PBRShaderManager::UpdateLightCounts(const std::vector<DirectionalLight>& dl
             dl[i].GetIntensity());
     }
 }
+
+void PBRShaderManager::UseShader()
+{
+    ngl::ShaderLib::use(m_name);
+}

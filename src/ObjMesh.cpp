@@ -97,6 +97,11 @@ std::istream &safeGetline(std::istream &is, std::string &t)
     }
 }
 
+float distSqrd(const ngl::Vec3& a, const ngl::Vec3& b)
+{
+    return pow( a.m_x - b.m_x, 2 ) + pow( a.m_y - b.m_y, 2 ) + pow( a.m_z - b.m_z, 2 );
+}
+
 void ObjMesh::Triangulate()
 {
     std::vector<Face> newFaces = m_face;
@@ -105,21 +110,34 @@ void ObjMesh::Triangulate()
     {
         if(m_face[i].m_vert.size() == 4)
         {
-            m_face[i].m_numVerts = 3;
+            float AC, BD;
+
+            AC = distSqrd(m_face[i].m_vert[0], m_face[i].m_vert[2]);
+            BD = distSqrd(m_face[i].m_vert[1], m_face[i].m_vert[3]);
+
+            int diagonal = 0;
+
+            if( AC - 0.001f > BD )
+                diagonal = 1;
 
             Face tri1;
-            tri1.m_numVerts = 3;
-            tri1.m_vert = { m_face[i].m_vert[0], m_face[i].m_vert[1], m_face[i].m_vert[2] };
-            tri1.m_norm = { m_face[i].m_norm[0], m_face[i].m_norm[1], m_face[i].m_norm[2] };
-            tri1.m_uv = { m_face[i].m_uv[0], m_face[i].m_uv[1], m_face[i].m_uv[2] };
+
+            int id0 = diagonal;
+            int id1 = (diagonal + 1) % 4;
+            int id2 = (diagonal + 2) % 4;
+            int id3 = (diagonal + 3) % 4;
+
+            tri1.m_vert = { m_face[i].m_vert[id0], m_face[i].m_vert[id1], m_face[i].m_vert[id2] };
+            tri1.m_norm = { m_face[i].m_norm[id0], m_face[i].m_norm[id1], m_face[i].m_norm[id2] };
+            tri1.m_uv = { m_face[i].m_uv[id0], m_face[i].m_uv[id1], m_face[i].m_uv[id2] };
 
             newFaces[i] = tri1;
 
             Face tri2;
-            tri2.m_numVerts = 3;
-            tri2.m_vert = { m_face[i].m_vert[3], m_face[i].m_vert[2], m_face[i].m_vert[0] };
-            tri2.m_norm = { m_face[i].m_norm[3], m_face[i].m_norm[2], m_face[i].m_norm[0] };
-            tri2.m_uv = { m_face[i].m_uv[3], m_face[i].m_uv[2], m_face[i].m_uv[0] };
+
+            tri2.m_vert = { m_face[i].m_vert[id2], m_face[i].m_vert[id3], m_face[i].m_vert[id0] };
+            tri2.m_norm = { m_face[i].m_norm[id2], m_face[i].m_norm[id3], m_face[i].m_norm[id0] };
+            tri2.m_uv = { m_face[i].m_uv[id2], m_face[i].m_uv[id3], m_face[i].m_uv[id0] };
 
             newFaces.push_back(tri2);
         }
@@ -189,7 +207,7 @@ bool ObjMesh::ParseVertex(std::vector<std::string> &_tokens) noexcept
         float x = std::stof(_tokens[1]);
         float y = std::stof(_tokens[2]);
         float z = std::stof(_tokens[3]);
-        m_verts.push_back({x / 10.0f, y / 10.0f, z / 10.0f});
+        m_verts.push_back({x, y, z});
         ++m_currentVertexOffset;
     }
     catch (std::invalid_argument &arg)

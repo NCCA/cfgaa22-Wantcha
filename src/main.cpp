@@ -43,7 +43,7 @@ int main(int argc, char **argv)
   //window.show();
 
   MainWindow w;
-  w.resize(1280, 720);
+  w.resize(1600, 900);
   w.show();
 
   return a.exec();
