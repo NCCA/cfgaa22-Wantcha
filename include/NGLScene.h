@@ -7,6 +7,7 @@
 #include "Camera.h"
 #include "WindowParams.h"
 #include "PBRShaderManager.h"
+#include "ObjMesh.h"
 // this must be included after NGL includes else we get a clash with gl libs
 //#include <QOpenGLWindow>
 #include <QGLWidget>
@@ -89,6 +90,8 @@ private:
     std::vector<DirectionalLight> m_directionalLights;
     std::vector<PointLight> m_pointLights;
     std::unique_ptr<PBRShaderManager> m_shaderManager;
+
+    std::unique_ptr<ObjMesh> m_mesh;
 };
 
 

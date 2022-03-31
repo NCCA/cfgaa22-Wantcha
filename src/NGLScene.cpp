@@ -7,12 +7,13 @@
 #include <ngl/ShaderLib.h>
 #include <iostream>
 #include <fstream>
+//#include <CGAL/Bbox_3.h>
 
 NGLScene::NGLScene()
 {
   setFocusPolicy(Qt::FocusPolicy::StrongFocus);
 
-  m_camera = Camera(45.0f, 1280.0f / 720.0f, 0.01f, 100.0f);
+  m_camera = Camera(45.0f, 1280.0f / 720.0f, 0.01f, 1000.0f);
   QGLFormat format;
   format.setSamples(4);
   #if defined( __APPLE__)
@@ -58,12 +59,12 @@ void NGLScene::initializeGL()
   // enable multisampling for smoother drawing
   glEnable(GL_MULTISAMPLE);
 
-  DirectionalLight l1({0.0f, 1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, 0.5f);
-  //DirectionalLight l2({0.0f, -1.0f, 0.0f}, {1.0f, 1.0f, 0.0f}, 2.0f);
+  DirectionalLight l1({-0.98f, 0.0f, 0.1f}, {1.0f, 1.0f, 1.0f}, 0.6f);
+  DirectionalLight l2({0.7f, 0.7f, 0.0f}, {1.0f, 1.0f, 1.0f}, 0.9f);
   //DirectionalLight l3({0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f});
 
   m_directionalLights.push_back(l1);
-  //m_directionalLights.push_back(l2);
+  m_directionalLights.push_back(l2);
 
   PointLight pl1(ngl::Vec3(0.5f, 0.0f, -0.5f));
   m_pointLights.push_back(pl1);
@@ -71,6 +72,8 @@ void NGLScene::initializeGL()
   m_shaderManager->UpdateLightCounts(m_directionalLights, m_pointLights);
 
   //ngl::ShaderLib::setUniform("directionalLightCount", static_cast<int>(m_directionalLights.size()));
+
+  m_mesh = std::make_unique<ObjMesh>("meshes/yuri.obj");
 }
 
 
@@ -89,7 +92,8 @@ void NGLScene::paintGL()
   ngl::ShaderLib::setUniform("MVP", m_camera.GetProjection() * MV);
   //ngl::ShaderLib::setUniform("NormalMatrix", normalMatrix);
 
-  ngl::VAOPrimitives::draw(ngl::troll);
+  //ngl::VAOPrimitives::draw(ngl::troll);
+  m_mesh->Draw();
   
 }
 
@@ -109,7 +113,7 @@ void NGLScene::keyPressEvent(QKeyEvent *_event)
       //m_directionalLights.push_back(DirectionalLight({0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}));
       m_directionalLights.push_back(DirectionalLight({0.0f, -1.0f, 0.0f}, {1.0f, 1.0f, 0.0f}, 2.0f));
       m_shaderManager->UpdateLightCounts(m_directionalLights, m_pointLights);
-      std::cout<<"DAAAAAA\n";
+      //std::cout<<"DAAAAAA\n";
 
   break;
   default : break;

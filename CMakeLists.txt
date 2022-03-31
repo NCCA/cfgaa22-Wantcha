@@ -41,7 +41,7 @@ set(CMAKE_CXX_EXTENSIONS ON)
 add_executable(${TargetName})
 
 # Add NGL include path
-include_directories(include $ENV{HOME}/NGL/include ui)
+include_directories(include $ENV{HOME}/NGL/include ui ${PROJECT_SOURCE_DIR}/vendor/CGAL-5.4/include)
 
 target_sources(${TargetName} PRIVATE ${PROJECT_SOURCE_DIR}/src/main.cpp  
 			${PROJECT_SOURCE_DIR}/src/NGLScene.cpp  
@@ -50,11 +50,17 @@ target_sources(${TargetName} PRIVATE ${PROJECT_SOURCE_DIR}/src/main.cpp
             ${PROJECT_SOURCE_DIR}/src/Camera.cpp 
             ${PROJECT_SOURCE_DIR}/src/Lights.cpp 
             ${PROJECT_SOURCE_DIR}/src/PBRShaderManager.cpp 
+            ${PROJECT_SOURCE_DIR}/src/Mesh.cpp 
+            ${PROJECT_SOURCE_DIR}/src/ObjMesh.cpp 
+            ${PROJECT_SOURCE_DIR}/src/SceneObject.cpp 
 			${PROJECT_SOURCE_DIR}/include/NGLScene.h 
             ${PROJECT_SOURCE_DIR}/include/MainWindow.h 
             ${PROJECT_SOURCE_DIR}/include/Camera.h 
             ${PROJECT_SOURCE_DIR}/include/Lights.h 
             ${PROJECT_SOURCE_DIR}/include/PBRShaderManager.h 
+            ${PROJECT_SOURCE_DIR}/include/Mesh.h 
+            ${PROJECT_SOURCE_DIR}/include/ObjMesh.h 
+            ${PROJECT_SOURCE_DIR}/include/SceneObject.h  
             ${PROJECT_SOURCE_DIR}/ui/MainWindow.ui
 )
 
@@ -71,4 +77,10 @@ add_custom_target(${TargetName}CopyShaders ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CMAKE_CURRENT_SOURCE_DIR}/shaders
     $<TARGET_FILE_DIR:${TargetName}>/shaders
+)
+
+add_custom_target(${TargetName}CopyMeshes ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/meshes
+    $<TARGET_FILE_DIR:${TargetName}>/meshes
 )
