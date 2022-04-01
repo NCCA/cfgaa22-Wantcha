@@ -7,6 +7,7 @@
 
 #include "Mesh.h"
 #include <ngl/Vec2.h>
+#include "Assets/Asset.h"
 
 class ObjMesh : public Mesh
 {
@@ -26,6 +27,8 @@ public:
     virtual bool Load(const std::string &_fname) noexcept;
 
     bool IsLoaded() const noexcept {return m_isLoaded;}
+
+    ASSET_CLASS(AssetType::Mesh)
 private:
     void Triangulate();
 

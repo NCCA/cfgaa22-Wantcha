@@ -8,6 +8,8 @@
 #include <ngl/Shader.h>
 #include <iostream>
 #include <fstream>
+
+#include "Assets/AssetManager.h"
 //#include <CGAL/Bbox_3.h>
 
 NGLScene::NGLScene()
@@ -30,6 +32,8 @@ NGLScene::NGLScene()
   setFormat(format);
 
   m_shaderManager = std::make_unique<PBRShaderManager>("Basic", "shaders/BasicVert.glsl", "shaders/BasicFrag.glsl");
+
+  AssetManager::RegisterCache(std::make_unique<AssetCache<ObjMesh>>());
 }
 
 
@@ -74,7 +78,8 @@ void NGLScene::initializeGL()
 
   //ngl::ShaderLib::setUniform("directionalLightCount", static_cast<int>(m_directionalLights.size()));
 
-  m_mesh = std::make_unique<ObjMesh>("meshes/yuri.obj");
+  //m_mesh = std::make_unique<ObjMesh>("meshes/yuri.obj");
+  m_mesh = AssetManager::GetAsset<ObjMesh>("meshes/yuri.obj");
 }
 
 
@@ -96,14 +101,14 @@ void NGLScene::paintGL()
   //ngl::VAOPrimitives::draw(ngl::troll);
   m_mesh->Draw();
 
-  ngl::ShaderLib::use(ngl::nglColourShader);
+  /*ngl::ShaderLib::use(ngl::nglColourShader);
   ngl::ShaderLib::setUniform("MVP", MVP);
   ngl::ShaderLib::setUniform("Colour", ngl::Vec4(1.0f, 0.7f, 0.05f, 1.0f));
   //glPointSize(2);
   glLineWidth(1);
   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   m_mesh->Draw();
-  glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+  glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);*/
   
 }
 

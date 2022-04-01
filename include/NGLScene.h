@@ -91,7 +91,7 @@ private:
     std::vector<PointLight> m_pointLights;
     std::unique_ptr<PBRShaderManager> m_shaderManager;
 
-    std::unique_ptr<ObjMesh> m_mesh;
+    std::shared_ptr<ObjMesh> m_mesh;
 };
 
 

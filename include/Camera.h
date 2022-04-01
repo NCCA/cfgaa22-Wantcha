@@ -52,7 +52,7 @@ private:
     float m_width = 1280;
     float m_height = 720;
 
-    float m_zoomSpeed = 0.002f;
+    float m_zoomSpeed = 0.007f;
     float m_rotationSpeed = 0.175f;
     float m_panSpeed = 0.00175f;
 };

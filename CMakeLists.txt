@@ -53,6 +53,7 @@ target_sources(${TargetName} PRIVATE ${PROJECT_SOURCE_DIR}/src/main.cpp
             ${PROJECT_SOURCE_DIR}/src/Mesh.cpp 
             ${PROJECT_SOURCE_DIR}/src/ObjMesh.cpp 
             ${PROJECT_SOURCE_DIR}/src/SceneObject.cpp 
+            ${PROJECT_SOURCE_DIR}/src/AssetManager.cpp 
 			${PROJECT_SOURCE_DIR}/include/NGLScene.h 
             ${PROJECT_SOURCE_DIR}/include/MainWindow.h 
             ${PROJECT_SOURCE_DIR}/include/Camera.h 
@@ -61,6 +62,9 @@ target_sources(${TargetName} PRIVATE ${PROJECT_SOURCE_DIR}/src/main.cpp
             ${PROJECT_SOURCE_DIR}/include/Mesh.h 
             ${PROJECT_SOURCE_DIR}/include/ObjMesh.h 
             ${PROJECT_SOURCE_DIR}/include/SceneObject.h  
+            ${PROJECT_SOURCE_DIR}/include/Assets/AssetCache.h  
+            ${PROJECT_SOURCE_DIR}/include/Assets/Asset.h  
+            ${PROJECT_SOURCE_DIR}/include/Assets/AssetManager.h  
             ${PROJECT_SOURCE_DIR}/ui/MainWindow.ui
 )
 

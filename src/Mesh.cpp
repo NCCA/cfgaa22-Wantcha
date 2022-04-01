@@ -38,7 +38,7 @@ void Mesh::CreateVAO()
             d.y = m_verts[m_face[i].m_vert[j]].m_y;
             d.z = m_verts[m_face[i].m_vert[j]].m_z;
             // now if we have norms of tex (possibly could not) pack them as well
-            if(m_norm.size() >0 && m_uv.size() > 0)
+            if(m_norm.size() > 0 && m_uv.size() > 0)
             {
                 d.nx = m_norm[m_face[i].m_norm[j]].m_x;
                 d.ny = m_norm[m_face[i].m_norm[j]].m_y;
@@ -48,7 +48,7 @@ void Mesh::CreateVAO()
                 d.v = m_uv[m_face[i].m_uv[j]].m_y;
             }
             // now if neither are present (only verts like Zbrush models)
-            else if(m_norm.size() ==0 && m_uv.size()==0)
+            else if(m_norm.size() == 0 && m_uv.size()== 0)
             {
                 d.nx = 0;
                 d.ny = 0;
@@ -57,7 +57,7 @@ void Mesh::CreateVAO()
                 d.v = 0;
             }
             // here we've got norms but not tex
-            else if(m_norm.size() >0 && m_uv.size()==0)
+            else if(m_norm.size() > 0 && m_uv.size() == 0)
             {
                 d.nx = m_norm[m_face[i].m_norm[j]].m_x;
                 d.ny = m_norm[m_face[i].m_norm[j]].m_y;
@@ -66,7 +66,7 @@ void Mesh::CreateVAO()
                 d.v = 0;
             }
             // here we've got tex but not norm least common
-            else if(m_norm.size() ==0 && m_uv.size()>0)
+            else if(m_norm.size() == 0 && m_uv.size() > 0)
             {
                 d.nx = 0;
                 d.ny = 0;
@@ -115,3 +115,45 @@ void Mesh::Draw() const
         m_vaoMesh->unbind();
     }
 }
+
+/*Point2D compute2DPolygonCentroid(const Point2D* vertices, int vertexCount)
+{
+    Point2D centroid = {0, 0};
+    double signedArea = 0.0;
+    double x0 = 0.0; // Current vertex X
+    double y0 = 0.0; // Current vertex Y
+    double x1 = 0.0; // Next vertex X
+    double y1 = 0.0; // Next vertex Y
+    double a = 0.0;  // Partial signed area
+
+    // For all vertices except last
+    int i=0;
+    for (i=0; i<vertexCount-1; ++i)
+    {
+        x0 = vertices[i].x;
+        y0 = vertices[i].y;
+        x1 = vertices[i+1].x;
+        y1 = vertices[i+1].y;
+        a = x0*y1 - x1*y0;
+        signedArea += a;
+        centroid.x += (x0 + x1)*a;
+        centroid.y += (y0 + y1)*a;
+    }
+
+    // Do last vertex separately to avoid performing an expensive
+    // modulus operation in each iteration.
+    x0 = vertices[i].x;
+    y0 = vertices[i].y;
+    x1 = vertices[0].x;
+    y1 = vertices[0].y;
+    a = x0*y1 - x1*y0;
+    signedArea += a;
+    centroid.x += (x0 + x1)*a;
+    centroid.y += (y0 + y1)*a;
+
+    signedArea *= 0.5;
+    centroid.x /= (6.0*signedArea);
+    centroid.y /= (6.0*signedArea);
+
+    return centroid;
+}*/

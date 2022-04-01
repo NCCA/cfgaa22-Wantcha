@@ -110,7 +110,7 @@ void ObjMesh::Triangulate()
     {
         if(m_face[i].m_vert.size() == 4)
         {
-            float AC, BD;
+            /*float AC, BD;
 
             AC = distSqrd(m_face[i].m_vert[0], m_face[i].m_vert[2]);
             BD = distSqrd(m_face[i].m_vert[1], m_face[i].m_vert[3]);
@@ -139,7 +139,44 @@ void ObjMesh::Triangulate()
             tri2.m_norm = { m_face[i].m_norm[id2], m_face[i].m_norm[id3], m_face[i].m_norm[id0] };
             tri2.m_uv = { m_face[i].m_uv[id2], m_face[i].m_uv[id3], m_face[i].m_uv[id0] };
 
-            newFaces.push_back(tri2);
+            newFaces.push_back(tri2);*/
+
+            ngl::Vec3 newVert, newNorm, newUV;
+            for(int j = 0; j < 4; ++j)
+            {
+                ngl::Vec3 vert = m_verts[ m_face[i].m_vert[j] ];
+                ngl::Vec3 u = m_uv[ m_face[i].m_uv[j] ];
+                ngl::Vec3 n = m_norm[ m_face[i].m_norm[j] ];
+
+                newVert += vert;
+                newUV += u;
+                newNorm += n;
+            }
+            newVert /= 4.0f;
+            newUV /= 4.0f;
+            newNorm /= 4.0f;
+            newNorm.normalize();
+            //std::cout << newNorm.m_x << " " << newNorm.m_y << " " << newNorm.m_z << "\n";
+            //newNorm *= -1.0f;
+            //newNorm = ngl::Vec3(0, 1, 0);
+
+            m_verts.push_back(newVert);
+            m_uv.push_back(newUV);
+            m_norm.push_back(newNorm);
+
+            Face tri;
+            for(int z = 0; z < 3; ++z)
+            {
+                tri.m_vert = { m_face[i].m_vert[z], m_face[i].m_vert[z + 1], (unsigned int)m_verts.size() - 1 };
+                tri.m_uv = { m_face[i].m_uv[z], m_face[i].m_uv[z + 1], (unsigned int)m_uv.size() - 1 };
+                tri.m_norm = { m_face[i].m_norm[z], m_face[i].m_norm[z + 1], (unsigned int)m_norm.size() - 1 };
+                newFaces.push_back(tri);
+            }
+            
+            tri.m_vert = { m_face[i].m_vert[3], m_face[i].m_vert[0], (unsigned int)m_verts.size() - 1 };
+            tri.m_uv = { m_face[i].m_uv[3], m_face[i].m_uv[0], (unsigned int)m_uv.size() - 1 };
+            tri.m_norm = { m_face[i].m_norm[3], m_face[i].m_norm[0], (unsigned int)m_norm.size() - 1 };
+            newFaces[i] = tri;
         }
     }
     m_face = newFaces;

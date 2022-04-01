@@ -36,7 +36,12 @@ void Camera::UpdateView()
 
 void Camera::MouseZoom(float delta)
 {
-    m_distance -= delta * m_zoomSpeed;
+    float distance = m_distance * 0.2f;
+	distance = std::max(distance, 0.0f);
+	float speed = distance * distance;
+	speed = std::min(speed, 40.0f);
+
+    m_distance -= delta * m_zoomSpeed * speed;
     UpdateView();
     //std::cout<<"aa";
 }
