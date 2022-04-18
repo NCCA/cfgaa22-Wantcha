@@ -52,7 +52,6 @@ private:
     int m_currentUVOffset=0;
 
     bool m_isLoaded = false;
-
 };
 
 #endif

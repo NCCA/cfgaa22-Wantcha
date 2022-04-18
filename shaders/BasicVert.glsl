@@ -10,6 +10,7 @@ uniform mat4 MVP;
 //uniform mat3 NormalMatrix;
 
 out vec3 Normal;
+out vec2 UV;
 
 void main()
 {
@@ -17,4 +18,5 @@ void main()
 
     //Normal = NormalMatrix * inNormal;
     Normal = inNormal;
+    UV = inUV;
 }

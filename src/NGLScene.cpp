@@ -7,10 +7,9 @@
 #include <ngl/ShaderLib.h>
 #include <ngl/Shader.h>
 #include <iostream>
-#include <fstream>
 
+#include "MeshObject.h"
 #include "Assets/AssetManager.h"
-//#include <CGAL/Bbox_3.h>
 
 NGLScene::NGLScene()
 {
@@ -30,8 +29,6 @@ NGLScene::NGLScene()
     format.toSurfaceFormat(format).setMajorVersion(3);
   #endif
   setFormat(format);
-
-  m_shaderManager = std::make_unique<PBRShaderManager>("Basic", "shaders/BasicVert.glsl", "shaders/BasicFrag.glsl");
 
   AssetManager::RegisterCache(std::make_unique<AssetCache<ObjMesh>>());
 }
@@ -64,22 +61,36 @@ void NGLScene::initializeGL()
   // enable multisampling for smoother drawing
   glEnable(GL_MULTISAMPLE);
 
-  DirectionalLight l1({-0.98f, 0.0f, 0.1f}, {1.0f, 1.0f, 1.0f}, 0.6f);
-  DirectionalLight l2({0.7f, 0.7f, 0.0f}, {1.0f, 1.0f, 1.0f}, 0.9f);
-  //DirectionalLight l3({0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f});
+  Light l1(LightType::Directional,
+        {0, 0, 0}, { 180, 0 ,0 }, {1.0f, 1.0f, 1.0f}, 0.6f);
+
+  Light l2(LightType::Directional, {0, 0, 0}, { 0, 0, 0 },
+            {1.0f, 1.0f, 1.0f}, 0.9f);
 
   m_directionalLights.push_back(l1);
-  m_directionalLights.push_back(l2);
+  //m_directionalLights.push_back(l2);
 
-  PointLight pl1(ngl::Vec3(0.5f, 0.0f, -0.5f));
+  Light pl1(LightType::Point, ngl::Vec3(0.5f, 0.0f, -0.5f), ngl::Vec3(90, 0, 0));
   m_pointLights.push_back(pl1);
 
-  m_shaderManager->UpdateLightCounts(m_directionalLights, m_pointLights);
+  PBRShaderManager::Init("Basic", "shaders/BasicVert.glsl", "shaders/BasicFrag.glsl");
+  PBRShaderManager::UpdateLightCounts(m_directionalLights, m_pointLights);
 
   //ngl::ShaderLib::setUniform("directionalLightCount", static_cast<int>(m_directionalLights.size()));
 
   //m_mesh = std::make_unique<ObjMesh>("meshes/yuri.obj");
-  m_mesh = AssetManager::GetAsset<ObjMesh>("meshes/yuri.obj");
+  m_mesh = std::make_shared<MeshObject>("meshes/yuri.obj");
+  m_mesh->GetMesh()->GetMaterial().SetTexture("textures/checkerboard.jpg");
+  m_mesh->SetPosition({0.1f, 0.23f, 0.05f});
+  m_selectedObject = m_mesh;
+  m_sceneObjects.push_back(m_mesh);
+  m_sceneObjects.push_back(std::make_shared<MeshObject>("meshes/yuri.obj"));
+  m_sceneObjects[1]->SetPosition({0.5f, -0.23f, -0.5f});
+  m_sceneObjects[1]->SetScale({0.5f, 0.5f, 0.5f});
+  m_sceneObjects[1]->SetName("Buncf");
+
+  emit UpdateSceneListUI(m_sceneObjects);
+  emit UpdateTransformUI(m_selectedObject->GetTransform());
 }
 
 
@@ -90,16 +101,20 @@ void NGLScene::paintGL()
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glViewport(0,0,m_win.width,m_win.height);
 
-  ngl::Mat4 MV = m_camera.GetView() * m_mesh->GetTransform().getMatrix();
-  ngl::Mat3 normalMatrix = MV.inverse().transpose();
-  ngl::Mat4 MVP = m_camera.GetProjection() * MV;
-
-  m_shaderManager->UseShader();
-  ngl::ShaderLib::setUniform("MVP", MVP);
-  //ngl::ShaderLib::setUniform("NormalMatrix", normalMatrix);
-
   //ngl::VAOPrimitives::draw(ngl::troll);
-  m_mesh->Draw();
+
+  for(auto mesh : m_sceneObjects)
+  {
+    ngl::Mat4 MV = m_camera.GetView() * mesh->GetTransform().getMatrix();
+    ngl::Mat3 normalMatrix = MV.inverse().transpose();
+    ngl::Mat4 MVP = m_camera.GetProjection() * MV;
+
+    PBRShaderManager::UseShader();
+    ngl::ShaderLib::setUniform("MVP", MVP);
+    //ngl::ShaderLib::setUniform("NormalMatrix", normalMatrix);
+    mesh->Draw();
+  }
+  //m_mesh->Draw();
 
   /*ngl::ShaderLib::use(ngl::nglColourShader);
   ngl::ShaderLib::setUniform("MVP", MVP);
@@ -124,11 +139,11 @@ void NGLScene::keyPressEvent(QKeyEvent *_event)
   // escape key to quite
   case Qt::Key_Escape : QGuiApplication::exit(EXIT_SUCCESS); break;
   case Qt::Key_A :
-      //m_modelPos.set(ngl::Vec3::zero());
       //m_directionalLights.push_back(DirectionalLight({0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}));
-      m_directionalLights.push_back(DirectionalLight({0.0f, -1.0f, 0.0f}, {1.0f, 1.0f, 0.0f}, 2.0f));
-      m_shaderManager->UpdateLightCounts(m_directionalLights, m_pointLights);
-      //std::cout<<"DAAAAAA\n";
+      m_directionalLights.push_back(
+        Light(LightType::Directional, {0.0f, 0.0f, 0.0f}, {90, 90, 0}, {1.0f, 1.0f, 0.0f}, 2.0f) );
+
+      PBRShaderManager::UpdateLightCounts(m_directionalLights, m_pointLights);
 
   break;
   default : break;
@@ -138,14 +153,132 @@ void NGLScene::keyPressEvent(QKeyEvent *_event)
   update();
 }
 
-/*void NGLScene::keyReleaseEvent(QKeyEvent *_event)
+void NGLScene::setPosX(double val)
 {
-  switch (_event->key())
+  if(m_selectedObject)
   {
-  break;
-  default : break;
+    ngl::Vec3& pos = m_selectedObject->GetTransform().getPosition();
+    m_selectedObject->GetTransform().setPosition
+                    (ngl::Vec3{static_cast<ngl::Real>(val), pos.m_y, pos.m_z});
+    //m_selectedObject->SetPosition({ static_cast<ngl::Real>(val), pos.m_y, pos.m_z} );
+    update();
   }
-  // finally update the GLWindow and re-draw
+}
 
-    //update();
-}*/
+void NGLScene::setPosY(double val)
+{
+  if(m_selectedObject)
+  {
+    ngl::Vec3& pos = m_selectedObject->GetTransform().getPosition();
+    m_selectedObject->GetTransform().setPosition
+                    (ngl::Vec3{pos.m_x, static_cast<ngl::Real>(val), pos.m_z});
+    update();
+  }
+}
+
+void NGLScene::setPosZ(double val)
+{
+  if(m_selectedObject)
+  {
+    ngl::Vec3& pos = m_selectedObject->GetTransform().getPosition();
+    m_selectedObject->GetTransform().setPosition
+                    (ngl::Vec3{ pos.m_x, pos.m_y, static_cast<ngl::Real>(val) });
+    update();
+  }
+}
+
+void NGLScene::setRotX(double val)
+{
+  if(m_selectedObject)
+  {
+    ngl::Vec3& rot = m_selectedObject->GetTransform().getRotation();
+    m_selectedObject->GetTransform().setRotation
+                    (ngl::Vec3{ static_cast<ngl::Real>(val), rot.m_y, rot.m_z });
+    update();
+  }
+}
+
+void NGLScene::setRotY(double val)
+{
+  if(m_selectedObject)
+  {
+    ngl::Vec3& rot = m_selectedObject->GetTransform().getRotation();
+    m_selectedObject->GetTransform().setRotation
+                    (ngl::Vec3{ rot.m_x, static_cast<ngl::Real>(val), rot.m_z });
+
+    update();
+  }
+}
+
+void NGLScene::setRotZ(double val)
+{
+  if(m_selectedObject)
+  {
+    ngl::Vec3& rot = m_selectedObject->GetTransform().getRotation();
+    m_selectedObject->GetTransform().setRotation
+                    (ngl::Vec3{ rot.m_x, rot.m_y, static_cast<ngl::Real>(val) });
+    update();
+  }
+}
+
+void NGLScene::setScaleX(double val)
+{
+  if(m_selectedObject)
+  {
+    ngl::Vec3& scale = m_selectedObject->GetTransform().getScale();
+    m_selectedObject->GetTransform().setScale
+                    (static_cast<ngl::Real>(val), scale.m_y, scale.m_z);
+    update();
+  }
+}
+
+void NGLScene::setScaleY(double val)
+{
+  if(m_selectedObject)
+  {
+    ngl::Vec3& scale = m_selectedObject->GetTransform().getScale();
+    m_selectedObject->GetTransform().setScale
+                    (scale.m_x, static_cast<ngl::Real>(val), scale.m_z);
+    update();
+  }
+}
+
+void NGLScene::setScaleZ(double val)
+{
+  if(m_selectedObject)
+  {
+    ngl::Vec3& scale = m_selectedObject->GetTransform().getScale();
+    m_selectedObject->GetTransform().setScale
+                  (scale.m_x, scale.m_y, static_cast<ngl::Real>(val));
+
+    update();
+  }
+}
+
+void NGLScene::OnAddMesh(const std::string& path)
+{
+  m_sceneObjects.push_back(std::make_shared<MeshObject>(path));
+  auto lastSlashPos = path.find_last_of('/');
+  auto lastDotPos = path.find_last_of('.');
+  m_sceneObjects[m_sceneObjects.size() - 1]->SetName(path.substr(lastSlashPos + 1, lastDotPos - (lastSlashPos + 1)));
+  emit UpdateSceneListUI(m_sceneObjects);
+  update();
+}
+
+void NGLScene::OnSceneListItemSelected(int index)
+{
+  std::cout<<"SELECTED "<<index<<"\n";
+  m_selectedObject = m_sceneObjects[index];
+  emit UpdateTransformUI(m_selectedObject->GetTransform());
+}
+
+void NGLScene::OnSceneListItemDeleted(int index)
+{
+  std::cout<<"DELETED "<<index<<"\n";
+  if(m_selectedObject == m_sceneObjects[index])
+  {
+    m_selectedObject = nullptr;
+  }
+  m_sceneObjects.erase(m_sceneObjects.begin() + index);
+  update();
+}

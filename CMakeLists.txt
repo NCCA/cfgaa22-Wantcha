@@ -54,6 +54,7 @@ target_sources(${TargetName} PRIVATE ${PROJECT_SOURCE_DIR}/src/main.cpp
             ${PROJECT_SOURCE_DIR}/src/ObjMesh.cpp 
             ${PROJECT_SOURCE_DIR}/src/SceneObject.cpp 
             ${PROJECT_SOURCE_DIR}/src/AssetManager.cpp 
+            ${PROJECT_SOURCE_DIR}/src/MeshObject.cpp 
 			${PROJECT_SOURCE_DIR}/include/NGLScene.h 
             ${PROJECT_SOURCE_DIR}/include/MainWindow.h 
             ${PROJECT_SOURCE_DIR}/include/Camera.h 
@@ -65,6 +66,7 @@ target_sources(${TargetName} PRIVATE ${PROJECT_SOURCE_DIR}/src/main.cpp
             ${PROJECT_SOURCE_DIR}/include/Assets/AssetCache.h  
             ${PROJECT_SOURCE_DIR}/include/Assets/Asset.h  
             ${PROJECT_SOURCE_DIR}/include/Assets/AssetManager.h  
+            ${PROJECT_SOURCE_DIR}/include/MeshObject.h  
             ${PROJECT_SOURCE_DIR}/ui/MainWindow.ui
 )
 
@@ -87,4 +89,10 @@ add_custom_target(${TargetName}CopyMeshes ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CMAKE_CURRENT_SOURCE_DIR}/meshes
     $<TARGET_FILE_DIR:${TargetName}>/meshes
+)
+
+add_custom_target(${TargetName}CopyTextures ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/textures
+    $<TARGET_FILE_DIR:${TargetName}>/textures
 )

@@ -8,6 +8,7 @@
 #include "WindowParams.h"
 #include "PBRShaderManager.h"
 #include "ObjMesh.h"
+#include "MeshObject.h"
 // this must be included after NGL includes else we get a clash with gl libs
 //#include <QOpenGLWindow>
 #include <QGLWidget>
@@ -26,6 +27,7 @@
 
 class NGLScene : public QGLWidget
 {
+  Q_OBJECT
   public:
     //----------------------------------------------------------------------------------------------------------------------
     /// @brief ctor for our NGL drawing class
@@ -49,7 +51,26 @@ class NGLScene : public QGLWidget
     /// @brief this is called everytime we resize the window
     //----------------------------------------------------------------------------------------------------------------------
     void resizeGL(int _w, int _h) override;
+    public slots:
+      void setPosX(double val);
+      void setPosY(double val);
+      void setPosZ(double val);
 
+      void setRotX(double val);
+      void setRotY(double val);
+      void setRotZ(double val);
+
+      void setScaleX(double val);
+      void setScaleY(double val);
+      void setScaleZ(double val);
+
+      void OnSceneListItemSelected(int index);
+      void OnSceneListItemDeleted(int index);
+      void OnAddMesh(const std::string& path);
+
+    signals:
+        void UpdateTransformUI(ngl::Transformation);
+        void UpdateSceneListUI(std::vector<std::shared_ptr<SceneObject>>);
 private:
 
     //----------------------------------------------------------------------------------------------------------------------
@@ -85,13 +106,16 @@ private:
     /// @brief windows parameters for mouse control etc.
     WinParams m_win;
 
-    ngl::Vec3 m_modelPos = {0.0f, 0.0f, 0.0f};
+    //ngl::Vec3 m_modelPos = {0.0f, 0.0f, 0.0f};
     Camera m_camera;
-    std::vector<DirectionalLight> m_directionalLights;
-    std::vector<PointLight> m_pointLights;
-    std::unique_ptr<PBRShaderManager> m_shaderManager;
+    std::vector<Light> m_directionalLights;
+    std::vector<Light> m_pointLights;
+    //std::unique_ptr<PBRShaderManager> m_shaderManager;
 
-    std::shared_ptr<ObjMesh> m_mesh;
+    std::shared_ptr<MeshObject> m_mesh;
+    std::vector< std::shared_ptr<SceneObject> > m_sceneObjects;
+
+    std::shared_ptr<SceneObject> m_selectedObject;
 };
 
 

@@ -45,10 +45,10 @@ private:
     ngl::Mat4 m_view;
     ngl::Transformation m_transform;
     ngl::Vec3 m_position = ngl::Vec3::zero();
-    ngl::Vec3 m_focalPoint = ngl::Vec3::zero();
+    ngl::Vec3 m_focalPoint = {0.0f, 1.0f, 0.0f};
 
-    float m_distance = 2.0f;
-    float m_pitch = 0.0f, m_yaw = 0.0f;
+    float m_distance = 3.0f;
+    float m_pitch = 0.0f, m_yaw = -25.0f;
     float m_width = 1280;
     float m_height = 720;
 

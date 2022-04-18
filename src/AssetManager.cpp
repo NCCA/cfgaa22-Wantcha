@@ -23,14 +23,6 @@ void AssetManager::CollectGarbage()
 
 
 template<>
-/*Ref<Texture2D> AssetManager::LoadAsset(const std::string& path)
-{
-    //CM_CORE_ERROR(path);
-    Ref<Texture2D> tex = Texture2D::Create(( m_GameDirectory + "\\assets" + path ).c_str());
-    tex->SetFilepath(path);
-    return tex;
-}*/
-
 std::shared_ptr<ObjMesh> AssetManager::LoadAsset(const std::string& path)
 {
     //CM_CORE_ERROR(path);

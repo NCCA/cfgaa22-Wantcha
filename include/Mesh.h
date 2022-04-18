@@ -9,9 +9,10 @@
 #include <string>
 #include <cstdint>
 #include <memory>
-#include <ngl/Transformation.h>
+#include "SceneObject.h"
 #include <ngl/AbstractVAO.h>
 #include <ngl/SimpleVAO.h>
+#include <PBRShaderManager.h>
 
 class Face
 {
@@ -68,15 +69,7 @@ public:
 
     GLuint getVAOBufferID() {return m_vaoMesh->getBufferID() ;}
 
-    ngl::Vec3 GetPosition() const { return m_transform.getPosition(); }
-    ngl::Vec3 GetRotation() const { return m_transform.getRotation(); }
-    ngl::Vec3 GetScale() const { return m_transform.getScale(); }
-
-    void SetPosition(const ngl::Vec3& pos) { return m_transform.setPosition(pos); }
-    void SetRotation(const ngl::Vec3& rot) { return m_transform.setRotation(rot); }
-    void SetScale(const ngl::Vec3& scale) { return m_transform.setScale(scale); }
-
-    ngl::Transformation& GetTransform() { return m_transform; }
+    Material& GetMaterial() { return m_material; }
 
 
 protected:
@@ -96,7 +89,7 @@ protected:
     bool m_hasVBO = false;
     bool m_loaded = false;
 
-    ngl::Transformation m_transform;
+    Material m_material;
 };
 
 #endif

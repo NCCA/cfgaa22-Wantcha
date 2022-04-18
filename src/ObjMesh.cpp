@@ -99,7 +99,9 @@ std::istream &safeGetline(std::istream &is, std::string &t)
 
 float distSqrd(const ngl::Vec3& a, const ngl::Vec3& b)
 {
-    return pow( a.m_x - b.m_x, 2 ) + pow( a.m_y - b.m_y, 2 ) + pow( a.m_z - b.m_z, 2 );
+    return ( a.m_x - b.m_x ) * ( a.m_x - b.m_x ) +
+            ( a.m_y - b.m_y) * ( a.m_y - b.m_y) +
+            ( a.m_z - b.m_z) * ( a.m_z - b.m_z);
 }
 
 void ObjMesh::Triangulate()
@@ -343,7 +345,7 @@ bool ObjMesh::ParseFaceVertex(std::vector<std::string> &_tokens) noexcept
             // note we need to subtract one from the list
             int idx = std::stoi(_tokens[i]) - 1;
             // check if we are a negative index
-            if (std::signbit(idx))
+            if (std::signbit((float) idx))
             {
                 // note we index from 0 not 1 like obj so adjust
                 idx = m_currentVertexOffset + (idx + 1);
@@ -375,7 +377,7 @@ bool ObjMesh::ParseFaceVertexNormal(std::vector<std::string> &_tokens) noexcept
             // note we need to subtract one from the list
             int idx = std::stoi(vn[0]) - 1;
             // check if we are a negative index
-            if (std::signbit(idx))
+            if (std::signbit((float)idx))
             {
                 // note we index from 0 not 1 like obj so adjust
                 idx = m_currentVertexOffset + (idx + 1);
@@ -383,7 +385,7 @@ bool ObjMesh::ParseFaceVertexNormal(std::vector<std::string> &_tokens) noexcept
             f.m_vert.push_back(static_cast<uint32_t>(idx));
             idx = std::stoi(vn[1]) - 1;
             // check if we are a negative index
-            if (std::signbit(idx))
+            if (std::signbit((float)idx))
             {
                 // note we index from 0 not 1 like obj so adjust
                 idx = m_currentNormalOffset + (idx + 1);
@@ -415,7 +417,7 @@ bool ObjMesh::ParseFaceVertexUV(std::vector<std::string> &_tokens) noexcept
             // note we need to subtract one from the list
             int idx = std::stoi(vn[0]) - 1;
             // check if we are a negative index
-            if (std::signbit(idx))
+            if (std::signbit((float)idx))
             {
                 // note we index from 0 not 1 like obj so adjust
                 idx = m_currentVertexOffset + (idx + 1);
@@ -423,7 +425,7 @@ bool ObjMesh::ParseFaceVertexUV(std::vector<std::string> &_tokens) noexcept
             f.m_vert.push_back(static_cast<uint32_t>(idx));
             idx = std::stoi(vn[1]) - 1;
             // check if we are a negative index
-            if (std::signbit(idx))
+            if (std::signbit((float)idx))
             {
                 // note we index from 0 not 1 like obj so adjust
                 idx = m_currentUVOffset + (idx + 1);
@@ -454,7 +456,7 @@ bool ObjMesh::ParseFaceVertexNormalUV(std::vector<std::string> &_tokens) noexcep
             // note we need to subtract one from the list
             int idx = std::stoi(vn[0]) - 1;
             // check if we are a negative index
-            if (std::signbit(idx))
+            if (std::signbit((float)idx))
             {
                 // note we index from 0 not 1 like obj so adjust
                 idx = m_currentVertexOffset + (idx + 1);
@@ -463,7 +465,7 @@ bool ObjMesh::ParseFaceVertexNormalUV(std::vector<std::string> &_tokens) noexcep
 
             idx = std::stoi(vn[1]) - 1;
             // check if we are a negative index
-            if (std::signbit(idx))
+            if (std::signbit((float)idx))
             {
                 // note we index from 0 not 1 like obj so adjust
                 idx = m_currentUVOffset + (idx + 1);
@@ -472,7 +474,7 @@ bool ObjMesh::ParseFaceVertexNormalUV(std::vector<std::string> &_tokens) noexcep
 
             idx = std::stoi(vn[2]) - 1;
             // check if we are a negative index
-            if (std::signbit(idx))
+            if (std::signbit((float)idx))
             {
                 // note we index from 0 not 1 like obj so adjust
                 idx = m_currentNormalOffset + (idx + 1);
