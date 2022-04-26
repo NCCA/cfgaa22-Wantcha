@@ -96,6 +96,42 @@ void Mesh::CreateVAO()
 
 }
 
+void Mesh::SetVertices(const std::vector<ngl::Vec3> verts)
+{
+    m_verts = verts;
+    std::vector <VertData> vboMesh;
+    VertData d;
+
+    for(ngl::Vec3 v : verts)
+    {
+        d.x = v.m_x;
+        d.y = v.m_y;
+        d.z = v.m_z;
+        d.nx = 0;
+        d.ny = 0;
+        d.nz = 0;
+        d.u = 0;
+        d.v = 0;
+        vboMesh.push_back(d);
+    }
+
+    m_vaoMesh = ngl::VAOFactory::createVAO(ngl::simpleVAO, GL_LINES);
+    m_vaoMesh->bind();
+    m_meshSize = vboMesh.size();
+
+    m_vaoMesh->setData(ngl::SimpleVAO::VertexData(m_meshSize*sizeof(VertData), vboMesh[0].x));
+
+    m_vaoMesh->setVertexAttributePointer(0, 3, GL_FLOAT, sizeof(VertData), 0);
+
+    m_vaoMesh->setVertexAttributePointer(1, 3, GL_FLOAT, sizeof(VertData), 3);
+
+    m_vaoMesh->setVertexAttributePointer(2, 2, GL_FLOAT, sizeof(VertData), 6);
+
+    m_vaoMesh->setNumIndices(m_meshSize);
+
+    m_hasVAO = true;
+}
+
 void Mesh::BindVAO() const
 {
     m_vaoMesh->bind();
@@ -110,6 +146,16 @@ void Mesh::Draw() const
 {
     ngl::ShaderLib::setUniform("baseColor", m_material.m_baseColor);
     m_material.BindTextures();
+    if(m_hasVAO)
+    {
+        m_vaoMesh->bind();
+        m_vaoMesh->draw();
+        m_vaoMesh->unbind();
+    }
+}
+
+void Mesh::DrawWireframe() const
+{
     if(m_hasVAO)
     {
         m_vaoMesh->bind();

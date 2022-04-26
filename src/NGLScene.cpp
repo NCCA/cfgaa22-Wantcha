@@ -47,6 +47,7 @@ void NGLScene::resizeGL(int _w , int _h)
   m_win.height = static_cast<int>( _h * devicePixelRatio() );
 
   m_camera.SetViewportSize(_w, _h);
+  m_viewportFrameBuffer->Resize(_w, _h);
 }
 
 
@@ -60,6 +61,13 @@ void NGLScene::initializeGL()
   glEnable(GL_DEPTH_TEST);
   // enable multisampling for smoother drawing
   glEnable(GL_MULTISAMPLE);
+
+  FramebufferSpecification fbSpec;
+	fbSpec.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };
+	fbSpec.Width = 1600;
+	fbSpec.Height = 900;
+	m_viewportFrameBuffer = std::make_unique<FrameBuffer>(fbSpec);
+
 
   Light l1(LightType::Directional,
         {0, 0, 0}, { 180, 0 ,0 }, {1.0f, 1.0f, 1.0f}, 0.6f);
@@ -76,14 +84,15 @@ void NGLScene::initializeGL()
   PBRShaderManager::Init("Basic", "shaders/BasicVert.glsl", "shaders/BasicFrag.glsl");
   PBRShaderManager::UpdateLightCounts(m_directionalLights, m_pointLights);
 
+  m_gizmo = std::make_unique<Gizmo>();
   //ngl::ShaderLib::setUniform("directionalLightCount", static_cast<int>(m_directionalLights.size()));
 
-  //m_mesh = std::make_unique<ObjMesh>("meshes/yuri.obj");
-  m_mesh = std::make_shared<MeshObject>("meshes/yuri.obj");
-  m_mesh->GetMesh()->GetMaterial().SetTexture("textures/checkerboard.jpg");
-  m_mesh->SetPosition({0.1f, 0.23f, 0.05f});
-  m_selectedObject = m_mesh;
-  m_sceneObjects.push_back(m_mesh);
+
+  m_sceneObjects.push_back(std::make_shared<MeshObject>("meshes/arrow.obj"));
+  //static_cast<MeshObject>(m_sceneObjects[0])->GetMesh()->GetMaterial().SetTexture("textures/checkerboard.jpg");
+  m_sceneObjects[0]->SetPosition({0.1f, 0.23f, 0.05f});
+  m_selectedObject = m_sceneObjects[0];
+
   m_sceneObjects.push_back(std::make_shared<MeshObject>("meshes/yuri.obj"));
   m_sceneObjects[1]->SetPosition({0.5f, -0.23f, -0.5f});
   m_sceneObjects[1]->SetScale({0.5f, 0.5f, 0.5f});
@@ -97,24 +106,48 @@ void NGLScene::initializeGL()
 
 void NGLScene::paintGL()
 {
+  m_viewportFrameBuffer->Bind();
   // clear the screen and depth buffer
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glViewport(0,0,m_win.width,m_win.height);
 
-  //ngl::VAOPrimitives::draw(ngl::troll);
+  m_viewportFrameBuffer->ClearAttachment(1, -1);
 
+  int it = 0;
+
+  if(m_selectedObject)
+  {
+    ngl::Transformation trans = m_selectedObject->GetTransform();
+    trans.setScale(ngl::Vec3{1,1,1});
+    m_gizmo->SetTransform(trans);
+  }
+  
   for(auto mesh : m_sceneObjects)
   {
-    ngl::Mat4 MV = m_camera.GetView() * mesh->GetTransform().getMatrix();
-    ngl::Mat3 normalMatrix = MV.inverse().transpose();
-    ngl::Mat4 MVP = m_camera.GetProjection() * MV;
-
     PBRShaderManager::UseShader();
-    ngl::ShaderLib::setUniform("MVP", MVP);
+    ngl::Mat4 VP = m_camera.GetProjection() * m_camera.GetView();
+    //ngl::Mat3 normalMatrix = MV.inverse().transpose();
+    ngl::Mat4 MVP = VP * mesh->GetTransform().getMatrix();
     //ngl::ShaderLib::setUniform("NormalMatrix", normalMatrix);
+
+    ngl::ShaderLib::setUniform("MVP", MVP);
+    ngl::ShaderLib::setUniform("objectID", it);
+
     mesh->Draw();
+    if(mesh == m_selectedObject)
+    {
+      ngl::ShaderLib::use(ngl::nglColourShader);
+      ngl::ShaderLib::setUniform("MVP", MVP);
+      ngl::ShaderLib::setUniform("Colour", ngl::Vec4(1.0f, 0.7f, 0.05f, 1.0f));
+      //glPointSize(2);
+      //glLineWidth(1);
+      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+      mesh->DrawHighlighted();
+      glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+    }
+    m_gizmo->Draw(VP);
+    
+    ++it;
   }
-  //m_mesh->Draw();
 
   /*ngl::ShaderLib::use(ngl::nglColourShader);
   ngl::ShaderLib::setUniform("MVP", MVP);
@@ -124,7 +157,10 @@ void NGLScene::paintGL()
   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   m_mesh->Draw();
   glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);*/
-  
+
+  m_viewportFrameBuffer->BlitToScreen();
+
+  m_viewportFrameBuffer->Unbind();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -133,7 +169,6 @@ void NGLScene::keyPressEvent(QKeyEvent *_event)
 {
   // this method is called every time the main window recives a key event.
   // we then switch on the key value and set the camera in the GLWindow
-  //std::cout<<"NUUU";
   switch (_event->key())
   {
   // escape key to quite
@@ -157,10 +192,9 @@ void NGLScene::setPosX(double val)
 {
   if(m_selectedObject)
   {
-    ngl::Vec3& pos = m_selectedObject->GetTransform().getPosition();
+    ngl::Vec3 pos = m_selectedObject->GetTransform().getPosition();
     m_selectedObject->GetTransform().setPosition
                     (ngl::Vec3{static_cast<ngl::Real>(val), pos.m_y, pos.m_z});
-    //m_selectedObject->SetPosition({ static_cast<ngl::Real>(val), pos.m_y, pos.m_z} );
     update();
   }
 }
@@ -169,7 +203,7 @@ void NGLScene::setPosY(double val)
 {
   if(m_selectedObject)
   {
-    ngl::Vec3& pos = m_selectedObject->GetTransform().getPosition();
+    ngl::Vec3 pos = m_selectedObject->GetTransform().getPosition();
     m_selectedObject->GetTransform().setPosition
                     (ngl::Vec3{pos.m_x, static_cast<ngl::Real>(val), pos.m_z});
     update();
@@ -180,7 +214,7 @@ void NGLScene::setPosZ(double val)
 {
   if(m_selectedObject)
   {
-    ngl::Vec3& pos = m_selectedObject->GetTransform().getPosition();
+    ngl::Vec3 pos = m_selectedObject->GetTransform().getPosition();
     m_selectedObject->GetTransform().setPosition
                     (ngl::Vec3{ pos.m_x, pos.m_y, static_cast<ngl::Real>(val) });
     update();
@@ -191,7 +225,7 @@ void NGLScene::setRotX(double val)
 {
   if(m_selectedObject)
   {
-    ngl::Vec3& rot = m_selectedObject->GetTransform().getRotation();
+    ngl::Vec3 rot = m_selectedObject->GetTransform().getRotation();
     m_selectedObject->GetTransform().setRotation
                     (ngl::Vec3{ static_cast<ngl::Real>(val), rot.m_y, rot.m_z });
     update();
@@ -202,7 +236,7 @@ void NGLScene::setRotY(double val)
 {
   if(m_selectedObject)
   {
-    ngl::Vec3& rot = m_selectedObject->GetTransform().getRotation();
+    ngl::Vec3 rot = m_selectedObject->GetTransform().getRotation();
     m_selectedObject->GetTransform().setRotation
                     (ngl::Vec3{ rot.m_x, static_cast<ngl::Real>(val), rot.m_z });
 
@@ -214,7 +248,7 @@ void NGLScene::setRotZ(double val)
 {
   if(m_selectedObject)
   {
-    ngl::Vec3& rot = m_selectedObject->GetTransform().getRotation();
+    ngl::Vec3 rot = m_selectedObject->GetTransform().getRotation();
     m_selectedObject->GetTransform().setRotation
                     (ngl::Vec3{ rot.m_x, rot.m_y, static_cast<ngl::Real>(val) });
     update();
@@ -225,7 +259,7 @@ void NGLScene::setScaleX(double val)
 {
   if(m_selectedObject)
   {
-    ngl::Vec3& scale = m_selectedObject->GetTransform().getScale();
+    ngl::Vec3 scale = m_selectedObject->GetTransform().getScale();
     m_selectedObject->GetTransform().setScale
                     (static_cast<ngl::Real>(val), scale.m_y, scale.m_z);
     update();
@@ -236,7 +270,7 @@ void NGLScene::setScaleY(double val)
 {
   if(m_selectedObject)
   {
-    ngl::Vec3& scale = m_selectedObject->GetTransform().getScale();
+    ngl::Vec3 scale = m_selectedObject->GetTransform().getScale();
     m_selectedObject->GetTransform().setScale
                     (scale.m_x, static_cast<ngl::Real>(val), scale.m_z);
     update();
@@ -247,7 +281,7 @@ void NGLScene::setScaleZ(double val)
 {
   if(m_selectedObject)
   {
-    ngl::Vec3& scale = m_selectedObject->GetTransform().getScale();
+    ngl::Vec3 scale = m_selectedObject->GetTransform().getScale();
     m_selectedObject->GetTransform().setScale
                   (scale.m_x, scale.m_y, static_cast<ngl::Real>(val));
 

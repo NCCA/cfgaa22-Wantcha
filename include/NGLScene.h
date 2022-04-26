@@ -9,6 +9,8 @@
 #include "PBRShaderManager.h"
 #include "ObjMesh.h"
 #include "MeshObject.h"
+#include "FrameBuffer.h"
+#include "Gizmos.h"
 // this must be included after NGL includes else we get a clash with gl libs
 //#include <QOpenGLWindow>
 #include <QGLWidget>
@@ -108,14 +110,16 @@ private:
 
     //ngl::Vec3 m_modelPos = {0.0f, 0.0f, 0.0f};
     Camera m_camera;
+    std::unique_ptr<Gizmo> m_gizmo;
+
     std::vector<Light> m_directionalLights;
     std::vector<Light> m_pointLights;
     //std::unique_ptr<PBRShaderManager> m_shaderManager;
-
-    std::shared_ptr<MeshObject> m_mesh;
     std::vector< std::shared_ptr<SceneObject> > m_sceneObjects;
 
     std::shared_ptr<SceneObject> m_selectedObject;
+
+    std::unique_ptr<FrameBuffer> m_viewportFrameBuffer;
 };
 
 

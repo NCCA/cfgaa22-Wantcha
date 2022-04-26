@@ -6,11 +6,14 @@ layout (location = 1) in vec3 inNormal;
 
 layout (location = 2) in vec2 inUV;
 
+//layout(location = 3) in int objectID;
+
 uniform mat4 MVP;
 //uniform mat3 NormalMatrix;
 
 out vec3 Normal;
 out vec2 UV;
+//flat out int v_objectID;
 
 void main()
 {
@@ -19,4 +22,5 @@ void main()
     //Normal = NormalMatrix * inNormal;
     Normal = inNormal;
     UV = inUV;
+    //v_objectID = objectID;
 }

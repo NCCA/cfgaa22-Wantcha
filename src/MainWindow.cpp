@@ -54,9 +54,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::OnUpdateTransformWidget(const ngl::Transformation& transform)
 {
-    ngl::Vec3& pos = transform.getPosition();
-    ngl::Vec3& rot = transform.getRotation();
-    ngl::Vec3& scale = transform.getScale();
+    ngl::Vec3 pos = transform.getPosition();
+    ngl::Vec3 rot = transform.getRotation();
+    ngl::Vec3 scale = transform.getScale();
 
     m_ui->m_posX->setValue(pos.m_x);
     m_ui->m_posY->setValue(pos.m_y);

@@ -40,10 +40,30 @@ void NGLScene::mouseMoveEvent( QMouseEvent* _event )
 //----------------------------------------------------------------------------------------------------------------------
 void NGLScene::mousePressEvent( QMouseEvent* _event )
 {
+
   // that method is called when the mouse button is pressed in this case we
   // store the value where the maouse was clicked (x,y) and set the Rotate flag to true
   if ( _event->button() == Qt::LeftButton/* && _event->modifiers() == Qt::AltModifier*/)
   {
+    //std::cout<<m_viewportFrameBuffer->ReadPixel( 1, _event->x(), m_win.height - _event->y() ) << " at "<< _event->x() << " "<< _event->y() << "\n";
+    int id = m_viewportFrameBuffer->ReadPixel( 1 , _event->x(), m_win.height - _event->y() );
+    if(id >= 0 && id < m_sceneObjects.size())
+    {
+      m_selectedObject = m_sceneObjects[id];
+      if(m_selectedObject)
+      {
+        ngl::Transformation trans = m_selectedObject->GetTransform();
+        trans.setScale(ngl::Vec3{1,1,1});
+        m_gizmo->SetTransform(trans);
+      }
+      emit UpdateTransformUI(m_selectedObject->GetTransform());
+    }
+    else
+    {
+      m_selectedObject = nullptr;
+      emit UpdateTransformUI(ngl::Transformation());
+    }
+
     m_win.origX  = _event->x();
     m_win.origY  = _event->y();
     m_win.rotate = true;
@@ -55,6 +75,7 @@ void NGLScene::mousePressEvent( QMouseEvent* _event )
     m_win.origYPos  = _event->y();
     m_win.translate = true;
   }
+  update();
 }
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -22,6 +22,7 @@ public:
     ngl::Transformation& GetTransform() { return m_transform; }
     std::string GetName() const { return m_name; }
     virtual void Draw() const = 0;
+    virtual void DrawHighlighted() const = 0;
 
 protected:
     ngl::Transformation m_transform;

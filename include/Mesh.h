@@ -64,8 +64,10 @@ public:
     void BindVAO() const;
     void UnbindVAO() const;
     void Draw() const;
+    void DrawWireframe() const;
 
-    virtual bool Load(const std::string &_fname) noexcept = 0;
+    virtual bool Load(const std::string &_fname) noexcept {};
+    void SetVertices(const std::vector<ngl::Vec3> verts);
 
     GLuint getVAOBufferID() {return m_vaoMesh->getBufferID() ;}
 

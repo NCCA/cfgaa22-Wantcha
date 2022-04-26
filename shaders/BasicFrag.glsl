@@ -5,6 +5,7 @@ const int dirLightCount = 0   ;
 const int pLightCount = 0   ;
 
 layout(location = 0) out vec4 fragColor;
+layout(location = 1) out int idColor;
 
 uniform vec4 baseColor;
 layout(binding=0) uniform sampler2D albedoMap;
@@ -17,8 +18,11 @@ uniform vec3 pLightPos[dirLightCount];
 uniform vec3 pLightColors[dirLightCount];
 uniform float pLightIntensities[dirLightCount];
 
+uniform int objectID;
+
 in vec3 Normal;
 in vec2 UV;
+//flat in int v_objectID;
 
 void main()
 {
@@ -31,5 +35,6 @@ void main()
 
         fragColor += baseColor * intensity * vec4(dirLightColors[i], 1.0)
                     * dirLightIntensities[i] * texture(albedoMap, UV).rgba;
-    }  
+    }
+    idColor = objectID;
 }

@@ -24,6 +24,7 @@ public:
     LightType GetType() const { return m_lightType; }
 
     virtual void Draw() const override {}
+    virtual void DrawHighlighted() const override {}
 private:
     LightType m_lightType;
     ngl::Vec3 m_color = {1, 1, 1};
