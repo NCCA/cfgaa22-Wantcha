@@ -45,6 +45,7 @@ struct WinParams
   int height=720;
 
   bool altPressed = false;
+  bool rotating = false;
 
 };
 

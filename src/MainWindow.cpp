@@ -11,7 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_scene = new NGLScene();
 
     m_scene->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-    m_scene->setMinimumSize(650, 350);
+    m_scene->setMinimumSize(600, 350);
     m_ui->mainGridLayout->addWidget(m_scene, 0, 1, 1, 1);
 
     m_ui->SceneList->setContextMenuPolicy(Qt::CustomContextMenu);

@@ -8,7 +8,10 @@ void NGLScene::mouseMoveEvent( QMouseEvent* _event )
   // note the method buttons() is the button state when event was called
   // that is different from button() which is used to check which button was
   // pressed when the mousePress/Release event is generated
-  if ( m_win.rotate && _event->buttons() == Qt::LeftButton )
+  m_hoveredObjectID = m_viewportFrameBuffer->ReadPixel( 1 , _event->x(), m_win.height - _event->y() );
+  
+
+  if (_event->buttons() == Qt::LeftButton )
   {
     float diffx = _event->x() - m_win.origX;
     float diffy = _event->y() - m_win.origY;
@@ -16,10 +19,18 @@ void NGLScene::mouseMoveEvent( QMouseEvent* _event )
     //m_win.spinYFace += static_cast<int>( 0.5f * diffx );
     m_win.origX = _event->x();
     m_win.origY = _event->y();
-    m_camera.MouseRotate( ngl::Vec2(diffx, diffy ));
-
-    update();
+    if(m_win.rotate)
+    {
+      m_camera.MouseRotate( ngl::Vec2(diffx, diffy ));
+      m_win.rotating = true;
+    }
+    
+    else if (m_gizmo->GetUsing())
+    {
+      m_gizmo->Manipulate(m_selectedObject->GetTransform(), diffx, diffy);
+    }
   }
+
   // right mouse translate code
   else if ( m_win.translate && _event->buttons() == Qt::RightButton )
   {
@@ -32,8 +43,9 @@ void NGLScene::mouseMoveEvent( QMouseEvent* _event )
 
     //m_modelPos.m_x += INCREMENT * diffX;
     //m_modelPos.m_y -= INCREMENT * diffY;
-    update();
+    //update();
   }
+  update();
 }
 
 
@@ -43,13 +55,15 @@ void NGLScene::mousePressEvent( QMouseEvent* _event )
 
   // that method is called when the mouse button is pressed in this case we
   // store the value where the maouse was clicked (x,y) and set the Rotate flag to true
+  m_win.origX = _event->x();
+  m_win.origY = _event->y();
+
   if ( _event->button() == Qt::LeftButton/* && _event->modifiers() == Qt::AltModifier*/)
   {
     //std::cout<<m_viewportFrameBuffer->ReadPixel( 1, _event->x(), m_win.height - _event->y() ) << " at "<< _event->x() << " "<< _event->y() << "\n";
-    int id = m_viewportFrameBuffer->ReadPixel( 1 , _event->x(), m_win.height - _event->y() );
-    if(id >= 0 && id < m_sceneObjects.size())
+    if(m_hoveredObjectID >= 0 && m_hoveredObjectID < m_sceneObjects.size())
     {
-      m_selectedObject = m_sceneObjects[id];
+      m_selectedObject = m_sceneObjects[m_hoveredObjectID];
       if(m_selectedObject)
       {
         ngl::Transformation trans = m_selectedObject->GetTransform();
@@ -58,15 +72,19 @@ void NGLScene::mousePressEvent( QMouseEvent* _event )
       }
       emit UpdateTransformUI(m_selectedObject->GetTransform());
     }
+
+    else if(m_hoveredObjectID < 0 && m_hoveredObjectID > -100)
+    {
+      m_gizmo->SetSelectedAxis(-(m_hoveredObjectID + 1));
+      m_gizmo->SetUsing(true);
+      //std::cout<<-(m_hoveredObjectID + 1)<<"\n";
+    }
     else
     {
-      m_selectedObject = nullptr;
-      emit UpdateTransformUI(ngl::Transformation());
+      m_win.origX  = _event->x();
+      m_win.origY  = _event->y();
+      m_win.rotate = true;
     }
-
-    m_win.origX  = _event->x();
-    m_win.origY  = _event->y();
-    m_win.rotate = true;
   }
   // right mouse translate mode
   else if ( _event->button() == Qt::RightButton/* && _event->modifiers() == Qt::AltModifier*/)
@@ -86,12 +104,22 @@ void NGLScene::mouseReleaseEvent( QMouseEvent* _event )
   if ( _event->button() == Qt::LeftButton )
   {
     m_win.rotate = false;
+    if(!m_win.rotating && m_hoveredObjectID == -100 && !m_gizmo->GetUsing())
+    {
+      m_selectedObject = nullptr;
+      emit UpdateTransformUI(ngl::Transformation());
+    }
+
+    m_win.rotating = false;
+    m_gizmo->SetSelectedAxis(-1);
+    m_gizmo->SetUsing(false);
   }
   // right mouse translate mode
   if ( _event->button() == Qt::RightButton )
   {
     m_win.translate = false;
   }
+  update();
 }
 
 //----------------------------------------------------------------------------------------------------------------------

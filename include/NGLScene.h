@@ -120,6 +120,8 @@ private:
     std::shared_ptr<SceneObject> m_selectedObject;
 
     std::unique_ptr<FrameBuffer> m_viewportFrameBuffer;
+
+    int m_hoveredObjectID = -100;
 };
 
 

@@ -14,6 +14,7 @@
 NGLScene::NGLScene()
 {
   setFocusPolicy(Qt::FocusPolicy::StrongFocus);
+  setMouseTracking(true);
 
   m_camera = Camera(45.0f, 1600.0f / 900.0f, 0.01f, 1000.0f);
   QGLFormat format;
@@ -110,21 +111,23 @@ void NGLScene::paintGL()
   // clear the screen and depth buffer
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  m_viewportFrameBuffer->ClearAttachment(1, -1);
+  m_viewportFrameBuffer->ClearAttachment(1, -100);
 
   int it = 0;
 
   if(m_selectedObject)
   {
     ngl::Transformation trans = m_selectedObject->GetTransform();
-    trans.setScale(ngl::Vec3{1,1,1});
+    trans.setScale(ngl::Vec3{1.0f,1.0f,1.0f});
+    trans.getMatrix(); /*recomputing matrix*/
     m_gizmo->SetTransform(trans);
   }
   
+  ngl::Mat4 VP = m_camera.GetProjection() * m_camera.GetView();
+
   for(auto mesh : m_sceneObjects)
   {
     PBRShaderManager::UseShader();
-    ngl::Mat4 VP = m_camera.GetProjection() * m_camera.GetView();
     //ngl::Mat3 normalMatrix = MV.inverse().transpose();
     ngl::Mat4 MVP = VP * mesh->GetTransform().getMatrix();
     //ngl::ShaderLib::setUniform("NormalMatrix", normalMatrix);
@@ -142,12 +145,12 @@ void NGLScene::paintGL()
       //glLineWidth(1);
       glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
       mesh->DrawHighlighted();
-      glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
-    m_gizmo->Draw(VP);
     
     ++it;
   }
+  m_gizmo->Draw(VP, m_win.width);
 
   /*ngl::ShaderLib::use(ngl::nglColourShader);
   ngl::ShaderLib::setUniform("MVP", MVP);
