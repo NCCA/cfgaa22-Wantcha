@@ -32,6 +32,7 @@ public:
 
     void Draw(const ngl::Mat4& vp, int windowWidth);
 
+    void StartManipulate(ngl::Transformation& objectTransform) { m_originalObjectTransform = objectTransform; }
     void Manipulate(ngl::Transformation& objectTransform, float dx, float dy);
 
 
@@ -46,11 +47,18 @@ private:
 
     ngl::Transformation m_transform;
 
-    std::array<std::unique_ptr<Mesh> , 3> m_translateMeshes;
+    std::array<std::unique_ptr<Mesh>, 3> m_translateMeshes;
+    std::array<std::unique_ptr<Mesh>, 3> m_rotateMeshes;
+    std::array<std::unique_ptr<Mesh>, 3> m_scaleMeshes;
     std::array<ngl::Vec4, 3> m_colors;
-    std::unique_ptr<Mesh> m_scaleMesh;
+    //std::unique_ptr<Mesh> m_scaleMesh;
 
     float m_sizeOnScreen = 100.0f;
+    float m_lineWidth = 0.075f;
+    float m_gizmoRadius = 0.75f;
+    const size_t m_rotateGizmoSegments = 16;
+
+    ngl::Transformation m_originalObjectTransform;
 };
 
 #endif

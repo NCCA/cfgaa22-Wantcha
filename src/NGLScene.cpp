@@ -184,6 +184,15 @@ void NGLScene::keyPressEvent(QKeyEvent *_event)
       PBRShaderManager::UpdateLightCounts(m_directionalLights, m_pointLights);
 
   break;
+  case Qt::Key_W :
+      m_gizmo->SetType(GizmoType::TRANSLATE); break;
+  case Qt::Key_R :
+      m_gizmo->SetType(GizmoType::ROTATE); break;
+  case Qt::Key_E :
+      m_gizmo->SetType(GizmoType::SCALE); break;
+  case Qt::Key_Q :
+      m_gizmo->SetType(GizmoType::NONE); break;
+
   default : break;
   }
   // finally update the GLWindow and re-draw

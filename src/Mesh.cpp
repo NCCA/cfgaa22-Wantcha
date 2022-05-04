@@ -96,26 +96,26 @@ void Mesh::CreateVAO()
 
 }
 
-void Mesh::SetVertices(const std::vector<ngl::Vec3> verts)
+void Mesh::SetVertices(const std::vector<ngl::Vec3>& verts)
 {
     m_verts = verts;
     std::vector <VertData> vboMesh;
     VertData d;
+    d.nx = 0;
+    d.ny = 0;
+    d.nz = 0;
+    d.u = 0;
+    d.v = 0;
 
-    for(ngl::Vec3 v : verts)
+    for(int i = 0; i <= m_verts.size(); ++i)
     {
-        d.x = v.m_x;
-        d.y = v.m_y;
-        d.z = v.m_z;
-        d.nx = 0;
-        d.ny = 0;
-        d.nz = 0;
-        d.u = 0;
-        d.v = 0;
+        d.x = m_verts[i].m_x;
+        d.y = m_verts[i].m_y;
+        d.z = m_verts[i].m_z;
         vboMesh.push_back(d);
     }
 
-    m_vaoMesh = ngl::VAOFactory::createVAO(ngl::simpleVAO, GL_LINES);
+    m_vaoMesh = ngl::VAOFactory::createVAO(ngl::simpleVAO, m_dataPackType);
     m_vaoMesh->bind();
     m_meshSize = vboMesh.size();
 

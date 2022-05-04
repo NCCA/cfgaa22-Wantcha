@@ -57,7 +57,7 @@ struct VertData
 class Mesh
 {
 public:
-    Mesh() = default;
+    Mesh(GLuint dataPackType = GL_TRIANGLES) { m_dataPackType = dataPackType; };
     virtual ~Mesh();
 
     void CreateVAO();
@@ -67,7 +67,7 @@ public:
     void DrawWireframe() const;
 
     virtual bool Load(const std::string &_fname) noexcept {};
-    void SetVertices(const std::vector<ngl::Vec3> verts);
+    void SetVertices(const std::vector<ngl::Vec3>& verts);
 
     GLuint getVAOBufferID() {return m_vaoMesh->getBufferID() ;}
 

@@ -77,6 +77,7 @@ void NGLScene::mousePressEvent( QMouseEvent* _event )
     {
       m_gizmo->SetSelectedAxis(-(m_hoveredObjectID + 1));
       m_gizmo->SetUsing(true);
+      m_gizmo->StartManipulate(m_selectedObject->GetTransform());
       //std::cout<<-(m_hoveredObjectID + 1)<<"\n";
     }
     else
