@@ -1,7 +1,7 @@
 #ifndef SCENE_OBJECT_H_
 #define SCENE_OBJECT_H_
 
-#include <ngl/Transformation.h>
+#include "Transform.h"
 
 class SceneObject
 {
@@ -19,13 +19,13 @@ public:
 
     void SetName(const std::string& name) { m_name = name; }
 
-    ngl::Transformation& GetTransform() { return m_transform; }
+    Transform& GetTransform() { return m_transform; }
     std::string GetName() const { return m_name; }
     virtual void Draw() const = 0;
     virtual void DrawHighlighted() const = 0;
 
 protected:
-    ngl::Transformation m_transform;
+    Transform m_transform;
     std::string m_name = "Object";
 
 };

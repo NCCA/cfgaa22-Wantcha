@@ -1,4 +1,5 @@
 #include "Gizmos.h"
+#include <ngl/Quaternion.h>
 
 Gizmo::Gizmo()
 {
@@ -186,7 +187,20 @@ void Gizmo::Draw(const ngl::Mat4& vp, int windowWidth)
         
 }
 
-void Gizmo::Manipulate(ngl::Transformation& objectTransform, float dx, float dy)
+void Gizmo::StartManipulate(const Transform& objectTransform, int axis)
+{
+    m_originalObjectTransform = objectTransform;
+    m_selectedAxis = axis;
+    m_isUsed = true;
+}
+
+void Gizmo::StopManipulate()
+{
+    m_isUsed = false;
+    m_selectedAxis = -1;
+}
+
+void Gizmo::Manipulate(Transform& objectTransform, float dx, float dy)
 {
     ngl::Vec3 moveDirection;
     float axis;
@@ -233,19 +247,43 @@ void Gizmo::Manipulate(ngl::Transformation& objectTransform, float dx, float dy)
             switch (m_selectedAxis)
             {
                 case 0:
-                    moveDirection = objectTransform.getMatrix().getRightVector();
+                    moveDirection = /*ngl::Vec3(1, 0, 0);*/m_originalObjectTransform.getMatrix().getRightVector();
                     axis = dx;
                     break;
                 case 1:
-                    moveDirection = objectTransform.getMatrix().getDownVector();
+                    moveDirection = /*ngl::Vec3(0, 1, 0);*/m_originalObjectTransform.getMatrix().getDownVector();
                     axis = dy;
                     break;
                 case 2:
-                    moveDirection = objectTransform.getMatrix().getForwardVector();
+                    moveDirection = /*ngl::Vec3(0, 0, 1);*/m_originalObjectTransform.getMatrix().getForwardVector();
                     axis = dx;
                     break;
             }
-            objectTransform.addRotation( - moveDirection * axis * 0.5f);
+            moveDirection.normalize();
+            glm::vec3 v = {moveDirection.m_x, moveDirection.m_y, moveDirection.m_z};
+            glm::quat quat = glm::angleAxis(axis * 0.05f, v);
+            
+            //ngl::Mat4 mat = quat.toMat4();
+            //float qx = quat.getX(), qy = quat.getY(), qz = quat.getZ(), qw = quat.getS();
+
+            //glm::mat4 m;
+            //ngl::Vec3 euler;
+            /*euler.m_x = atan2(-2*(qy*qz-qw*qx), qw*qw-qx*qx-qy*qy+qz*qz);
+            euler.m_y = asin(2*(qx*qz + qw*qy));
+            euler.m_z = atan2(-2*(qx*qy-qw*qz), qw*qw+qx*qx-qy*qy-qz*qz);*/
+            //euler.m_x = atan2(mat.m_openGL[8], mat.m_openGL[9]);
+            //euler.m_y = acos(mat.m_openGL[10]);
+            //euler.m_z = -atan2(mat.m_openGL[2], mat.m_openGL[6]);
+            //std::cout<<mat.m_31<<"\n";
+
+            //objectTransform.setMatrix(objectTransform.getMatrix() * quat.toMat4());
+            //objectTransform.addRotation(euler);
+            
+
+            objectTransform.addRotation( moveDirection * axis * 0.5f);
+            //objectTransform.addRotation(quat);
+            //objectTransform.addRotation(v ,axis * 0.05f);
+            //std::cout<<moveDirection.m_x<<" "<<moveDirection.m_y<<" "<<moveDirection.m_z<<"\n";
             break;
     }
 }

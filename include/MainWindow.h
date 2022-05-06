@@ -24,7 +24,7 @@ public:
         void AddSceneListItemMesh(const std::string& filepath);
 
     public slots:
-        void OnUpdateTransformWidget(const ngl::Transformation& transform);
+        void OnUpdateTransformWidget(const Transform& transform);
         void OnUpdateSceneList(const std::vector<std::shared_ptr<SceneObject>>& objects);
         void OnSceneListItemSelect(QListWidgetItem* item);
         void OnShowSceneObjectContextMenu(const QPoint&);

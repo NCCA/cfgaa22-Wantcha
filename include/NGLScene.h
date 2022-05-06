@@ -1,7 +1,7 @@
 #ifndef NGLSCENE_H_
 #define NGLSCENE_H_
 #include <ngl/Vec3.h>
-#include <ngl/Transformation.h>
+#include "Transform.h"
 #include <ngl/Mat4.h>
 #include <memory>
 #include "Camera.h"
@@ -71,7 +71,7 @@ class NGLScene : public QGLWidget
       void OnAddMesh(const std::string& path);
 
     signals:
-        void UpdateTransformUI(ngl::Transformation);
+        void UpdateTransformUI(Transform);
         void UpdateSceneListUI(std::vector<std::shared_ptr<SceneObject>>);
 private:
 

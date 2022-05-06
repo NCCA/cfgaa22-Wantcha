@@ -28,7 +28,7 @@ void Camera::UpdateView()
 {
     m_position = CalculatePosition();
 
-    m_transform = ngl::Transformation();
+    m_transform = Transform();
     m_transform.addPosition(m_position);
     m_transform.addRotation(ngl::Vec3(-m_pitch, -m_yaw, 0.0f));
     m_view = m_transform.getMatrix().inverse();

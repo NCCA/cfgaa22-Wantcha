@@ -43,8 +43,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this, SIGNAL(AddSceneListItemMesh(std::string)),
             m_scene, SLOT(OnAddMesh(std::string)) );
 
-    connect(m_scene, SIGNAL(UpdateTransformUI(ngl::Transformation)),
-            this, SLOT(OnUpdateTransformWidget(ngl::Transformation)));
+    connect(m_scene, SIGNAL(UpdateTransformUI(Transform)),
+            this, SLOT(OnUpdateTransformWidget(Transform)));
     connect(m_scene, SIGNAL(UpdateSceneListUI(std::vector<std::shared_ptr<SceneObject>>)),
             this, SLOT(OnUpdateSceneList(std::vector<std::shared_ptr<SceneObject>>)));
 
@@ -52,7 +52,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 }
 
-void MainWindow::OnUpdateTransformWidget(const ngl::Transformation& transform)
+void MainWindow::OnUpdateTransformWidget(const Transform& transform)
 {
     ngl::Vec3 pos = transform.getPosition();
     ngl::Vec3 rot = transform.getRotation();

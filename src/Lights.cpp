@@ -2,7 +2,7 @@
 #include <ngl/Quaternion.h>
 #include <iostream>
 
-Light::Light(LightType type, const ngl::Transformation& transform, const ngl::Vec3& color, float intensity)
+Light::Light(LightType type, const Transform& transform, const ngl::Vec3& color, float intensity)
     :m_color(color), m_intensity(intensity), m_lightType(type) 
 {
     m_transform = transform;

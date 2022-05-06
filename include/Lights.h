@@ -2,7 +2,7 @@
 #define LIGHTS_H
 
 #include <ngl/Vec3.h>
-#include <ngl/Transformation.h>
+#include "Transform.h"
 #include "SceneObject.h"
 
 enum class LightType
@@ -12,7 +12,7 @@ class Light : public SceneObject
 {
 public:
     Light() = default;
-    Light(LightType type, const ngl::Transformation& transform,
+    Light(LightType type, const Transform& transform,
         const ngl::Vec3& color = {1, 1, 1}, float intensity = 1.0f);
 
     Light(LightType type, const ngl::Vec3& position, const ngl::Vec3& rotation,

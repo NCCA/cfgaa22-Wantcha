@@ -21,19 +21,20 @@ public:
     void SetActive(bool active) { m_isActive = active; }
     bool GetActive() const { return m_isActive; }
 
-    void SetUsing(bool isUsing) { m_isUsed = isUsing; }
-    bool GetUsing() const { return m_isUsed; }
+    //void SetUsing(bool isUsing) { m_isUsed = isUsing; }
+    bool IsManipulating() const { return m_isUsed; }
 
-    void SetTransform(const ngl::Transformation& transform) { m_transform = transform; }
-    void SetSelectedAxis(int axis) { m_selectedAxis = axis; }
+    void SetTransform(const Transform& transform) { m_transform = transform; }
+    //void SetSelectedAxis(int axis) { m_selectedAxis = axis; }
 
     void SetType(GizmoType type) { m_type = type; }
     GizmoType GetType() const { return m_type; }
 
     void Draw(const ngl::Mat4& vp, int windowWidth);
 
-    void StartManipulate(ngl::Transformation& objectTransform) { m_originalObjectTransform = objectTransform; }
-    void Manipulate(ngl::Transformation& objectTransform, float dx, float dy);
+    void StartManipulate(const Transform& objectTransform, int axis);
+    void StopManipulate();
+    void Manipulate(Transform& objectTransform, float dx, float dy);
 
 
 private:
@@ -45,7 +46,7 @@ private:
     int m_selectedAxis = -1;
     GizmoType m_type = GizmoType::TRANSLATE;
 
-    ngl::Transformation m_transform;
+    Transform m_transform;
 
     std::array<std::unique_ptr<Mesh>, 3> m_translateMeshes;
     std::array<std::unique_ptr<Mesh>, 3> m_rotateMeshes;
@@ -58,7 +59,7 @@ private:
     float m_gizmoRadius = 0.75f;
     const size_t m_rotateGizmoSegments = 16;
 
-    ngl::Transformation m_originalObjectTransform;
+    Transform m_originalObjectTransform;
 };
 
 #endif

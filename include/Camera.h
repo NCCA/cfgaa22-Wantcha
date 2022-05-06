@@ -4,7 +4,7 @@
 #include <ngl/Mat4.h>
 #include <ngl/Vec3.h>
 #include <ngl/Quaternion.h>
-#include <ngl/Transformation.h>
+#include "Transform.h"
 
 class Camera
 {
@@ -43,7 +43,7 @@ private:
 
     ngl::Mat4 m_projection;
     ngl::Mat4 m_view;
-    ngl::Transformation m_transform;
+    Transform m_transform;
     ngl::Vec3 m_position = ngl::Vec3::zero();
     ngl::Vec3 m_focalPoint = {0.0f, 1.0f, 0.0f};
 

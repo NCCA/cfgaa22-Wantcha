@@ -117,7 +117,7 @@ void NGLScene::paintGL()
 
   if(m_selectedObject)
   {
-    ngl::Transformation trans = m_selectedObject->GetTransform();
+    Transform trans = m_selectedObject->GetTransform();
     trans.setScale(ngl::Vec3{1.0f,1.0f,1.0f});
     trans.getMatrix(); /*recomputing matrix*/
     m_gizmo->SetTransform(trans);

@@ -66,13 +66,10 @@ public:
     void Draw() const;
     void DrawWireframe() const;
 
-    virtual bool Load(const std::string &_fname) noexcept {};
+    virtual bool Load(const std::string &_fname) noexcept { return false; }
     void SetVertices(const std::vector<ngl::Vec3>& verts);
 
-    GLuint getVAOBufferID() {return m_vaoMesh->getBufferID() ;}
-
-    Material& GetMaterial() { return m_material; }
-
+    GLuint getVAOBufferID() {return m_vaoMesh->getID();}
 
 protected:
 

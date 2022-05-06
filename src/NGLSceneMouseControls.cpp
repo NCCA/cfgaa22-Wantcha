@@ -25,9 +25,10 @@ void NGLScene::mouseMoveEvent( QMouseEvent* _event )
       m_win.rotating = true;
     }
     
-    else if (m_gizmo->GetUsing())
+    else if (m_gizmo->IsManipulating())
     {
       m_gizmo->Manipulate(m_selectedObject->GetTransform(), diffx, diffy);
+      emit UpdateTransformUI(m_selectedObject->GetTransform());
     }
   }
 
@@ -66,7 +67,7 @@ void NGLScene::mousePressEvent( QMouseEvent* _event )
       m_selectedObject = m_sceneObjects[m_hoveredObjectID];
       if(m_selectedObject)
       {
-        ngl::Transformation trans = m_selectedObject->GetTransform();
+        Transform trans = m_selectedObject->GetTransform();
         trans.setScale(ngl::Vec3{1,1,1});
         m_gizmo->SetTransform(trans);
       }
@@ -75,9 +76,7 @@ void NGLScene::mousePressEvent( QMouseEvent* _event )
 
     else if(m_hoveredObjectID < 0 && m_hoveredObjectID > -100)
     {
-      m_gizmo->SetSelectedAxis(-(m_hoveredObjectID + 1));
-      m_gizmo->SetUsing(true);
-      m_gizmo->StartManipulate(m_selectedObject->GetTransform());
+      m_gizmo->StartManipulate(m_selectedObject->GetTransform(), -(m_hoveredObjectID + 1));
       //std::cout<<-(m_hoveredObjectID + 1)<<"\n";
     }
     else
@@ -105,15 +104,14 @@ void NGLScene::mouseReleaseEvent( QMouseEvent* _event )
   if ( _event->button() == Qt::LeftButton )
   {
     m_win.rotate = false;
-    if(!m_win.rotating && m_hoveredObjectID == -100 && !m_gizmo->GetUsing())
+    if(!m_win.rotating && m_hoveredObjectID == -100 && !m_gizmo->IsManipulating())
     {
       m_selectedObject = nullptr;
-      emit UpdateTransformUI(ngl::Transformation());
+      emit UpdateTransformUI(Transform());
     }
 
     m_win.rotating = false;
-    m_gizmo->SetSelectedAxis(-1);
-    m_gizmo->SetUsing(false);
+    m_gizmo->StopManipulate();
   }
   // right mouse translate mode
   if ( _event->button() == Qt::RightButton )
