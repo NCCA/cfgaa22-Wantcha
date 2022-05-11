@@ -134,8 +134,8 @@ public:
   /// mRotationX * mRotationY * mRotationZ;
   //----------------------------------------------------------------------------------------------------------------------
   void addRotation( const ngl::Vec3& _rotation   ) noexcept;
-  void addRotation( const glm::quat& quat   ) noexcept;
-  void addRotation( const glm::vec3& axis, float angle   ) noexcept;
+  //void addRotation( const glm::quat& quat   ) noexcept;
+  void addRotation( const ngl::Vec3& axis, float angle   ) noexcept;
   //----------------------------------------------------------------------------------------------------------------------
   /// @brief method to add to the existing rotation value in the transform
   /// @note each value is an axis rotation as the values are calculated

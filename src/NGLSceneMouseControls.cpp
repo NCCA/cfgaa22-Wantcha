@@ -21,7 +21,7 @@ void NGLScene::mouseMoveEvent( QMouseEvent* _event )
     m_win.origY = _event->y();
     if(m_win.rotate)
     {
-      m_camera.MouseRotate( ngl::Vec2(diffx, diffy ));
+      m_camera->MouseRotate( ngl::Vec2(diffx, diffy ));
       m_win.rotating = true;
     }
     
@@ -40,7 +40,7 @@ void NGLScene::mouseMoveEvent( QMouseEvent* _event )
     m_win.origXPos = _event->x();
     m_win.origYPos = _event->y();
 
-    m_camera.MousePan( ngl::Vec2(diffX, diffY ));
+    m_camera->MousePan( ngl::Vec2(diffX, diffY ));
 
     //m_modelPos.m_x += INCREMENT * diffX;
     //m_modelPos.m_y -= INCREMENT * diffY;
@@ -76,7 +76,7 @@ void NGLScene::mousePressEvent( QMouseEvent* _event )
 
     else if(m_hoveredObjectID < 0 && m_hoveredObjectID > -100)
     {
-      m_gizmo->StartManipulate(m_selectedObject->GetTransform(), -(m_hoveredObjectID + 1));
+      m_gizmo->StartManipulate(m_selectedObject->GetTransform(), -(m_hoveredObjectID + 1), ngl::Vec2( m_win.origX, m_win.origY ));
       //std::cout<<-(m_hoveredObjectID + 1)<<"\n";
     }
     else
@@ -127,7 +127,7 @@ void NGLScene::wheelEvent( QWheelEvent* _event )
 
   // check the diff of the wheel position (0 means no change)
 
-  m_camera.MouseZoom(_event->angleDelta().y());
+  m_camera->MouseZoom(_event->angleDelta().y());
 
   /*if ( _event->angleDelta().y() > 0 )
   {

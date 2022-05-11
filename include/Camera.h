@@ -19,6 +19,9 @@ public:
     ngl::Mat4 GetViewProjection();
     ngl::Mat4 GetView();
     ngl::Mat4 GetProjection();
+    float GetWidth() const { return m_width; }
+    float GetHeight() const { return m_height; }
+
 
     void MouseZoom(float delta);
     void MousePan(const ngl::Vec2& delta);

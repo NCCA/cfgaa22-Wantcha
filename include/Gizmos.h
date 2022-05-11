@@ -3,6 +3,7 @@
 
 #include "MeshObject.h"
 #include <ngl/Transformation.h>
+#include "Camera.h"
 
 enum class GizmoType
 {
@@ -15,7 +16,8 @@ enum class GizmoType
 class Gizmo
 {
 public:
-    Gizmo();
+    Gizmo() = default;
+    Gizmo(std::shared_ptr<Camera> camera);
     ~Gizmo() = default;
 
     void SetActive(bool active) { m_isActive = active; }
@@ -32,7 +34,7 @@ public:
 
     void Draw(const ngl::Mat4& vp, int windowWidth);
 
-    void StartManipulate(const Transform& objectTransform, int axis);
+    void StartManipulate(const Transform& objectTransform, int axis, ngl::Vec2 mousePos);
     void StopManipulate();
     void Manipulate(Transform& objectTransform, float dx, float dy);
 
@@ -55,11 +57,14 @@ private:
     //std::unique_ptr<Mesh> m_scaleMesh;
 
     float m_sizeOnScreen = 100.0f;
-    float m_lineWidth = 0.075f;
-    float m_gizmoRadius = 0.75f;
-    const size_t m_rotateGizmoSegments = 16;
+    float m_lineWidth = 0.07f;
+    float m_gizmoRadius = 0.9f;
+    float m_rotationGizmoAngleSpan = 360.0f;
+    const size_t m_rotateGizmoSegments = 64;
+    std::shared_ptr<Camera> m_camera;
 
     Transform m_originalObjectTransform;
+    ngl::Vec2 m_initialMousePos;
 };
 
 #endif

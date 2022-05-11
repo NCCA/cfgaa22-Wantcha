@@ -153,7 +153,7 @@ void Transform::addRotation(const ngl::Vec3 &_rotation  ) noexcept
   m_isMatrixComputed = false;
 }
 
-void Transform::addRotation(const glm::quat& quat  ) noexcept
+/*void Transform::addRotation(const glm::quat& quat  ) noexcept
 {
   glm::vec3 euler = glm::eulerAngles(quat);
   //std::cout<<quat.length()<<"\n";
@@ -161,12 +161,22 @@ void Transform::addRotation(const glm::quat& quat  ) noexcept
   m_rotation.m_y += ngl::degrees(euler.y);
   m_rotation.m_z += ngl::degrees(euler.z);
   m_isMatrixComputed = false;
-}
-void Transform::addRotation(const glm::vec3& axis, float angle   ) noexcept
+}*/
+void Transform::addRotation(const ngl::Vec3& axis, float angle ) noexcept
 {
-  glm::mat4 matrix = glm::mat4(1.0f);
-  matrix = glm::rotate(matrix, ngl::degrees(angle), axis);
-;
+  glm::vec3 glmAxis = glm::vec3( axis.m_x, axis.m_y, axis.m_z );
+
+  glm::quat oldRot = glm::quat(glm::vec3(ngl::radians(m_rotation.m_x), ngl::radians(m_rotation.m_y), ngl::radians(m_rotation.m_z) ));
+  glm::quat newRot = glm::angleAxis(glm::radians( angle ), glmAxis);
+
+  glm::quat rot = newRot * oldRot;
+
+  glm::vec3 newAngles = glm::eulerAngles(rot);
+
+  m_rotation.m_x = glm::degrees( newAngles.x );
+  m_rotation.m_y = glm::degrees( newAngles.y );
+  m_rotation.m_z = glm::degrees( newAngles.z );
+  
   //std::cout<<quat.length()<<"\n";
   //m_rotation.m_x += ngl::degrees(euler.x);
   //m_rotation.m_y += ngl::degrees(euler.y);
@@ -199,35 +209,55 @@ void Transform::computeMatrices() noexcept
   if (!m_isMatrixComputed)       // need to recalculate
   {
     ngl::Mat4 scale;
-    ngl::Mat4 rX;
-    ngl::Mat4 rY;
-    ngl::Mat4 rZ;
+    //ngl::Mat4 rX;
+    //ngl::Mat4 rY;
+    //ngl::Mat4 rZ;
     ngl::Mat4 trans;
+    ngl::Mat4 invtrans;
 
     // rotation/scale matrix
     ngl::Mat4 rotationScale;
     scale.scale(m_scale.m_x, m_scale.m_y, m_scale.m_z);
 
-    //rX.rotateX(m_rotation.m_x);
-    //rY.rotateY(m_rotation.m_y);
-    //rZ.rotateZ(m_rotation.m_z);
+    /*rX.rotateX(m_rotation.m_x);
+    rY.rotateY(m_rotation.m_y);
+    rZ.rotateZ(m_rotation.m_z);
+
+    glm::quat xRot = glm::angleAxis( ngl::radians(m_rotation.m_x), glm::vec3{ 1, 0, 0 } );
+    glm::quat yRot = glm::angleAxis( ngl::radians(m_rotation.m_y), glm::vec3{ 0, 1, 0 } );
+    glm::quat zRot = glm::angleAxis( ngl::radians(m_rotation.m_z), glm::vec3{ 0, 0, 1 } );
+    glm::quat rotQuat = zRot * yRot * xRot;*/
+
     glm::mat4 rotationGLM =
           glm::toMat4(glm::quat(glm::vec3(ngl::radians(m_rotation.m_x), ngl::radians(m_rotation.m_y), ngl::radians(m_rotation.m_z) )));
+    
+    //rotationGLM = glm::toMat4(rotQuat);
+
+    //rotationGLM = glm::eulerAngleXYZ(ngl::radians(m_rotation.m_x), ngl::radians(m_rotation.m_y), ngl::radians(m_rotation.m_z) );
+
+    //glm::mat4 rotationGLM;
+    //glm::quat z 
 
     //rotationGLM = glm::eulerAngleXYZ(glm::radians(m_rotation.m_x), glm::radians(m_rotation.m_y), glm::radians(m_rotation.m_z));
     //rotationGLM = glm::yawPitchRoll(glm::radians(m_rotation.m_x), glm::radians(m_rotation.m_y), glm::radians(m_rotation.m_z));
-    ngl::Mat4 rotation;
+
+    trans.translate(m_position.m_x, m_position.m_y, m_position.m_z);
+    invtrans.translate(-m_position.m_x, -m_position.m_y, -m_position.m_z);
+    ngl::Mat4 rotation/* = rZ * rY * rX*/;
+
     memcpy(rotation.m_m,glm::value_ptr(rotationGLM) ,sizeof(rotation.m_m));
 
-    rotationScale = rotation * scale;
+    //rotationScale = rotation * scale;
     //glm::mat4 tra
     // transform matrix
-    m_matrix = rotationScale;
+    /*m_matrix = scale;
     m_matrix.m_m[3][0] = m_position.m_x;
     m_matrix.m_m[3][1] = m_position.m_y;
     m_matrix.m_m[3][2] = m_position.m_z;
-    m_matrix.m_m[3][3] = 1.0f;
-
+    m_matrix.m_m[3][3] = 1.0f;*/
+    
+    m_matrix = trans * rotation * scale;
+    rotationScale = rotation * scale;
 
 
     // tranpose matrix
@@ -239,12 +269,20 @@ void Transform::computeMatrices() noexcept
     m_transposeMatrix.m_m[3][3] = 1;
 
     // inverse matrix
+    trans.identity();
     trans.translate(-m_position.m_x, -m_position.m_y, -m_position.m_z);
     scale.scale(1.0f / m_scale.m_x, 1.0f / m_scale.m_y, 1.0f / m_scale.m_z);
-    rX.rotateX(-m_rotation.m_x);
+    /*rX.rotateX(-m_rotation.m_x);
     rY.rotateY(-m_rotation.m_y);
     rZ.rotateZ(-m_rotation.m_z);
-    m_inverseMatrix = trans * rZ * rY * rX * scale  ;
+    rotation = rZ * rY * rX;*/
+    
+    rotationGLM =
+          glm::toMat4(glm::quat(glm::vec3(ngl::radians(-m_rotation.m_x), ngl::radians(-m_rotation.m_y), ngl::radians(-m_rotation.m_z) )));
+    //rotationGLM = glm::eulerAngleXYZ(ngl::radians(-m_rotation.m_x), ngl::radians(-m_rotation.m_y), ngl::radians(-m_rotation.m_z) );
+    memcpy(rotation.m_m,glm::value_ptr(rotationGLM) ,sizeof(rotation.m_m));
+
+    m_inverseMatrix = trans * rotation * scale  ;
 
     m_isMatrixComputed = true;
   }

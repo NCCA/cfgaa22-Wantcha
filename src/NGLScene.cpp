@@ -16,7 +16,7 @@ NGLScene::NGLScene()
   setFocusPolicy(Qt::FocusPolicy::StrongFocus);
   setMouseTracking(true);
 
-  m_camera = Camera(45.0f, 1600.0f / 900.0f, 0.01f, 1000.0f);
+  m_camera = std::make_shared<Camera>(45.0f, 1600.0f / 900.0f, 0.01f, 1000.0f);
   QGLFormat format;
   format.setSamples(4);
   #if defined( __APPLE__)
@@ -47,7 +47,7 @@ void NGLScene::resizeGL(int _w , int _h)
   m_win.width  = static_cast<int>( _w * devicePixelRatio() );
   m_win.height = static_cast<int>( _h * devicePixelRatio() );
 
-  m_camera.SetViewportSize(_w, _h);
+  m_camera->SetViewportSize(_w, _h);
   m_viewportFrameBuffer->Resize(_w, _h);
 }
 
@@ -85,7 +85,7 @@ void NGLScene::initializeGL()
   PBRShaderManager::Init("Basic", "shaders/BasicVert.glsl", "shaders/BasicFrag.glsl");
   PBRShaderManager::UpdateLightCounts(m_directionalLights, m_pointLights);
 
-  m_gizmo = std::make_unique<Gizmo>();
+  m_gizmo = std::make_unique<Gizmo>( m_camera );
   //ngl::ShaderLib::setUniform("directionalLightCount", static_cast<int>(m_directionalLights.size()));
 
 
@@ -123,7 +123,7 @@ void NGLScene::paintGL()
     m_gizmo->SetTransform(trans);
   }
   
-  ngl::Mat4 VP = m_camera.GetProjection() * m_camera.GetView();
+  ngl::Mat4 VP = m_camera->GetProjection() * m_camera->GetView();
 
   for(auto mesh : m_sceneObjects)
   {

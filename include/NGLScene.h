@@ -109,7 +109,7 @@ private:
     WinParams m_win;
 
     //ngl::Vec3 m_modelPos = {0.0f, 0.0f, 0.0f};
-    Camera m_camera;
+    std::shared_ptr<Camera> m_camera;
     std::unique_ptr<Gizmo> m_gizmo;
 
     std::vector<Light> m_directionalLights;
