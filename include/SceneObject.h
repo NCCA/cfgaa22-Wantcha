@@ -2,11 +2,13 @@
 #define SCENE_OBJECT_H_
 
 #include "Transform.h"
+#include "Mesh.h"
 
 class SceneObject
 {
 public:
     SceneObject() = default;
+    SceneObject(const std::string& filepath);
     virtual ~SceneObject() {}
 
     ngl::Vec3 GetPosition() const { return m_transform.getPosition(); }
@@ -20,13 +22,15 @@ public:
     void SetName(const std::string& name) { m_name = name; }
 
     Transform& GetTransform() { return m_transform; }
+    std::shared_ptr<Mesh> GetMesh() { return m_mesh; }
     std::string GetName() const { return m_name; }
-    virtual void Draw() const = 0;
-    virtual void DrawHighlighted() const = 0;
+    virtual void Draw();
+    virtual void DrawHighlighted();
 
 protected:
     Transform m_transform;
     std::string m_name = "Object";
+    std::shared_ptr<Mesh> m_mesh;
 
 };
 

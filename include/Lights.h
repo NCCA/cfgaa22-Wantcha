@@ -5,8 +5,7 @@
 #include "Transform.h"
 #include "SceneObject.h"
 
-enum class LightType
-{ Directional, Point };
+enum class LightType { Directional, Point };
 
 class Light : public SceneObject
 {
@@ -23,8 +22,8 @@ public:
     ngl::Vec3 GetForward() const;
     LightType GetType() const { return m_lightType; }
 
-    virtual void Draw() const override {}
-    virtual void DrawHighlighted() const override {}
+    //virtual void Draw() const override {}
+    //virtual void DrawHighlighted() const override {}
 private:
     LightType m_lightType;
     ngl::Vec3 m_color = {1, 1, 1};

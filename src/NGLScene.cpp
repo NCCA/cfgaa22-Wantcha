@@ -10,6 +10,7 @@
 
 #include "MeshObject.h"
 #include "Assets/AssetManager.h"
+#include <Lights.h>
 
 NGLScene::NGLScene()
 {
@@ -76,28 +77,40 @@ void NGLScene::initializeGL()
   Light l2(LightType::Directional, {0, 0, 0}, { 0, 0, 0 },
             {1.0f, 1.0f, 1.0f}, 0.9f);
 
+  Light l3(LightType::Point, {0, 0, -1}, { 0, 0 ,0 }, {1, 0, 1});
+
   m_directionalLights.push_back(l1);
   //m_directionalLights.push_back(l2);
 
   Light pl1(LightType::Point, ngl::Vec3(0.5f, 0.0f, -0.5f), ngl::Vec3(90, 0, 0));
   m_pointLights.push_back(pl1);
+  m_pointLights.push_back(l3);
 
-  PBRShaderManager::Init("Basic", "shaders/BasicVert.glsl", "shaders/BasicFrag.glsl");
+  PBRShaderManager::Init("PBR", "shaders/PBRVert.glsl", "shaders/PBRFrag.glsl");
   PBRShaderManager::UpdateLightCounts(m_directionalLights, m_pointLights);
 
   m_gizmo = std::make_unique<Gizmo>( m_camera );
   //ngl::ShaderLib::setUniform("directionalLightCount", static_cast<int>(m_directionalLights.size()));
 
 
-  m_sceneObjects.push_back(std::make_shared<MeshObject>("meshes/arrow.obj"));
+  m_sceneObjects.push_back(std::make_shared<SceneObject>("meshes/arrow.obj"));
   //static_cast<MeshObject>(m_sceneObjects[0])->GetMesh()->GetMaterial().SetTexture("textures/checkerboard.jpg");
   m_sceneObjects[0]->SetPosition({0.1f, 0.23f, 0.05f});
+  m_sceneObjects[0]->GetMesh()->GetMaterial().SetTexture(TextureType::ALBEDO, "textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_albedo.tif");
+  m_sceneObjects[0]->GetMesh()->GetMaterial().SetTexture(TextureType::ROUGHNESS, "textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_roughness.tif");
   m_selectedObject = m_sceneObjects[0];
 
-  m_sceneObjects.push_back(std::make_shared<MeshObject>("meshes/yuri.obj"));
+
+
+  m_sceneObjects.push_back(std::make_shared<SceneObject>("meshes/yuri.obj"));
   m_sceneObjects[1]->SetPosition({0.5f, -0.23f, -0.5f});
   m_sceneObjects[1]->SetScale({0.5f, 0.5f, 0.5f});
   m_sceneObjects[1]->SetName("Buncf");
+  m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::ALBEDO, "textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_albedo.tif");
+  m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::ROUGHNESS, "textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_roughness.tif");
+  m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::NORMAL, "textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_normal.tif");
+  m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::AO, "textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_ao.tif");
+  //m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::METALLIC, "textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_metallic.tif");
 
   emit UpdateSceneListUI(m_sceneObjects);
   emit UpdateTransformUI(m_selectedObject->GetTransform());
@@ -125,6 +138,8 @@ void NGLScene::paintGL()
   
   ngl::Mat4 VP = m_camera->GetProjection() * m_camera->GetView();
 
+  PBRShaderManager::UseShader();
+  ngl::ShaderLib::setUniform("camPos", m_camera->GetTransform().getPosition());
   for(auto mesh : m_sceneObjects)
   {
     PBRShaderManager::UseShader();
@@ -133,6 +148,11 @@ void NGLScene::paintGL()
     //ngl::ShaderLib::setUniform("NormalMatrix", normalMatrix);
 
     ngl::ShaderLib::setUniform("MVP", MVP);
+    ngl::ShaderLib::setUniform("M", mesh->GetTransform().getMatrix());
+    ngl::Mat4 normalMatrix = m_camera->GetView() * mesh->GetTransform().getMatrix();
+    normalMatrix.inverse().transpose();
+    ngl::ShaderLib::setUniform("NormalMatrix", normalMatrix);
+    
     ngl::ShaderLib::setUniform("objectID", it);
 
     mesh->Draw();

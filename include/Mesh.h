@@ -9,7 +9,7 @@
 #include <string>
 #include <cstdint>
 #include <memory>
-#include "SceneObject.h"
+//#include "SceneObject.h"
 #include <ngl/AbstractVAO.h>
 #include <ngl/SimpleVAO.h>
 #include <PBRShaderManager.h>
@@ -68,6 +68,7 @@ public:
 
     virtual bool Load(const std::string &_fname) noexcept { return false; }
     void SetVertices(const std::vector<ngl::Vec3>& verts);
+    Material& GetMaterial() { return m_material; }
 
     GLuint getVAOBufferID() {return m_vaoMesh->getID();}
 

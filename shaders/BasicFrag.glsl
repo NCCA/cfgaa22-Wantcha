@@ -8,7 +8,7 @@ layout(location = 0) out vec4 fragColor;
 layout(location = 1) out int idColor;
 
 uniform vec4 baseColor;
-layout(binding=0) uniform sampler2D albedoMap;
+layout(binding=2) uniform sampler2D albedoMap;
 
 uniform vec3 dirLightDirs[dirLightCount];
 uniform vec3 dirLightColors[dirLightCount];

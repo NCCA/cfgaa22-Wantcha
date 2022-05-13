@@ -1,5 +1,7 @@
 #include "PBRShaderManager.h"
+#include <Lights.h>
 #include <fstream>
+#include <iostream>
 
 uint32_t PBRShaderManager::s_whiteTextureID = 0;
 
@@ -17,7 +19,7 @@ PBRShaderManager::PBRShaderManager()
 void PBRShaderManager::CreateWhiteTexture()
 {
     glCreateTextures(GL_TEXTURE_2D, 1, &s_whiteTextureID);
-	glTextureStorage2D(s_whiteTextureID, 1, GL_RGBA8, 2, 2);
+	glTextureStorage2D(s_whiteTextureID, 1, GL_RGBA8, 1, 1);
 
 	glTextureParameteri(s_whiteTextureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTextureParameteri(s_whiteTextureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -27,7 +29,7 @@ void PBRShaderManager::CreateWhiteTexture()
 
 
     uint32_t whiteTextureData = 0xffffffff;
-    glTextureSubImage2D(s_whiteTextureID, 0, 0, 0, 2, 2, GL_RGBA, GL_UNSIGNED_BYTE, &whiteTextureData);
+    glTextureSubImage2D(s_whiteTextureID, 0, 0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &whiteTextureData);
 }
 
 std::string PBRShaderManager::m_fragPath = "";
@@ -101,6 +103,19 @@ void PBRShaderManager::UpdateLightCounts(std::vector<Light>& dl, std::vector<Lig
             dl[i].GetColor());
         ngl::ShaderLib::setUniform(("dirLightIntensities[" + std::to_string(i) + "]").c_str(),
             dl[i].GetIntensity());
+    }
+
+    for(int i = 0; i < pl.size(); ++i)
+    {
+        /*ngl::ShaderLib::setUniform(("pLightDirs[" + std::to_string(i) + "]").c_str(),
+            pl[i].GetForward() );*/
+        ngl::ShaderLib::setUniform(("pLightColors[" + std::to_string(i) + "]").c_str(),
+            pl[i].GetColor());
+
+        //std::cout<<pl[i].GetColor().m_x<<" "<<pl[i].GetColor().m_y<<" "<<pl[i].GetColor().m_z<<"\n";
+
+        ngl::ShaderLib::setUniform(("pLightIntensities[" + std::to_string(i) + "]").c_str(),
+            pl[i].GetIntensity());
     }
 }
 
