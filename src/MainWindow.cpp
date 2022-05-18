@@ -1,6 +1,10 @@
 #include "MainWindow.h"
 #include <QFileDialog>
+#include <QCheckBox>
+#include <QPushButton>
 #include <QMessageBox>
+#include <QLayout>
+#include <QGridLayout>
 //#include "ui_MainWindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -45,11 +49,21 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(m_scene, SIGNAL(UpdateTransformUI(Transform)),
             this, SLOT(OnUpdateTransformWidget(Transform)));
-    connect(m_scene, SIGNAL(UpdateSceneListUI(std::vector<std::shared_ptr<SceneObject>>)),
-            this, SLOT(OnUpdateSceneList(std::vector<std::shared_ptr<SceneObject>>)));
+    connect(m_scene, SIGNAL(UpdateSceneListUI(const std::vector<std::shared_ptr<SceneObject>>&)),
+            this, SLOT(OnUpdateSceneList(const std::vector<std::shared_ptr<SceneObject>>&)));
 
     //m_ui->SceneList->addItem(QString::fromStdString("obj.GetName()"));
+    //QCheckBox box = QCheckBox("Enable Cringe 2");
+    //QGridLayout* layout = m_ui->PropertiesBox->layout()->findChild<QGridLayout*>();
+    //QCheckBox* box = new QCheckBox(QString("Enable Cringe 2"));
+    //static_cast<QGridLayout*>(m_ui->PropertiesBox->layout() )->addWidget(box, 0, 1);
+    //m_ui->PropertiesBox->
+}
 
+void MainWindow::UpdatePropertiesBox(QGridLayout* newLayout)
+{
+    //newLayout->addItem(new QSpacerItem(0, 100));
+    m_ui->PropertiesBox->setLayout(newLayout);
 }
 
 void MainWindow::OnUpdateTransformWidget(const Transform& transform)
@@ -77,8 +91,7 @@ void MainWindow::OnUpdateSceneList(const std::vector<std::shared_ptr<SceneObject
     for(auto& obj : objects)
     {
         m_ui->SceneList->addItem(QString::fromStdString(obj->GetName()));
-    }
-    
+    }  
 }
 
 void MainWindow::OnSceneListItemSelect(QListWidgetItem* item)

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1113</width>
-    <height>650</height>
+    <width>1229</width>
+    <height>720</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -350,6 +350,15 @@
         <property name="title">
          <string>Properties</string>
         </property>
+        <layout class="QGridLayout" name="propertiesLayout">
+         <item row="0" column="0">
+          <widget class="QPushButton" name="pushButton">
+           <property name="text">
+            <string>Cringe</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
      </layout>
@@ -377,8 +386,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1113</width>
-     <height>26</height>
+     <width>1229</width>
+     <height>25</height>
     </rect>
    </property>
   </widget>

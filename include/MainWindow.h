@@ -35,6 +35,8 @@ private:
     Ui::MainWindow *m_ui;
     NGLScene* m_scene;
     std::string m_lastFilepath = "C://";
+
+    void UpdatePropertiesBox(QGridLayout* newLayout);
 };
 
 #endif // MAINWINDOW_H

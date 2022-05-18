@@ -3,7 +3,10 @@
 
 #include "Transform.h"
 #include "Mesh.h"
-
+#include "QGridLayout"
+#include <QLabel>
+#include <QPushButton>
+#include <QGraphicsView>
 class SceneObject
 {
 public:
@@ -22,16 +25,18 @@ public:
     void SetName(const std::string& name) { m_name = name; }
 
     Transform& GetTransform() { return m_transform; }
-    std::shared_ptr<Mesh> GetMesh() { return m_mesh; }
+    virtual std::shared_ptr<Mesh> GetMesh() const { return m_mesh; }
     std::string GetName() const { return m_name; }
     virtual void Draw();
     virtual void DrawHighlighted();
+    QGridLayout* GetLayout();
 
+    //static QGridLayout* s_layout;
 protected:
     Transform m_transform;
     std::string m_name = "Object";
     std::shared_ptr<Mesh> m_mesh;
-
+    
 };
 
 #endif

@@ -17,3 +17,14 @@ void SceneObject::DrawHighlighted()
 {
     m_mesh->DrawWireframe();
 }
+
+QGridLayout* SceneObject::GetLayout()
+{
+    QGridLayout* layout = new QGridLayout();
+    //m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::ALBEDO, "textures/Cerberus/Cerberus_A.png");
+
+    //layout->addWidget( new QLabel("Albedo"), 0, 0 );
+    //layout->addWidget( new QGraphicsView() );
+
+    return layout;
+}

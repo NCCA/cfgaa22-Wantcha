@@ -72,18 +72,20 @@ void NGLScene::initializeGL()
 
 
   Light l1(LightType::Directional,
-        {0, 0, 0}, { 180, 0 ,0 }, {1.0f, 1.0f, 1.0f}, 0.6f);
+        {0, 0, 0}, { 90, 0 ,0 }, {1.0f, 1.0f, 1.0f}, 2.0f);
 
   Light l2(LightType::Directional, {0, 0, 0}, { 0, 0, 0 },
             {1.0f, 1.0f, 1.0f}, 0.9f);
 
-  Light l3(LightType::Point, {0, 0, -1}, { 0, 0 ,0 }, {1, 0, 1});
+  Light l3(LightType::Point, {0, 1, 0}, { 0, 0 ,0 }, {1, 0.9f, 1});
 
   m_directionalLights.push_back(l1);
   //m_directionalLights.push_back(l2);
 
-  Light pl1(LightType::Point, ngl::Vec3(0.5f, 0.0f, -0.5f), ngl::Vec3(90, 0, 0));
+  Light pl1(LightType::Point, ngl::Vec3(0.5f, 0.5f, -1.0f), ngl::Vec3(0, 0, 0), {1,1,1});
+  Light pl2(LightType::Point, ngl::Vec3(-0.5f, 0.5f, 2.0f), ngl::Vec3(0, 0, 0), {1,1,1});
   m_pointLights.push_back(pl1);
+  m_pointLights.push_back(pl2);
   m_pointLights.push_back(l3);
 
   PBRShaderManager::Init("PBR", "shaders/PBRVert.glsl", "shaders/PBRFrag.glsl");
@@ -93,29 +95,30 @@ void NGLScene::initializeGL()
   //ngl::ShaderLib::setUniform("directionalLightCount", static_cast<int>(m_directionalLights.size()));
 
 
-  m_sceneObjects.push_back(std::make_shared<SceneObject>("meshes/arrow.obj"));
+  m_sceneObjects.push_back(std::make_shared<SceneObject>("meshes/yuri.obj"));
   //static_cast<MeshObject>(m_sceneObjects[0])->GetMesh()->GetMaterial().SetTexture("textures/checkerboard.jpg");
-  m_sceneObjects[0]->SetPosition({0.1f, 0.23f, 0.05f});
+  m_sceneObjects[0]->SetPosition({0.1f, 0.23f, -1.6f});
+  m_sceneObjects[0]->SetScale({0.75f, 0.75f, 0.75f});
   m_sceneObjects[0]->GetMesh()->GetMaterial().SetTexture(TextureType::ALBEDO, "textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_albedo.tif");
   m_sceneObjects[0]->GetMesh()->GetMaterial().SetTexture(TextureType::ROUGHNESS, "textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_roughness.tif");
+  //m_sceneObjects[0]->GetMesh()->GetMaterial().SetTexture(TextureType::NORMAL, "textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_normal.tif");
+  m_sceneObjects[0]->GetMesh()->GetMaterial().SetTexture(TextureType::AO, "textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_ao.tif");
   m_selectedObject = m_sceneObjects[0];
 
 
-
-  m_sceneObjects.push_back(std::make_shared<SceneObject>("meshes/yuri.obj"));
-  m_sceneObjects[1]->SetPosition({0.5f, -0.23f, -0.5f});
-  m_sceneObjects[1]->SetScale({0.5f, 0.5f, 0.5f});
+  m_sceneObjects.push_back(std::make_shared<SceneObject>("meshes/cerberus_gun.obj"));
+  m_sceneObjects[1]->SetPosition({0.0f, 0.5f, 0.0f});
+  m_sceneObjects[1]->SetScale({0.75f, 0.75f, 0.75f});
   m_sceneObjects[1]->SetName("Buncf");
-  m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::ALBEDO, "textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_albedo.tif");
-  m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::ROUGHNESS, "textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_roughness.tif");
-  m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::NORMAL, "textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_normal.tif");
-  m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::AO, "textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_ao.tif");
-  //m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::METALLIC, "textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_metallic.tif");
+  m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::ALBEDO, "textures/Cerberus/Cerberus_A.png");
+  m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::ROUGHNESS, "textures/Cerberus/Cerberus_R.png");
+  m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::NORMAL, "textures/Cerberus/Cerberus_N.png");
+  m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::AO, "textures/Cerberus/Cerberus_AO.png");
+  m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::METALLIC, "textures/Cerberus/Cerberus_M.png");
 
   emit UpdateSceneListUI(m_sceneObjects);
   emit UpdateTransformUI(m_selectedObject->GetTransform());
 }
-
 
 
 void NGLScene::paintGL()
@@ -127,14 +130,6 @@ void NGLScene::paintGL()
   m_viewportFrameBuffer->ClearAttachment(1, -100);
 
   int it = 0;
-
-  if(m_selectedObject)
-  {
-    Transform trans = m_selectedObject->GetTransform();
-    trans.setScale(ngl::Vec3{1.0f,1.0f,1.0f});
-    trans.getMatrix(); /*recomputing matrix*/
-    m_gizmo->SetTransform(trans);
-  }
   
   ngl::Mat4 VP = m_camera->GetProjection() * m_camera->GetView();
 
@@ -149,9 +144,9 @@ void NGLScene::paintGL()
 
     ngl::ShaderLib::setUniform("MVP", MVP);
     ngl::ShaderLib::setUniform("M", mesh->GetTransform().getMatrix());
-    ngl::Mat4 normalMatrix = m_camera->GetView() * mesh->GetTransform().getMatrix();
-    normalMatrix.inverse().transpose();
-    ngl::ShaderLib::setUniform("NormalMatrix", normalMatrix);
+    //ngl::Mat4 normalMatrix = m_camera->GetView() * mesh->GetTransform().getMatrix();
+    //normalMatrix.inverse().transpose();
+    //ngl::ShaderLib::setUniform("NormalMatrix", normalMatrix);
     
     ngl::ShaderLib::setUniform("objectID", it);
 
@@ -170,7 +165,15 @@ void NGLScene::paintGL()
     
     ++it;
   }
-  m_gizmo->Draw(VP, m_win.width);
+  if(m_selectedObject)
+  {
+    Transform trans = m_selectedObject->GetTransform();
+    trans.setScale(ngl::Vec3{1.0f,1.0f,1.0f});
+    trans.getMatrix(); /*recomputing matrix*/
+    m_gizmo->SetTransform(trans);
+    m_gizmo->Draw(VP, m_win.width);
+  }
+  
 
   /*ngl::ShaderLib::use(ngl::nglColourShader);
   ngl::ShaderLib::setUniform("MVP", MVP);
@@ -323,7 +326,7 @@ void NGLScene::setScaleZ(double val)
 
 void NGLScene::OnAddMesh(const std::string& path)
 {
-  m_sceneObjects.push_back(std::make_shared<MeshObject>(path));
+  m_sceneObjects.push_back(std::make_shared<SceneObject>(path));
   auto lastSlashPos = path.find_last_of('/');
   auto lastDotPos = path.find_last_of('.');
   m_sceneObjects[m_sceneObjects.size() - 1]->SetName(path.substr(lastSlashPos + 1, lastDotPos - (lastSlashPos + 1)));
@@ -336,6 +339,7 @@ void NGLScene::OnSceneListItemSelected(int index)
   std::cout<<"SELECTED "<<index<<"\n";
   m_selectedObject = m_sceneObjects[index];
   emit UpdateTransformUI(m_selectedObject->GetTransform());
+  //emit UpdatePropertiesUI(m_selectedObject);
 }
 
 void NGLScene::OnSceneListItemDeleted(int index)

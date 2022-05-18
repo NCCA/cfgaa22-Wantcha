@@ -144,7 +144,7 @@ void Mesh::UnbindVAO() const
 
 void Mesh::Draw() const
 {
-    ngl::ShaderLib::setUniform("baseColor", m_material.m_baseColor);
+    //ngl::ShaderLib::setUniform("baseColor", m_material.m_baseColor);
     m_material.BindTextures();
     if(m_hasVAO)
     {

@@ -72,7 +72,7 @@ class NGLScene : public QGLWidget
 
     signals:
         void UpdateTransformUI(Transform);
-        void UpdateSceneListUI(std::vector<std::shared_ptr<SceneObject>>);
+        void UpdateSceneListUI(const std::vector<std::shared_ptr<SceneObject>>&);
 private:
 
     //----------------------------------------------------------------------------------------------------------------------

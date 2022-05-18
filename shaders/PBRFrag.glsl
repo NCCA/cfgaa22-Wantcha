@@ -7,7 +7,6 @@ const int pLightCount = 0   ;
 layout(location = 0) out vec4 fragColor;
 layout(location = 1) out int idColor;
 
-uniform vec4 baseColor;
 layout(binding=1) uniform sampler2D albedoMap;
 layout(binding=2) uniform sampler2D roughnessMap;
 layout(binding=3) uniform sampler2D normalMap;
@@ -93,33 +92,33 @@ vec3 PowerVec3(vec3 color, float power)
 {
     vec3 v;
     v.x = pow(color.x, power);
-    v.y = pow(color.x, power);
-    v.z = pow(color.x, power);
+    v.y = pow(color.y, power);
+    v.z = pow(color.z, power);
     return v;
 }
 
 void main()
 {
-    vec3 albedo     = PowerVec3( texture(albedoMap, UV).rgb, 2.2) * baseColor.rgb;
+    vec3 albedo     = PowerVec3( texture(albedoMap, UV).rgb, 2.2);
     vec3 normal     = getNormalFromNormalMap();
-    float metallic  = /*texture(metallicMap, UV).r*/0;
+    float metallic  = texture(metallicMap, UV).r;
     float roughness = texture(roughnessMap, UV).r;
     float ao        = texture(aoMap, UV).r;
 
-    vec3 N = normalize(Normal);
+    vec3 N = /*normalize(Normal)*/ normal;
     vec3 V = normalize(camPos - WorldPos);
 
     vec3 F0 = vec3(0.04); 
     F0 = mix(F0, albedo, metallic);
 
     vec3 Lo;
-    for(int i = 0; i < pLightCount; ++i)
+    for(int i = 0; i < pLightCount; ++i) //point lights
     {
         vec3 L = normalize(pLightPos[i] - WorldPos);
         vec3 H = normalize(V + L);
     
-        float distance    = length(pLightPos[i] - WorldPos);
-        float attenuation = 1.0 / (distance * distance);
+        float dist    = length(pLightPos[i] - WorldPos);
+        float attenuation = 1.0 / (dist * dist);
         vec3 radiance     = pLightColors[i] * attenuation; 
 
         float NDF = DistributionGGX(N, H, roughness);        
@@ -136,23 +135,41 @@ void main()
             
         // add to outgoing radiance Lo
         float NdotL = max(dot(N, L), 0.0);                
-        Lo += (kD * albedo / PI + specular) * radiance * NdotL; 
+        Lo += (kD * albedo / PI + specular) * radiance * NdotL * pLightIntensities[i]; 
     }
+    for(int i = 0; i < dirLightCount; ++i) //dir lights
+    {
+        vec3 L = normalize(dirLightDirs[i]);
+        vec3 H = normalize(V + L);
+    
+        //float dist    = length(pLightPos[i] - WorldPos);
+        //float attenuation = 1.0 / (dist * dist);
+        vec3 radiance     = dirLightColors[i]; 
+
+        float NDF = DistributionGGX(N, H, roughness);        
+        float G   = GeometrySmith(N, V, L, roughness);      
+        vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
+
+        vec3 kS = F;
+        vec3 kD = vec3(1.0) - kS;
+        kD *= 1.0 - metallic;	  
+        
+        vec3 numerator    = NDF * G * F;
+        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
+        vec3 specular     = numerator / denominator;  
+            
+        // add to outgoing radiance Lo
+        float NdotL = max(dot(N, L), 0.0);                
+        Lo += (kD * albedo / PI + specular) * radiance * NdotL * dirLightIntensities[i]; 
+    }
+
     vec3 ambient = vec3(0.03) * albedo * ao;
     vec3 color = ambient + Lo;
 	
     color = color / (color + vec3(1.0));
     color = pow(color, vec3(1.0/2.2));  
    
-    fragColor = vec4(color, 1.0);
-    /*fragColor = vec4(0.0, 0.0, 0.0, 1.0);
-    for(int i = 0; i < dirLightCount; ++i)
-    {
-        //vec3 lightDir = vec3(0, 1, 0);
-        float intensity = max(dot(N, dirLightDirs[i]), 0.0);
-
-        fragColor += baseColor * intensity * vec4(dirLightColors[i], 1.0)
-                    * dirLightIntensities[i] * texture(albedoMap, UV).rgba;
-    }*/
+    fragColor = vec4(normal, 1.0);
+    //fragColor = vec4(albedo, 1.0);
     idColor = objectID;
 }

@@ -4,6 +4,8 @@
 #include <iostream>
 
 uint32_t PBRShaderManager::s_whiteTextureID = 0;
+uint32_t PBRShaderManager::s_blackTextureID = 0;
+uint32_t PBRShaderManager::s_blueTextureID = 0;
 
 /*PBRShaderManager::PBRShaderManager(const std::string& name, const std::string& vert, const std::string& frag)
     : m_vertPath(vert), m_fragPath(frag), m_name(name)
@@ -30,6 +32,45 @@ void PBRShaderManager::CreateWhiteTexture()
 
     uint32_t whiteTextureData = 0xffffffff;
     glTextureSubImage2D(s_whiteTextureID, 0, 0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &whiteTextureData);
+
+    glBindTexture(GL_TEXTURE_2D, s_whiteTextureID);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+}
+void PBRShaderManager::CreateBlackTexture()
+{
+    glCreateTextures(GL_TEXTURE_2D, 1, &s_blackTextureID);
+	glTextureStorage2D(s_blackTextureID, 1, GL_RGBA8, 1, 1);
+
+	glTextureParameteri(s_blackTextureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTextureParameteri(s_blackTextureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glTextureParameteri(s_blackTextureID, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTextureParameteri(s_blackTextureID, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    uint32_t blackTextureData = 0x00000000;
+    glTextureSubImage2D(s_blackTextureID, 0, 0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &blackTextureData);
+
+    glBindTexture(GL_TEXTURE_2D, s_blackTextureID);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+void PBRShaderManager::CreateBlueTexture()
+{
+    glCreateTextures(GL_TEXTURE_2D, 1, &s_blueTextureID);
+	glTextureStorage2D(s_blueTextureID, 1, GL_RGBA8, 1, 1);
+
+	glTextureParameteri(s_blueTextureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTextureParameteri(s_blueTextureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glTextureParameteri(s_blueTextureID, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTextureParameteri(s_blueTextureID, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    uint32_t blueTextureData = 0x00ff0000;
+    glTextureSubImage2D(s_blueTextureID, 0, 0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &blueTextureData);
+
+    glBindTexture(GL_TEXTURE_2D, s_blueTextureID);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 std::string PBRShaderManager::m_fragPath = "";
@@ -43,6 +84,8 @@ void PBRShaderManager::Init(const std::string& name,
     m_vertPath = vert;
     m_fragPath = frag;
     CreateWhiteTexture();
+    CreateBlackTexture();
+    CreateBlueTexture();
 }
 
 void PBRShaderManager::UpdateLightCounts(std::vector<Light>& dl, std::vector<Light>& pl)
@@ -116,6 +159,8 @@ void PBRShaderManager::UpdateLightCounts(std::vector<Light>& dl, std::vector<Lig
 
         ngl::ShaderLib::setUniform(("pLightIntensities[" + std::to_string(i) + "]").c_str(),
             pl[i].GetIntensity());
+        ngl::ShaderLib::setUniform(("pLightPos[" + std::to_string(i) + "]").c_str(),
+            pl[i].GetPosition());
     }
 }
 

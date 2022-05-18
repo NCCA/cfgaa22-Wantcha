@@ -30,11 +30,15 @@ public:
     static void UseShader();
 
     static uint32_t s_whiteTextureID;
+    static uint32_t s_blackTextureID;
+    static uint32_t s_blueTextureID;
 private:
     static std::string m_fragPath;
     static std::string m_vertPath;
     static std::string m_name;
     static void CreateWhiteTexture();
+    static void CreateBlackTexture();
+    static void CreateBlueTexture();
 };
 
 struct Material
@@ -111,9 +115,9 @@ struct Material
 
     GLuint m_albedoID = PBRShaderManager::s_whiteTextureID;
     GLuint m_roughnessID = PBRShaderManager::s_whiteTextureID;
-    GLuint m_normalID = PBRShaderManager::s_whiteTextureID;
+    GLuint m_normalID = PBRShaderManager::s_blueTextureID;
     GLuint m_aoID = PBRShaderManager::s_whiteTextureID;
-    GLuint m_metallicID = PBRShaderManager::s_whiteTextureID;
+    GLuint m_metallicID = PBRShaderManager::s_blackTextureID;
 
     float m_roughness = 0.5f;
     float m_specular = 0.5f;

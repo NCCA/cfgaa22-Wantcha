@@ -23,7 +23,7 @@ void main()
     gl_Position = MVP * vec4(position, 1.0);
     WorldPos = vec3 ( M * vec4(position, 1.0) );
     //Normal = NormalMatrix * inNormal;
-    Normal = NormalMatrix * inNormal;
+    Normal = /*NormalMatrix * */inNormal;
     UV = inUV;
     //v_objectID = objectID;
 }

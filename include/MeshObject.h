@@ -13,7 +13,8 @@ public:
 
     //virtual void Draw() const override { m_mesh->Draw(); }
     //virtual void DrawHighlighted() const override { m_mesh->DrawWireframe(); }
-    std::shared_ptr<Mesh> GetMesh() const {return m_mesh; }
+    std::shared_ptr<Mesh> GetMesh() {return m_mesh; }
+    //QGridLayout* GetLayout();
 
 private:
 
