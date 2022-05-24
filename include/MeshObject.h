@@ -1,7 +1,6 @@
 #ifndef MESH_OBJECT_H_
 #define MESH_OBJECT_H_
 
-#include "Mesh.h"
 #include "SceneObject.h"
 
 class MeshObject : public SceneObject
@@ -13,12 +12,7 @@ public:
 
     //virtual void Draw() const override { m_mesh->Draw(); }
     //virtual void DrawHighlighted() const override { m_mesh->DrawWireframe(); }
-    std::shared_ptr<Mesh> GetMesh() {return m_mesh; }
-    //QGridLayout* GetLayout();
-
-private:
-
-    std::shared_ptr<Mesh> m_mesh;
+    virtual QGridLayout* GetLayout() override;
 };
 
 #endif

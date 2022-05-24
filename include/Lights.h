@@ -21,6 +21,7 @@ public:
     ngl::Vec3 GetColor() const { return m_color; }
     ngl::Vec3 GetForward() const;
     LightType GetType() const { return m_lightType; }
+    virtual QGridLayout* GetLayout() override;
 
     //virtual void Draw() const override {}
     //virtual void DrawHighlighted() const override {}

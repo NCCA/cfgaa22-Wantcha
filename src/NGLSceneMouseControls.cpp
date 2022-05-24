@@ -72,6 +72,7 @@ void NGLScene::mousePressEvent( QMouseEvent* _event )
         m_gizmo->SetTransform(trans);
       }
       emit UpdateTransformUI(m_selectedObject->GetTransform());
+      emit UpdatePropertiesBox(m_selectedObject->GetLayout());
     }
 
     else if(m_hoveredObjectID < 0 && m_hoveredObjectID > -100)
@@ -108,6 +109,7 @@ void NGLScene::mouseReleaseEvent( QMouseEvent* _event )
     {
       m_selectedObject = nullptr;
       emit UpdateTransformUI(Transform());
+      emit UpdatePropertiesBox(new QGridLayout());
     }
 
     m_win.rotating = false;

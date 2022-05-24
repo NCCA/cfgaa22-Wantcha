@@ -5,6 +5,7 @@
 #include <QMessageBox>
 #include <QLayout>
 #include <QGridLayout>
+#include <QLayoutItem>
 //#include "ui_MainWindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -52,6 +53,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_scene, SIGNAL(UpdateSceneListUI(const std::vector<std::shared_ptr<SceneObject>>&)),
             this, SLOT(OnUpdateSceneList(const std::vector<std::shared_ptr<SceneObject>>&)));
 
+    connect(m_scene, SIGNAL(UpdatePropertiesBox(QGridLayout*)),
+            this, SLOT(OnUpdatePropertiesBox(QGridLayout*)));
+
     //m_ui->SceneList->addItem(QString::fromStdString("obj.GetName()"));
     //QCheckBox box = QCheckBox("Enable Cringe 2");
     //QGridLayout* layout = m_ui->PropertiesBox->layout()->findChild<QGridLayout*>();
@@ -60,9 +64,20 @@ MainWindow::MainWindow(QWidget *parent) :
     //m_ui->PropertiesBox->
 }
 
-void MainWindow::UpdatePropertiesBox(QGridLayout* newLayout)
+void MainWindow::OnUpdatePropertiesBox(QGridLayout* newLayout)
 {
-    //newLayout->addItem(new QSpacerItem(0, 100));
+
+    qDeleteAll(m_ui->PropertiesBox->children());
+    delete m_ui->PropertiesBox->layout();
+
+    if(newLayout->count() == 0)
+    {
+        newLayout->addWidget( new QLabel("No object selected"), 0, 0 );
+        //newLayout->addWidget( new QLabel("No object selected"), 1, 0 );
+    }
+    QSpacerItem* spacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+    newLayout->addItem(spacer, newLayout->rowCount(), 0);
+    
     m_ui->PropertiesBox->setLayout(newLayout);
 }
 

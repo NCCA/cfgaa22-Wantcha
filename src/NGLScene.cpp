@@ -95,7 +95,7 @@ void NGLScene::initializeGL()
   //ngl::ShaderLib::setUniform("directionalLightCount", static_cast<int>(m_directionalLights.size()));
 
 
-  m_sceneObjects.push_back(std::make_shared<SceneObject>("meshes/yuri.obj"));
+  m_sceneObjects.push_back(std::make_shared<MeshObject>("meshes/yuri.obj"));
   //static_cast<MeshObject>(m_sceneObjects[0])->GetMesh()->GetMaterial().SetTexture("textures/checkerboard.jpg");
   m_sceneObjects[0]->SetPosition({0.1f, 0.23f, -1.6f});
   m_sceneObjects[0]->SetScale({0.75f, 0.75f, 0.75f});
@@ -106,7 +106,7 @@ void NGLScene::initializeGL()
   m_selectedObject = m_sceneObjects[0];
 
 
-  m_sceneObjects.push_back(std::make_shared<SceneObject>("meshes/cerberus_gun.obj"));
+  m_sceneObjects.push_back(std::make_shared<MeshObject>("meshes/cerberus_gun.obj"));
   m_sceneObjects[1]->SetPosition({0.0f, 0.5f, 0.0f});
   m_sceneObjects[1]->SetScale({0.75f, 0.75f, 0.75f});
   m_sceneObjects[1]->SetName("Buncf");
@@ -125,6 +125,7 @@ void NGLScene::paintGL()
 {
   m_viewportFrameBuffer->Bind();
   // clear the screen and depth buffer
+  glClearColor(0.15f, 0.15f, 0.18f, 1.0f);			   // Grey Background
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   m_viewportFrameBuffer->ClearAttachment(1, -100);
@@ -173,16 +174,6 @@ void NGLScene::paintGL()
     m_gizmo->SetTransform(trans);
     m_gizmo->Draw(VP, m_win.width);
   }
-  
-
-  /*ngl::ShaderLib::use(ngl::nglColourShader);
-  ngl::ShaderLib::setUniform("MVP", MVP);
-  ngl::ShaderLib::setUniform("Colour", ngl::Vec4(1.0f, 0.7f, 0.05f, 1.0f));
-  //glPointSize(2);
-  glLineWidth(1);
-  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-  m_mesh->Draw();
-  glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);*/
 
   m_viewportFrameBuffer->BlitToScreen();
 
@@ -326,7 +317,7 @@ void NGLScene::setScaleZ(double val)
 
 void NGLScene::OnAddMesh(const std::string& path)
 {
-  m_sceneObjects.push_back(std::make_shared<SceneObject>(path));
+  m_sceneObjects.push_back(std::make_shared<MeshObject>(path));
   auto lastSlashPos = path.find_last_of('/');
   auto lastDotPos = path.find_last_of('.');
   m_sceneObjects[m_sceneObjects.size() - 1]->SetName(path.substr(lastSlashPos + 1, lastDotPos - (lastSlashPos + 1)));
@@ -339,6 +330,7 @@ void NGLScene::OnSceneListItemSelected(int index)
   std::cout<<"SELECTED "<<index<<"\n";
   m_selectedObject = m_sceneObjects[index];
   emit UpdateTransformUI(m_selectedObject->GetTransform());
+  emit UpdatePropertiesBox(m_selectedObject->GetLayout());
   //emit UpdatePropertiesUI(m_selectedObject);
 }
 

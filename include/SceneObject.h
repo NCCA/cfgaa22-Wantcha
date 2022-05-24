@@ -29,7 +29,7 @@ public:
     std::string GetName() const { return m_name; }
     virtual void Draw();
     virtual void DrawHighlighted();
-    QGridLayout* GetLayout();
+    virtual QGridLayout* GetLayout();
 
     //static QGridLayout* s_layout;
 protected:

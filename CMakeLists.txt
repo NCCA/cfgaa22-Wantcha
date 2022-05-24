@@ -58,6 +58,7 @@ target_sources(${TargetName} PRIVATE ${PROJECT_SOURCE_DIR}/src/main.cpp
             ${PROJECT_SOURCE_DIR}/src/FrameBuffer.cpp 
             ${PROJECT_SOURCE_DIR}/src/Gizmos.cpp 
             ${PROJECT_SOURCE_DIR}/src/Transform.cpp 
+            ${PROJECT_SOURCE_DIR}/src/TextureWidget.cpp 
 			${PROJECT_SOURCE_DIR}/include/NGLScene.h 
             ${PROJECT_SOURCE_DIR}/include/MainWindow.h 
             ${PROJECT_SOURCE_DIR}/include/Camera.h 
@@ -73,6 +74,7 @@ target_sources(${TargetName} PRIVATE ${PROJECT_SOURCE_DIR}/src/main.cpp
             ${PROJECT_SOURCE_DIR}/include/FrameBuffer.h  
             ${PROJECT_SOURCE_DIR}/include/Gizmos.h  
             ${PROJECT_SOURCE_DIR}/include/Transform.h  
+            ${PROJECT_SOURCE_DIR}/include/TextureWidget.h  
             ${PROJECT_SOURCE_DIR}/ui/MainWindow.ui
 )
 

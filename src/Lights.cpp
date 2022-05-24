@@ -15,6 +15,11 @@ Light::Light(LightType type, const ngl::Vec3& position, const ngl::Vec3& rotatio
     m_transform.addRotation(rotation);
 }
 
+QGridLayout* Light::GetLayout()
+{
+    return new QGridLayout();
+}
+
 ngl::Vec3 Light::GetForward() const
 {
     float pitch = m_transform.getRotation().m_x;
