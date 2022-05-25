@@ -5,10 +5,13 @@
 #include <ngl/SimpleVAO.h>
 #include <ngl/Vec3.h>
 #include <ngl/Vec2.h>
+//#include <SceneObject.h>
+#include <string>
 #include <Mesh.h>
 #include <ngl/ShaderLib.h>
 #include <ngl/VAOFactory.h>
 #include <QGLWidget>
+#include <QOpenGLWidget>
 /*#include <QGLShader>
 #include <QGLBuffer>
 #include <QGLFunctions>
@@ -17,15 +20,15 @@
 struct SimpleVertData
 {
     ngl::Vec3 pos;
-    //ngl::Vec2 uv;
+    ngl::Vec2 uv;
 };
 
-class TextureWidget : public QGLWidget//, protected QGLFunctions
+class TextureWidget : public QOpenGLWidget//, protected QGLFunctions
 {
 Q_OBJECT
 
 public:
-    TextureWidget(int textureID, int width, int height);
+    TextureWidget(GLuint* textureID, int width, int height, std::shared_ptr<ngl::Texture> texture);
 
     ~TextureWidget() override;
 
@@ -34,26 +37,19 @@ public:
     void resizeGL(int width, int height) override;
     QSize minimumSizeHint() const override;
     QSize sizeHint() const override;
-//signals:
-    //void clicked();
+    
 
 private:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
 
-    int m_id = 0;
+    GLuint* m_id = 0;
     SimpleVertData m_vbo[6];
     std::unique_ptr<ngl::AbstractVAO> m_vaoMesh;
 
     QRectF m_target;
-
-    /*QGLShaderProgram shader;
-    QGLBuffer* vertexBuffer;
-    QGLBuffer* indexBuffer;
-    float viewPortWidth;
-    float viewPortHeight;*/
-
+    std::shared_ptr<ngl::Texture> m_texture;
 };
 
 #endif

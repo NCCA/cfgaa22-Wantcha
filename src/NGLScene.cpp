@@ -1,5 +1,6 @@
 #include <QMouseEvent>
 #include <QGuiApplication>
+#include <QSurfaceFormat>
 
 #include "NGLScene.h"
 #include <ngl/NGLInit.h>
@@ -18,19 +19,17 @@ NGLScene::NGLScene()
   setMouseTracking(true);
 
   m_camera = std::make_shared<Camera>(45.0f, 1600.0f / 900.0f, 0.01f, 1000.0f);
-  QGLFormat format;
+  QSurfaceFormat format;
   format.setSamples(4);
   #if defined( __APPLE__)
-    // at present mac osx Mountain Lion only supports GL3.2
-    // the new mavericks will have GL 4.x so can change
-    format.toSurfaceFormat(format).setMajorVersion(4);
-    format.toSurfaceFormat(format).setMajorVersion(1);
+  format.setMajorVersion(4);
+  format.setMinorVersion(3);
   #else
-    // with luck we have the latest GL version so set to this
-    format.toSurfaceFormat(format).setMajorVersion(4);
-    format.toSurfaceFormat(format).setMajorVersion(3);
+  format.setMajorVersion(4);
+  format.setMinorVersion(3);
   #endif
-  setFormat(format);
+  format.setProfile(QSurfaceFormat::CoreProfile);
+  this->setFormat(format);
 
   AssetManager::RegisterCache(std::make_unique<AssetCache<ObjMesh>>());
 }
@@ -99,7 +98,8 @@ void NGLScene::initializeGL()
   //static_cast<MeshObject>(m_sceneObjects[0])->GetMesh()->GetMaterial().SetTexture("textures/checkerboard.jpg");
   m_sceneObjects[0]->SetPosition({0.1f, 0.23f, -1.6f});
   m_sceneObjects[0]->SetScale({0.75f, 0.75f, 0.75f});
-  m_sceneObjects[0]->GetMesh()->GetMaterial().SetTexture(TextureType::ALBEDO, "textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_albedo.tif");
+  //m_sceneObjects[0]->GetMesh()->GetMaterial().SetTexture(TextureType::ALBEDO, "textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_albedo.tif");
+  m_sceneObjects[0]->GetMesh()->GetMaterial().SetTexture(TextureType::ALBEDO, "textures/checkerboard.jpg");
   m_sceneObjects[0]->GetMesh()->GetMaterial().SetTexture(TextureType::ROUGHNESS, "textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_roughness.tif");
   //m_sceneObjects[0]->GetMesh()->GetMaterial().SetTexture(TextureType::NORMAL, "textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_normal.tif");
   m_sceneObjects[0]->GetMesh()->GetMaterial().SetTexture(TextureType::AO, "textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_ao.tif");
@@ -123,6 +123,8 @@ void NGLScene::initializeGL()
 
 void NGLScene::paintGL()
 {
+  makeCurrent();
+
   m_viewportFrameBuffer->Bind();
   // clear the screen and depth buffer
   glClearColor(0.15f, 0.15f, 0.18f, 1.0f);			   // Grey Background
@@ -175,9 +177,11 @@ void NGLScene::paintGL()
     m_gizmo->Draw(VP, m_win.width);
   }
 
-  m_viewportFrameBuffer->BlitToScreen();
+  m_viewportFrameBuffer->BlitToScreen(defaultFramebufferObject());
 
   m_viewportFrameBuffer->Unbind();
+
+  doneCurrent();
 }
 
 //----------------------------------------------------------------------------------------------------------------------

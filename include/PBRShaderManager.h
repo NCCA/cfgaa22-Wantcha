@@ -51,31 +51,31 @@ struct Material
         switch(type)
         {
             case TextureType::ALBEDO:
-                m_albedoTexture = std::make_unique<ngl::Texture>(path);
+                m_albedoTexture = std::make_shared<ngl::Texture>(path);
                 m_albedoTexture->setMultiTexture(0);
                 m_albedoID = m_albedoTexture->setTextureGL();
                 break;
 
             case TextureType::ROUGHNESS:
-                m_roughnessTexture = std::make_unique<ngl::Texture>(path);
+                m_roughnessTexture = std::make_shared<ngl::Texture>(path);
                 m_roughnessTexture->setMultiTexture(0);
                 m_roughnessID = m_roughnessTexture->setTextureGL();
                 break;
 
             case TextureType::NORMAL:
-                m_normalTexture = std::make_unique<ngl::Texture>(path);
+                m_normalTexture = std::make_shared<ngl::Texture>(path);
                 m_normalTexture->setMultiTexture(0);
                 m_normalID = m_normalTexture->setTextureGL();
                     break;
 
             case TextureType::AO:
-                m_aoTexture = std::make_unique<ngl::Texture>(path);
+                m_aoTexture = std::make_shared<ngl::Texture>(path);
                 m_aoTexture->setMultiTexture(0);
                 m_aoID = m_aoTexture->setTextureGL();
                     break;
 
             case TextureType::METALLIC:
-                m_metallicTexture = std::make_unique<ngl::Texture>(path);
+                m_metallicTexture = std::make_shared<ngl::Texture>(path);
                 m_metallicTexture->setMultiTexture(0);
                 m_metallicID = m_metallicTexture->setTextureGL();
                     break;
@@ -107,11 +107,11 @@ struct Material
 
     ngl::Vec4 m_baseColor = {1.0f, 1.0f, 1.0f, 1.0f};
 
-    std::unique_ptr<ngl::Texture> m_albedoTexture;
-    std::unique_ptr<ngl::Texture> m_roughnessTexture;
-    std::unique_ptr<ngl::Texture> m_normalTexture;
-    std::unique_ptr<ngl::Texture> m_aoTexture;
-    std::unique_ptr<ngl::Texture> m_metallicTexture;
+    std::shared_ptr<ngl::Texture> m_albedoTexture;
+    std::shared_ptr<ngl::Texture> m_roughnessTexture;
+    std::shared_ptr<ngl::Texture> m_normalTexture;
+    std::shared_ptr<ngl::Texture> m_aoTexture;
+    std::shared_ptr<ngl::Texture> m_metallicTexture;
 
     GLuint m_albedoID = PBRShaderManager::s_whiteTextureID;
     GLuint m_roughnessID = PBRShaderManager::s_whiteTextureID;

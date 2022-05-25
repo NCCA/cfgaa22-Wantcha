@@ -63,7 +63,7 @@ public:
     void Bind();
     void Unbind();
 
-    void BlitToScreen();
+    void BlitToScreen(int screenFramebuffer);
 
     void Resize(uint32_t width, uint32_t height);
     int ReadPixel(uint32_t attachmentIndex, int x, int y);

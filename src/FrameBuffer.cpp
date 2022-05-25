@@ -182,10 +182,10 @@ void FrameBuffer::Unbind()
     glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 }
 
-void FrameBuffer::BlitToScreen()
+void FrameBuffer::BlitToScreen(int screenFramebuffer)
 {
     //std::cout<<"AA";
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, screenFramebuffer);
     glBindFramebuffer(GL_READ_FRAMEBUFFER, m_RendererID);
 
     glBlitFramebuffer(0, 0, m_Specs.Width, m_Specs.Height,
@@ -193,8 +193,8 @@ void FrameBuffer::BlitToScreen()
                       GL_COLOR_BUFFER_BIT,
                       GL_NEAREST);
     
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, screenFramebuffer);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, screenFramebuffer);
 }
 
 void FrameBuffer::Resize(uint32_t width, uint32_t height)

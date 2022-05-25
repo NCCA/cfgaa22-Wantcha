@@ -12,6 +12,7 @@ int main(int argc, char **argv)
 {
 
   //QGuiApplication app(argc, argv);
+  QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
   QApplication a(argc, argv);
   // create an OpenGL format specifier
   QSurfaceFormat format;

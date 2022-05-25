@@ -13,7 +13,7 @@
 #include "Gizmos.h"
 // this must be included after NGL includes else we get a clash with gl libs
 //#include <QOpenGLWindow>
-#include <QGLWidget>
+#include <QOpenGLWidget>
 //----------------------------------------------------------------------------------------------------------------------
 /// @file NGLScene.h
 /// @brief this class inherits from the Qt OpenGLWindow and allows us to use NGL to draw OpenGL
@@ -27,7 +27,7 @@
 /// put in this file
 //----------------------------------------------------------------------------------------------------------------------
 
-class NGLScene : public QGLWidget
+class NGLScene : public QOpenGLWidget
 {
   Q_OBJECT
   public:

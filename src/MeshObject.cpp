@@ -3,7 +3,7 @@
 #include "Assets/AssetManager.h"
 #include "ObjMesh.h"
 #include <QGLWidget>
-#include <QOpenGLTexture>
+#include <QObject>
 #include "TextureWidget.h"
 
 //QGridLayout* MeshObject::s_layout = new QGridLayout();
@@ -19,26 +19,25 @@ QGridLayout* MeshObject::GetLayout()
     layout->addWidget( new QLabel("MATERIAL PROPERTIES"), 0, 0 );
 
     layout->addWidget( new QLabel("Albedo"), 1, 0 );
-    //QIcon albedoIcon;
-    //albedoIcon.addFile(QString::fromUtf8("textures/checkerboard.jpg"));
-    //QPushButton* albedoButton = new QPushButton();
-    //QGLWidget* albedoWidget = new QGLWidget();
-    TextureWidget* albedoWidget = new TextureWidget(m_mesh->GetMaterial().m_albedoID, 50, 50);
-    albedoWidget->paintGL();
-    //QPointF point(0, 0);
-
-    //albedoWidget->drawTexture(point, m_mesh->GetMaterial().m_albedoID);
-
-    //albedoButton->setIcon(albedoIcon);
-    //albedoButton->setIconSize(QSize(50, 50));
-
+    TextureWidget* albedoWidget = new TextureWidget(&m_mesh->GetMaterial().m_albedoID, 50, 50, m_mesh->GetMaterial().m_albedoTexture);
     layout->addWidget(albedoWidget, 1, 1, Qt::AlignLeft);
-    //albedoButton->setGeometry(QRect())
+    //QObject::connect(albedoWidget, &TextureWidget::SelectNewTexture, OnChangeAlbedoTexture(const std::string&) );
+    
+    layout->addWidget( new QLabel("Roughness"), 2, 0 );
+    TextureWidget* roughnessWidget = new TextureWidget(&m_mesh->GetMaterial().m_roughnessID, 50, 50, m_mesh->GetMaterial().m_roughnessTexture);
+    layout->addWidget(roughnessWidget, 2, 1, Qt::AlignLeft);
 
-    //m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::ALBEDO, "textures/Cerberus/Cerberus_A.png");
+    layout->addWidget( new QLabel("Normal"), 3, 0 );
+    TextureWidget* normalWidget = new TextureWidget(&m_mesh->GetMaterial().m_normalID, 50, 50, m_mesh->GetMaterial().m_normalTexture);
+    layout->addWidget(normalWidget, 3, 1, Qt::AlignLeft);
 
-    //layout->addWidget( new QLabel("Albedo"), 0, 0 );
-    //layout->addWidget( new QGraphicsView() );
+    layout->addWidget( new QLabel("Ambient Occlusion"), 4, 0 );
+    TextureWidget* aoWidget = new TextureWidget(&m_mesh->GetMaterial().m_aoID, 50, 50, m_mesh->GetMaterial().m_aoTexture);
+    layout->addWidget(aoWidget, 4, 1, Qt::AlignLeft);
+
+    layout->addWidget( new QLabel("Metallic"), 5, 0 );
+    TextureWidget* metallicWidget = new TextureWidget(&m_mesh->GetMaterial().m_metallicID, 50, 50, m_mesh->GetMaterial().m_metallicTexture);
+    layout->addWidget(metallicWidget, 5, 1, Qt::AlignLeft);
 
     return layout;
 }
