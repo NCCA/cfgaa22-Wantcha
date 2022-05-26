@@ -55,7 +55,9 @@ enum class FramebufferTextureFormat
 class FrameBuffer
 {
 public:
+	//FrameBuffer() = default;
     FrameBuffer(const FramebufferSpecification& spec);
+	FrameBuffer(uint32_t textureArray, uint32_t layer);
     virtual ~FrameBuffer();
 
     void Invalidate();

@@ -1,8 +1,8 @@
 #version 430 core
 
 // Modifying this from code before loading shader
-const int dirLightCount = 0   ;
-const int pLightCount = 0   ;
+#define dirLightCount 0
+#define pLightCount 0
 
 layout(location = 0) out vec4 fragColor;
 layout(location = 1) out int idColor;
@@ -13,13 +13,17 @@ layout(binding=3) uniform sampler2D normalMap;
 layout(binding=4) uniform sampler2D aoMap;
 layout(binding=5) uniform sampler2D metallicMap;
 
+#if dirLightCount != 0
 uniform vec3 dirLightDirs[dirLightCount];
 uniform vec3 dirLightColors[dirLightCount];
 uniform float dirLightIntensities[dirLightCount];
+#endif
 
+#if pLightCount != 0
 uniform vec3 pLightPos[pLightCount];
 uniform vec3 pLightColors[pLightCount];
 uniform float pLightIntensities[pLightCount];
+#endif
 
 uniform int objectID;
 
@@ -112,6 +116,7 @@ void main()
     F0 = mix(F0, albedo, metallic);
 
     vec3 Lo;
+    #if pLightCount != 0
     for(int i = 0; i < pLightCount; ++i) //point lights
     {
         vec3 L = normalize(pLightPos[i] - WorldPos);
@@ -137,6 +142,9 @@ void main()
         float NdotL = max(dot(N, L), 0.0);                
         Lo += (kD * albedo / PI + specular) * radiance * NdotL * pLightIntensities[i]; 
     }
+    #endif
+
+    #if dirLightCount != 0
     for(int i = 0; i < dirLightCount; ++i) //dir lights
     {
         vec3 L = normalize(dirLightDirs[i]);
@@ -162,6 +170,7 @@ void main()
         float NdotL = max(dot(N, L), 0.0);                
         Lo += (kD * albedo / PI + specular) * radiance * NdotL * dirLightIntensities[i]; 
     }
+    #endif
 
     vec3 ambient = vec3(0.03) * albedo * ao;
     vec3 color = ambient + Lo;

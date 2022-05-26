@@ -19,18 +19,6 @@ TextureWidget::~TextureWidget()
 
 void TextureWidget::initializeGL()
 {
-    /*QSurfaceFormat format;
-    format.setSamples(4);
-    #if defined( __APPLE__)
-    format.setMajorVersion(4);
-    format.setMinorVersion(3);
-    #else
-    format.setMajorVersion(4);
-    format.setMinorVersion(3);
-    #endif
-    format.setProfile(QSurfaceFormat::CoreProfile);
-    this->setFormat(format);*/
-
     if( ngl::ShaderLib::getProgramID("SimpleTexture") == 0)
     {
         ngl::ShaderLib::loadShader("SimpleTexture", "shaders/SimpleTextureVert.glsl", "shaders/SimpleTextureFrag.glsl");
@@ -80,7 +68,7 @@ void TextureWidget::paintGL()
     ngl::ShaderLib::use("SimpleTexture");
     ngl::ShaderLib::setUniform("colorTexture", 0);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, *m_id);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, /**m_id*/ PBRShaderManager::s_directionalShadowMap);
 
     m_vaoMesh->bind();
     m_vaoMesh->draw();

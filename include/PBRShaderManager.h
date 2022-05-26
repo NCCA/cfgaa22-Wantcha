@@ -24,18 +24,26 @@ public:
     static void Init(const std::string& name,
             const std::string& vert, const std::string& frag);
 
-    static void UpdateLightCounts(std::vector<Light>& dl,
-                                    std::vector<Light>& pl);
+    static void UpdateLightCounts(std::vector<std::shared_ptr<Light>>& dl,
+                                    std::vector<std::shared_ptr<Light>>& pl);
+
+    static void RefreshCurrentLights();
     
     static void UseShader();
 
     static uint32_t s_whiteTextureID;
     static uint32_t s_blackTextureID;
     static uint32_t s_blueTextureID;
+    static uint32_t s_shadowMapSize;
+    static uint32_t s_maxDirectionalShadows;
+
+    static uint32_t s_directionalShadowMap;
 private:
     static std::string m_fragPath;
     static std::string m_vertPath;
     static std::string m_name;
+    static std::vector<std::shared_ptr<Light>> m_directionalLights;
+    static std::vector<std::shared_ptr<Light>> m_pointLights;
     static void CreateWhiteTexture();
     static void CreateBlackTexture();
     static void CreateBlueTexture();

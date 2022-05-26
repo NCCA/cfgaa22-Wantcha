@@ -27,16 +27,15 @@ public:
     Transform& GetTransform() { return m_transform; }
     virtual std::shared_ptr<Mesh> GetMesh() const { return m_mesh; }
     std::string GetName() const { return m_name; }
+    bool IsLight() const { return m_isLight; }
     virtual void Draw();
     virtual void DrawHighlighted();
     virtual QGridLayout* GetLayout();
-
-    //static QGridLayout* s_layout;
 protected:
     Transform m_transform;
     std::string m_name = "Object";
     std::shared_ptr<Mesh> m_mesh;
-    
+    bool m_isLight = false;
 };
 
 #endif

@@ -29,6 +29,9 @@ void NGLScene::mouseMoveEvent( QMouseEvent* _event )
     {
       m_gizmo->Manipulate(m_selectedObject->GetTransform(), diffx, diffy);
       emit UpdateTransformUI(m_selectedObject->GetTransform());
+
+      if(m_selectedObject->IsLight())
+        PBRShaderManager::UpdateLightCounts(m_directionalLights, m_pointLights);
     }
   }
 

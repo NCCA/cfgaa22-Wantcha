@@ -69,26 +69,31 @@ void NGLScene::initializeGL()
 	fbSpec.Height = 900;
 	m_viewportFrameBuffer = std::make_unique<FrameBuffer>(fbSpec);
 
+  PBRShaderManager::Init("PBR", "shaders/PBRVert.glsl", "shaders/PBRFrag.glsl");
 
-  Light l1(LightType::Directional,
-        {0, 0, 0}, { 90, 0 ,0 }, {1.0f, 1.0f, 1.0f}, 2.0f);
 
-  Light l2(LightType::Directional, {0, 0, 0}, { 0, 0, 0 },
-            {1.0f, 1.0f, 1.0f}, 0.9f);
+  std::shared_ptr<Light> l1 = std::make_shared<Light>(LightType::Directional,
+        ngl::Vec3{0, 1.5f, 0}, ngl::Vec3{ 135, 0 ,0 }, ngl::Vec3{1.0f, 1.0f, 1.0f}, 2.0f);
 
-  Light l3(LightType::Point, {0, 1, 0}, { 0, 0 ,0 }, {1, 0.9f, 1});
+  //std::shared_ptr<Light> x = std::make_shared<Light>(LightType::Directional, ngl::Vec3{0,0,0}, ngl::Vec3{0,0,0});
+
+  /*Light l2(LightType::Directional, {0, 0, 0}, { 0, 0, 0 },
+            {1.0f, 1.0f, 1.0f}, 0.9f);*/
+
+  std::shared_ptr<Light> l3 = std::make_shared<Light>(LightType::Point, ngl::Vec3{0, 1, 0}, ngl::Vec3{ 0, 0 ,0 }, ngl::Vec3{1, 0.9f, 1});
 
   m_directionalLights.push_back(l1);
   //m_directionalLights.push_back(l2);
 
-  Light pl1(LightType::Point, ngl::Vec3(0.5f, 0.5f, -1.0f), ngl::Vec3(0, 0, 0), {1,1,1});
-  Light pl2(LightType::Point, ngl::Vec3(-0.5f, 0.5f, 2.0f), ngl::Vec3(0, 0, 0), {1,1,1});
+  std::shared_ptr<Light> pl1 = std::make_shared<Light>(LightType::Point, ngl::Vec3(0.5f, 0.5f, -1.0f), ngl::Vec3(0, 0, 0), ngl::Vec3{1,1,1});
+  std::shared_ptr<Light> pl2 = std::make_shared<Light>(LightType::Point, ngl::Vec3(-0.5f, 0.5f, 2.0f), ngl::Vec3(0, 0, 0), ngl::Vec3{1,1,1});
   m_pointLights.push_back(pl1);
   m_pointLights.push_back(pl2);
   m_pointLights.push_back(l3);
 
-  PBRShaderManager::Init("PBR", "shaders/PBRVert.glsl", "shaders/PBRFrag.glsl");
   PBRShaderManager::UpdateLightCounts(m_directionalLights, m_pointLights);
+
+  ngl::ShaderLib::loadShader("SimpleDepth", "shaders/SimpleDepthVert.glsl", "shaders/SimpleDepthFrag.glsl");
 
   m_gizmo = std::make_unique<Gizmo>( m_camera );
   //ngl::ShaderLib::setUniform("directionalLightCount", static_cast<int>(m_directionalLights.size()));
@@ -98,8 +103,8 @@ void NGLScene::initializeGL()
   //static_cast<MeshObject>(m_sceneObjects[0])->GetMesh()->GetMaterial().SetTexture("textures/checkerboard.jpg");
   m_sceneObjects[0]->SetPosition({0.1f, 0.23f, -1.6f});
   m_sceneObjects[0]->SetScale({0.75f, 0.75f, 0.75f});
-  //m_sceneObjects[0]->GetMesh()->GetMaterial().SetTexture(TextureType::ALBEDO, "textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_albedo.tif");
-  m_sceneObjects[0]->GetMesh()->GetMaterial().SetTexture(TextureType::ALBEDO, "textures/checkerboard.jpg");
+  m_sceneObjects[0]->GetMesh()->GetMaterial().SetTexture(TextureType::ALBEDO, "textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_albedo.tif");
+  //m_sceneObjects[0]->GetMesh()->GetMaterial().SetTexture(TextureType::ALBEDO, "textures/checkerboard.jpg");
   m_sceneObjects[0]->GetMesh()->GetMaterial().SetTexture(TextureType::ROUGHNESS, "textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_roughness.tif");
   //m_sceneObjects[0]->GetMesh()->GetMaterial().SetTexture(TextureType::NORMAL, "textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_normal.tif");
   m_sceneObjects[0]->GetMesh()->GetMaterial().SetTexture(TextureType::AO, "textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_ao.tif");
@@ -116,6 +121,16 @@ void NGLScene::initializeGL()
   m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::AO, "textures/Cerberus/Cerberus_AO.png");
   m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::METALLIC, "textures/Cerberus/Cerberus_M.png");
 
+  m_sceneObjects.push_back(std::make_shared<MeshObject>("meshes/plane.obj"));
+  m_sceneObjects[2]->SetPosition({0.0f, -0.6f, 0.0f});
+  m_sceneObjects[1]->SetScale({1.25f, 1.25f, 1.25f});
+  m_sceneObjects[2]->SetName("Plane");
+
+  m_sceneObjects.push_back(l1);
+  m_sceneObjects.push_back(pl1);
+  m_sceneObjects.push_back(pl2);
+  m_sceneObjects.push_back(l3);
+
   emit UpdateSceneListUI(m_sceneObjects);
   emit UpdateTransformUI(m_selectedObject->GetTransform());
 }
@@ -124,11 +139,38 @@ void NGLScene::initializeGL()
 void NGLScene::paintGL()
 {
   makeCurrent();
+  // Render shadow maps
+  for(int i = 0; i < m_directionalLights.size(); i++)
+  {
+    m_directionalLights[i]->GetShadowBuffer()->Bind();
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    glViewport(0,0,PBRShaderManager::s_shadowMapSize, PBRShaderManager::s_shadowMapSize);
+    glClearDepth(1.0f);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    ngl::Mat4 lightSpaceMat = m_directionalLights[i]->GetProjection() * m_directionalLights[i]->GetView();
+    for(auto mesh : m_sceneObjects)
+    {
+      if(!mesh->IsLight())
+      {
+        ngl::Mat4 MVP = lightSpaceMat * mesh->GetTransform().getMatrix();
+        ngl::ShaderLib::use("SimpleDepth");
+        ngl::ShaderLib::setUniform("MVP", MVP);
+        //ngl::ShaderLib::setUniform("M", mesh->GetTransform().getMatrix());
+        mesh->Draw();
+      }
+    }
+
+    m_directionalLights[i]->GetShadowBuffer()->Unbind();
+  }
+
 
   m_viewportFrameBuffer->Bind();
   // clear the screen and depth buffer
   glClearColor(0.15f, 0.15f, 0.18f, 1.0f);			   // Grey Background
+  glClearDepth(1);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glViewport(0, 0, m_win.width, m_win.height);
 
   m_viewportFrameBuffer->ClearAttachment(1, -100);
 
@@ -136,34 +178,51 @@ void NGLScene::paintGL()
   
   ngl::Mat4 VP = m_camera->GetProjection() * m_camera->GetView();
 
-  PBRShaderManager::UseShader();
-  ngl::ShaderLib::setUniform("camPos", m_camera->GetTransform().getPosition());
+  //PBRShaderManager::UseShader();
   for(auto mesh : m_sceneObjects)
   {
-    PBRShaderManager::UseShader();
-    //ngl::Mat3 normalMatrix = MV.inverse().transpose();
     ngl::Mat4 MVP = VP * mesh->GetTransform().getMatrix();
-    //ngl::ShaderLib::setUniform("NormalMatrix", normalMatrix);
-
-    ngl::ShaderLib::setUniform("MVP", MVP);
-    ngl::ShaderLib::setUniform("M", mesh->GetTransform().getMatrix());
-    //ngl::Mat4 normalMatrix = m_camera->GetView() * mesh->GetTransform().getMatrix();
-    //normalMatrix.inverse().transpose();
-    //ngl::ShaderLib::setUniform("NormalMatrix", normalMatrix);
-    
-    ngl::ShaderLib::setUniform("objectID", it);
-
-    mesh->Draw();
-    if(mesh == m_selectedObject)
+    if(!mesh->IsLight())
     {
-      ngl::ShaderLib::use(ngl::nglColourShader);
+      PBRShaderManager::UseShader();
+      ngl::ShaderLib::setUniform("camPos", m_camera->GetTransform().getPosition());
       ngl::ShaderLib::setUniform("MVP", MVP);
-      ngl::ShaderLib::setUniform("Colour", ngl::Vec4(1.0f, 0.7f, 0.05f, 1.0f));
-      //glPointSize(2);
-      //glLineWidth(1);
-      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+      ngl::ShaderLib::setUniform("M", mesh->GetTransform().getMatrix());
+
+      int texIndexOffset = 0;
+      for(int i = 0; i < m_directionalLights.size(); i++)
+      {
+         glActiveTexture(GL_TEXTURE6);
+         glBindTexture(GL_TEXTURE_2D_ARRAY, PBRShaderManager::s_directionalShadowMap);
+      }
+      //ngl::Mat4 normalMatrix = m_camera->GetView() * mesh->GetTransform().getMatrix();
+      //normalMatrix.inverse().transpose();
+      //ngl::ShaderLib::setUniform("NormalMatrix", normalMatrix);
+      
+      ngl::ShaderLib::setUniform("objectID", it);
+
+      mesh->Draw();
+
+      if(mesh == m_selectedObject)
+      {
+        ngl::ShaderLib::use(ngl::nglColourShader);
+        ngl::ShaderLib::setUniform("MVP", MVP);
+        ngl::ShaderLib::setUniform("Colour", ngl::Vec4(1.0f, 0.5f, 0.05f, 1.0f));
+        //glPointSize(2);
+        //glLineWidth(1);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        mesh->DrawHighlighted();
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+      }
+    }
+    else
+    {
+      ngl::ShaderLib::use("UnlitConstantSize");
+      ngl::ShaderLib::setUniform("MVP", MVP);
+      ngl::ShaderLib::setUniform("reciprScaleOnScreen", 2.0f * 50 / m_win.width);
+      ngl::ShaderLib::setUniform("Color", ngl::Vec4{1.0f, 0.95f, 0.8f, 1.0f});
+      ngl::ShaderLib::setUniform("objectID", it);
       mesh->DrawHighlighted();
-      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
     
     ++it;
@@ -197,7 +256,7 @@ void NGLScene::keyPressEvent(QKeyEvent *_event)
   case Qt::Key_A :
       //m_directionalLights.push_back(DirectionalLight({0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}));
       m_directionalLights.push_back(
-        Light(LightType::Directional, {0.0f, 0.0f, 0.0f}, {90, 90, 0}, {1.0f, 1.0f, 0.0f}, 2.0f) );
+        std::make_shared<Light>(LightType::Directional, ngl::Vec3{0.0f, 0.0f, 0.0f}, ngl::Vec3{90, 90, 0}, ngl::Vec3{1.0f, 1.0f, 0.0f}, 2.0f) );
 
       PBRShaderManager::UpdateLightCounts(m_directionalLights, m_pointLights);
 
@@ -345,6 +404,22 @@ void NGLScene::OnSceneListItemDeleted(int index)
   {
     m_selectedObject = nullptr;
   }
-  m_sceneObjects.erase(m_sceneObjects.begin() + index);
+  std::vector<std::shared_ptr<SceneObject>>::iterator iterator = m_sceneObjects.begin() + index;
+  std::shared_ptr<SceneObject> object = *iterator;
+  if(object->IsLight())
+  {
+    std::shared_ptr<Light> light = std::dynamic_pointer_cast<Light>(object);
+    if(light->GetType() == LightType::Directional)
+    {
+      m_directionalLights.erase( std::find(m_directionalLights.begin(), m_directionalLights.end(), light) );
+    }
+    else
+    {
+      m_pointLights.erase( std::find(m_pointLights.begin(), m_pointLights.end(), light) );
+    }
+    PBRShaderManager::UpdateLightCounts(m_directionalLights, m_pointLights);
+  }
+
+  m_sceneObjects.erase(iterator);
   update();
 }

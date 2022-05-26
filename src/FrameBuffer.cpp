@@ -96,6 +96,15 @@ FrameBuffer::FrameBuffer(const FramebufferSpecification& spec)
 
     Invalidate();
 }
+FrameBuffer::FrameBuffer(uint32_t textureArray, uint32_t layer)
+{
+    glCreateFramebuffers(1, &m_RendererID);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
+
+    glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, textureArray, 0, layer);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
 
 FrameBuffer::~FrameBuffer()
 {

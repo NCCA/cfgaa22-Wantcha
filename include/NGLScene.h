@@ -113,8 +113,8 @@ private:
     std::shared_ptr<Camera> m_camera;
     std::unique_ptr<Gizmo> m_gizmo;
 
-    std::vector<Light> m_directionalLights;
-    std::vector<Light> m_pointLights;
+    std::vector<std::shared_ptr<Light>> m_directionalLights;
+    std::vector<std::shared_ptr<Light>> m_pointLights;
     //std::unique_ptr<PBRShaderManager> m_shaderManager;
     std::vector< std::shared_ptr<SceneObject> > m_sceneObjects;
 

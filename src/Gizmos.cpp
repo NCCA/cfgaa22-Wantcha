@@ -330,7 +330,7 @@ void Gizmo::Manipulate(Transform& objectTransform, float dx, float dy)
             else if (angle <= -M_PI) { angle += 2 * M_PI; }
 
 
-            objectTransform.addRotation(moveDirection, std::min(ngl::degrees(angle), 10.0f) * -0.7f);
+            objectTransform.addRotation(moveDirection, std::min(ngl::degrees(angle), 10.0f) * -1.4f);
             m_initialMousePos += deltaMovement;
             break;
     }

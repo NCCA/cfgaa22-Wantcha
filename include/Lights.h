@@ -3,6 +3,7 @@
 
 #include <ngl/Vec3.h>
 #include "Transform.h"
+#include "FrameBuffer.h"
 #include "SceneObject.h"
 
 enum class LightType { Directional, Point };
@@ -19,8 +20,12 @@ public:
 
     float GetIntensity() const { return m_intensity; }
     ngl::Vec3 GetColor() const { return m_color; }
-    ngl::Vec3 GetForward() const;
+    ngl::Vec3 GetForward();
     LightType GetType() const { return m_lightType; }
+    ngl::Mat4 GetProjection() const { return m_projection; }
+    ngl::Mat4 GetView();
+
+    FrameBuffer* GetShadowBuffer() { return m_shadowBuffer.get(); }
     virtual QGridLayout* GetLayout() override;
 
     //virtual void Draw() const override {}
@@ -29,6 +34,10 @@ private:
     LightType m_lightType;
     ngl::Vec3 m_color = {1, 1, 1};
     float m_intensity = 1.0f;
+    std::unique_ptr<FrameBuffer> m_shadowBuffer;
+    ngl::Mat4 m_projection;
+
+    void Initialize();
 };
 
 /*class DirectionalLight
