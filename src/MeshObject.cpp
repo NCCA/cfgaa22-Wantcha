@@ -19,7 +19,7 @@ QGridLayout* MeshObject::GetLayout()
     layout->addWidget( new QLabel("MATERIAL PROPERTIES"), 0, 0 );
 
     layout->addWidget( new QLabel("Albedo"), 1, 0 );
-    TextureWidget* albedoWidget = new TextureWidget(&m_mesh->GetMaterial().m_albedoID, 256, 256, m_mesh->GetMaterial().m_albedoTexture);
+    TextureWidget* albedoWidget = new TextureWidget(&m_mesh->GetMaterial().m_albedoID, 50, 50, m_mesh->GetMaterial().m_albedoTexture);
     layout->addWidget(albedoWidget, 1, 1, Qt::AlignLeft);
     //QObject::connect(albedoWidget, &TextureWidget::SelectNewTexture, OnChangeAlbedoTexture(const std::string&) );
     

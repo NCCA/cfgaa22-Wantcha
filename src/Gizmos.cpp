@@ -262,7 +262,7 @@ void Gizmo::Manipulate(Transform& objectTransform, float dx, float dy)
                 sign = -1;
             }
 
-            objectTransform.addPosition( moveDirection * sign * std::min( float( projectedVector.lengthSquared() ), 250.0f ) * 0.0003f );
+            objectTransform.addPosition( moveDirection * sign * std::min( float( projectedVector.lengthSquared() ), 250.0f ) * 0.0005f );
             break;
         case GizmoType::SCALE:
             switch (m_selectedAxis)

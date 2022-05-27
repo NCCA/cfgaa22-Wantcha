@@ -8,7 +8,13 @@ uint32_t PBRShaderManager::s_blackTextureID = 0;
 uint32_t PBRShaderManager::s_blueTextureID = 0;
 uint32_t PBRShaderManager::s_shadowMapSize = 2048;
 uint32_t PBRShaderManager::s_directionalShadowMap = 0;
+uint32_t PBRShaderManager::s_pointShadowMap = 0;
 uint32_t PBRShaderManager::s_maxDirectionalShadows = 4;
+uint32_t PBRShaderManager::s_curDirShadowIndex = 0;
+
+uint32_t PBRShaderManager::s_maxPointShadows = 4;
+uint32_t PBRShaderManager::s_curPointShadowIndex = 0;
+std::unique_ptr<FrameBuffer> PBRShaderManager::s_pointShadowBuffer;
 
 /*PBRShaderManager::PBRShaderManager(const std::string& name, const std::string& vert, const std::string& frag)
     : m_vertPath(vert), m_fragPath(frag), m_name(name)
@@ -18,7 +24,7 @@ uint32_t PBRShaderManager::s_maxDirectionalShadows = 4;
 
 PBRShaderManager::PBRShaderManager()
 {
-    CreateWhiteTexture();
+    //CreateWhiteTexture();
 }
 
 void PBRShaderManager::CreateWhiteTexture()
@@ -79,8 +85,8 @@ void PBRShaderManager::CreateBlueTexture()
 std::string PBRShaderManager::m_fragPath = "";
 std::string PBRShaderManager::m_vertPath = "";
 std::string PBRShaderManager::m_name = "";
-std::vector<std::shared_ptr<Light>> PBRShaderManager::m_directionalLights = std::vector<std::shared_ptr<Light>>();
-std::vector<std::shared_ptr<Light>> PBRShaderManager::m_pointLights = std::vector<std::shared_ptr<Light>>();
+std::vector<std::shared_ptr<Light>> PBRShaderManager::s_directionalLights = std::vector<std::shared_ptr<Light>>();
+std::vector<std::shared_ptr<Light>> PBRShaderManager::s_pointLights = std::vector<std::shared_ptr<Light>>();
 
 void PBRShaderManager::Init(const std::string& name,
             const std::string& vert, const std::string& frag)
@@ -95,99 +101,165 @@ void PBRShaderManager::Init(const std::string& name,
     glGenTextures(1, &s_directionalShadowMap);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D_ARRAY, s_directionalShadowMap);
-    glTexParameteri(s_directionalShadowMap, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(s_directionalShadowMap, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(s_directionalShadowMap, GL_TEXTURE_WRAP_R, GL_REPEAT);
-    glTexParameteri(s_directionalShadowMap, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(s_directionalShadowMap, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    glTexParameterfv(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BORDER_COLOR, borderColor);
     /*glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT32, s_shadowMapSize, s_shadowMapSize,
             s_maxDirectionalShadows, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);*/
     glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_DEPTH_COMPONENT32, s_shadowMapSize, s_shadowMapSize, s_maxDirectionalShadows);
     glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
+
+    glGenTextures(1, &s_pointShadowMap);
+    glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, s_pointShadowMap);
+    /*for(int i = 0; i < 6; i++)
+    {
+        glTexImage3D(GL_TEXTURE_CUBE_MAP)
+    }*/
+    glTexStorage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 1, GL_DEPTH_COMPONENT32, s_shadowMapSize, s_shadowMapSize, s_maxPointShadows * 6);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    glTexParameterfv(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_BORDER_COLOR, borderColor);
+
+    s_pointShadowBuffer.reset( new FrameBuffer(s_pointShadowMap) );
+
+    ngl::ShaderLib::useNullProgram();
+
+    ngl::ShaderLib::loadShader(m_name, m_vertPath, m_fragPath);
 }
 
-void PBRShaderManager::UpdateLightCounts(std::vector<std::shared_ptr<Light>>& dl, std::vector<std::shared_ptr<Light>>& pl)
+void PBRShaderManager::UpdateLightCounts()
 {
     // Dynamic light count
-    std::fstream file;
-    file.open(m_fragPath, std::ios::in| std::ios::out | std::ios::binary );
-    std::string fragText;
+    std::fstream fragFile, vertFile;
+    fragFile.open(m_fragPath, std::ios::in| std::ios::out | std::ios::binary );
+    vertFile.open(m_vertPath, std::ios::in| std::ios::out | std::ios::binary );
+    std::string fragText, vertText;
 
     const std::string dirCountText = "dirLightCount";
     const std::string pointCountText = "pLightCount";
 
-    m_directionalLights = dl;
-    m_pointLights = pl;
-
-    if (file)
+    if (fragFile)
     {
-        file.seekg(0, std::ios::end);
-        fragText.resize(file.tellg());
-        file.seekg(0, std::ios::beg);
-        file.read(&fragText[0], fragText.size());
+        fragFile.seekg(0, std::ios::end);
+        fragText.resize(fragFile.tellg());
+        fragFile.seekg(0, std::ios::beg);
+        fragFile.read(&fragText[0], fragText.size());
+
+        vertFile.seekg(0, std::ios::end);
+        vertText.resize(vertFile.tellg());
+        vertFile.seekg(0, std::ios::beg);
+        vertFile.read(&vertText[0], vertText.size());
 
         //Directional lights
-        size_t pos; 
-        pos = fragText.find(dirCountText);
+        size_t posFrag, posVert; 
+        posFrag = fragText.find(dirCountText);
+        posVert = vertText.find(dirCountText);
 
-        size_t numberPos = pos + dirCountText.length() + 1;
-        std::string numberString = std::to_string( static_cast<int>(dl.size()) );
-        std::cout<<numberPos<<std::endl;
+        size_t numberPosFrag = posFrag + dirCountText.length() + 1;
+        size_t numberPosVert = posVert + dirCountText.length() + 1;
+        std::string numberString = std::to_string( static_cast<int>(s_directionalLights.size()) );
+
         for(int i = 0; i < numberString.length(); ++i)
         {
-            file.seekp(numberPos + i);
-            file.put( numberString[i] );
+            fragFile.seekp(numberPosFrag + i);
+            fragFile.put( numberString[i] );
+
+            vertFile.seekp(numberPosVert + i);
+            vertFile.put( numberString[i] );
         }
+
 
         // Point lights
-        file.seekg(0, std::ios::beg);
-        pos = fragText.find(pointCountText);
+        fragFile.seekg(0, std::ios::beg);
+        posFrag = fragText.find(pointCountText);
 
-        numberPos = pos + pointCountText.length() + 1;
-        numberString = std::to_string( static_cast<int>(pl.size()) );
+        numberPosFrag = posFrag + pointCountText.length() + 1;
+        numberString = std::to_string( static_cast<int>(s_pointLights.size()) );
         for(int i = 0; i < numberString.length(); ++i)
         {
-            file.seekp(numberPos + i);
-            file.put( numberString[i] );
+            fragFile.seekp(numberPosFrag + i);
+            fragFile.put( numberString[i] );
         }
 
-        file.close();
+        fragFile.close();
+        vertFile.close();
     }
+    ngl::ShaderLib::useNullProgram();
+
+    ngl::ShaderLib::loadShader(m_name, m_vertPath, m_fragPath);
     RefreshCurrentLights();
 }
 
 void PBRShaderManager::RefreshCurrentLights()
 {
-    ngl::ShaderLib::useNullProgram();
-
-    ngl::ShaderLib::loadShader(m_name, m_vertPath, m_fragPath);
     ngl::ShaderLib::use(m_name);
-
-    for(int i = 0; i < m_directionalLights.size(); ++i)
+    for(int i = 0; i < s_directionalLights.size(); ++i)
     {
         ngl::ShaderLib::setUniform(("dirLightDirs[" + std::to_string(i) + "]").c_str(),
-            m_directionalLights[i]->GetForward() );
+            s_directionalLights[i]->GetForward() );
         ngl::ShaderLib::setUniform(("dirLightColors[" + std::to_string(i) + "]").c_str(),
-            m_directionalLights[i]->GetColor());
+            s_directionalLights[i]->GetColor());
         ngl::ShaderLib::setUniform(("dirLightIntensities[" + std::to_string(i) + "]").c_str(),
-            m_directionalLights[i]->GetIntensity());
+            s_directionalLights[i]->GetIntensity());
     }
 
-    for(int i = 0; i < m_pointLights.size(); ++i)
+    for(int i = 0; i < s_pointLights.size(); ++i)
     {
         /*ngl::ShaderLib::setUniform(("pLightDirs[" + std::to_string(i) + "]").c_str(),
             pl[i].GetForward() );*/
         ngl::ShaderLib::setUniform(("pLightColors[" + std::to_string(i) + "]").c_str(),
-            m_pointLights[i]->GetColor());
+            s_pointLights[i]->GetColor());
 
         ngl::ShaderLib::setUniform(("pLightIntensities[" + std::to_string(i) + "]").c_str(),
-            m_pointLights[i]->GetIntensity());
+            s_pointLights[i]->GetIntensity());
         ngl::ShaderLib::setUniform(("pLightPos[" + std::to_string(i) + "]").c_str(),
-            m_pointLights[i]->GetPosition());
+            s_pointLights[i]->GetPosition());
     }
 }
 
 void PBRShaderManager::UseShader()
 {
     ngl::ShaderLib::use(m_name);
+}
+
+std::shared_ptr<Light> PBRShaderManager::AddDirectionalLight(const ngl::Vec3& position, const ngl::Vec3& rotation, const ngl::Vec3& color, float intensity)
+{
+    std::shared_ptr<Light> light = std::make_shared<Light>(LightType::Directional, position, rotation, color, intensity);
+    s_directionalLights.push_back(light);
+    UpdateLightCounts();
+    return light;
+}
+
+std::shared_ptr<Light> PBRShaderManager::AddPointLight(const ngl::Vec3& position, const ngl::Vec3& color, float intensity)
+{
+    std::shared_ptr<Light> light = std::make_shared<Light>(LightType::Point, position, ngl::Vec3(0,0,0), color, intensity);
+    s_pointLights.push_back(light);
+    UpdateLightCounts();
+    return light;
+}
+
+void PBRShaderManager::RemoveDirectionalLight( std::shared_ptr<Light> light )
+{
+    s_directionalLights.erase( std::find(s_directionalLights.begin(), s_directionalLights.end(), light) );
+    PBRShaderManager::s_curDirShadowIndex = 0;
+    for(int i = 0; i < s_directionalLights.size() && i < PBRShaderManager::s_maxDirectionalShadows; i++)
+    {
+        s_directionalLights[i]->RecalculateShadowBuffer(i);
+    }
+    UpdateLightCounts();
+}
+
+void PBRShaderManager::RemovePointLight( std::shared_ptr<Light> light )
+{
+    s_pointLights.erase( std::find(s_pointLights.begin(), s_pointLights.end(), light) );
+
+    UpdateLightCounts();
 }

@@ -19,13 +19,8 @@ TextureWidget::~TextureWidget()
 
 void TextureWidget::initializeGL()
 {
-    if( ngl::ShaderLib::getProgramID("SimpleTexture") == 0)
-    {
-        ngl::ShaderLib::loadShader("SimpleTexture", "shaders/SimpleTextureVert.glsl", "shaders/SimpleTextureFrag.glsl");
-    }
-
     ngl::Vec3 points[4] = { ngl::Vec3{ -1, -1, 0 }, ngl::Vec3{ 1, -1, 0 }, ngl::Vec3{ 1, 1, 0 }, ngl::Vec3{ -1, 1, 0 } };
-    ngl::Vec2 uvs[] = { ngl::Vec2{ 0,0 }, ngl::Vec2{ 1, 0 }, ngl::Vec2{ 1,1 }, ngl::Vec2{ 0,1 } };
+    ngl::Vec2 uvs[4] = { ngl::Vec2{ 0,0 }, ngl::Vec2{ 1, 0 }, ngl::Vec2{ 1,1 }, ngl::Vec2{ 0,1 } };
 
     m_vbo[0].pos = points[0]; m_vbo[0].uv = uvs[0];
     m_vbo[1].pos = points[1]; m_vbo[1].uv = uvs[1];
@@ -68,7 +63,7 @@ void TextureWidget::paintGL()
     ngl::ShaderLib::use("SimpleTexture");
     ngl::ShaderLib::setUniform("colorTexture", 0);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, /**m_id*/ PBRShaderManager::s_directionalShadowMap);
+    glBindTexture(GL_TEXTURE_2D, *m_id /*PBRShaderManager::s_directionalShadowMap*/);
 
     m_vaoMesh->bind();
     m_vaoMesh->draw();

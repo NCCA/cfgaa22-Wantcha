@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <ngl/Texture.h>
+#include <FrameBuffer.h>
 #include <memory>
 
 class Light;
@@ -24,10 +25,16 @@ public:
     static void Init(const std::string& name,
             const std::string& vert, const std::string& frag);
 
-    static void UpdateLightCounts(std::vector<std::shared_ptr<Light>>& dl,
-                                    std::vector<std::shared_ptr<Light>>& pl);
+    static void UpdateLightCounts();
 
     static void RefreshCurrentLights();
+    static std::shared_ptr<Light> AddDirectionalLight(const ngl::Vec3& position = { 0, 1, 0 }, const ngl::Vec3& rotation = { 90, 0, 0 },
+                const ngl::Vec3& color = {1,1,1}, float intensity = 1.0f);
+    static std::shared_ptr<Light> AddPointLight(const ngl::Vec3& position = { 0, 1, 0 },
+                const ngl::Vec3& color = {1,1,1}, float intensity = 1.0f);
+
+    static void RemoveDirectionalLight( std::shared_ptr<Light> light );
+    static void RemovePointLight( std::shared_ptr<Light> light );
     
     static void UseShader();
 
@@ -36,14 +43,21 @@ public:
     static uint32_t s_blueTextureID;
     static uint32_t s_shadowMapSize;
     static uint32_t s_maxDirectionalShadows;
+    static uint32_t s_curDirShadowIndex;
+
+    static uint32_t s_maxPointShadows;
+    static uint32_t s_curPointShadowIndex;
 
     static uint32_t s_directionalShadowMap;
+    static uint32_t s_pointShadowMap;
+    static std::unique_ptr<FrameBuffer> s_pointShadowBuffer;
+    static std::vector<std::shared_ptr<Light>> s_directionalLights;
+    static std::vector<std::shared_ptr<Light>> s_pointLights;
+
 private:
     static std::string m_fragPath;
     static std::string m_vertPath;
     static std::string m_name;
-    static std::vector<std::shared_ptr<Light>> m_directionalLights;
-    static std::vector<std::shared_ptr<Light>> m_pointLights;
     static void CreateWhiteTexture();
     static void CreateBlackTexture();
     static void CreateBlueTexture();

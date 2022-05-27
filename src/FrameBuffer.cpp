@@ -102,6 +102,20 @@ FrameBuffer::FrameBuffer(uint32_t textureArray, uint32_t layer)
     glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
 
     glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, textureArray, 0, layer);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+FrameBuffer::FrameBuffer(uint32_t textureArray)
+{
+    glCreateFramebuffers(1, &m_RendererID);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
+
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, textureArray, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

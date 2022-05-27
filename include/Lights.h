@@ -26,6 +26,7 @@ public:
     ngl::Mat4 GetView();
 
     FrameBuffer* GetShadowBuffer() { return m_shadowBuffer.get(); }
+    void RecalculateShadowBuffer(uint32_t texture3DIndex);
     virtual QGridLayout* GetLayout() override;
 
     //virtual void Draw() const override {}

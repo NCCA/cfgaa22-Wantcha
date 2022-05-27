@@ -31,7 +31,7 @@ void NGLScene::mouseMoveEvent( QMouseEvent* _event )
       emit UpdateTransformUI(m_selectedObject->GetTransform());
 
       if(m_selectedObject->IsLight())
-        PBRShaderManager::UpdateLightCounts(m_directionalLights, m_pointLights);
+        PBRShaderManager::RefreshCurrentLights();
     }
   }
 
@@ -65,20 +65,8 @@ void NGLScene::mousePressEvent( QMouseEvent* _event )
   if ( _event->button() == Qt::LeftButton/* && _event->modifiers() == Qt::AltModifier*/)
   {
     //std::cout<<m_viewportFrameBuffer->ReadPixel( 1, _event->x(), m_win.height - _event->y() ) << " at "<< _event->x() << " "<< _event->y() << "\n";
-    if(m_hoveredObjectID >= 0 && m_hoveredObjectID < m_sceneObjects.size())
-    {
-      m_selectedObject = m_sceneObjects[m_hoveredObjectID];
-      if(m_selectedObject)
-      {
-        Transform trans = m_selectedObject->GetTransform();
-        trans.setScale(ngl::Vec3{1,1,1});
-        m_gizmo->SetTransform(trans);
-      }
-      emit UpdateTransformUI(m_selectedObject->GetTransform());
-      emit UpdatePropertiesBox(m_selectedObject->GetLayout());
-    }
 
-    else if(m_hoveredObjectID < 0 && m_hoveredObjectID > -100)
+    if(m_hoveredObjectID < 0 && m_hoveredObjectID > -100)
     {
       m_gizmo->StartManipulate(m_selectedObject->GetTransform(), -(m_hoveredObjectID + 1), ngl::Vec2( m_win.origX, m_win.origY ));
       //std::cout<<-(m_hoveredObjectID + 1)<<"\n";
@@ -108,12 +96,28 @@ void NGLScene::mouseReleaseEvent( QMouseEvent* _event )
   if ( _event->button() == Qt::LeftButton )
   {
     m_win.rotate = false;
-    if(!m_win.rotating && m_hoveredObjectID == -100 && !m_gizmo->IsManipulating())
+    if(!m_win.rotating && !m_gizmo->IsManipulating())
     {
-      m_selectedObject = nullptr;
-      emit UpdateTransformUI(Transform());
-      emit UpdatePropertiesBox(new QGridLayout());
+      if(m_hoveredObjectID == -100)
+      {
+        m_selectedObject = nullptr;
+        emit UpdateTransformUI(Transform());
+        emit UpdatePropertiesBox(new QGridLayout());
+      }
+      else if(m_hoveredObjectID >= 0 && m_hoveredObjectID < m_sceneObjects.size())
+      {
+        m_selectedObject = m_sceneObjects[m_hoveredObjectID];
+        if(m_selectedObject)
+        {
+          Transform trans = m_selectedObject->GetTransform();
+          trans.setScale(ngl::Vec3{1,1,1});
+          m_gizmo->SetTransform(trans);
+        }
+        emit UpdateTransformUI(m_selectedObject->GetTransform());
+        emit UpdatePropertiesBox(m_selectedObject->GetLayout());
+      }
     }
+    
 
     m_win.rotating = false;
     m_gizmo->StopManipulate();

@@ -69,6 +69,8 @@ class NGLScene : public QOpenGLWidget
       void OnSceneListItemSelected(int index);
       void OnSceneListItemDeleted(int index);
       void OnAddMesh(const std::string& path);
+      void OnAddDirectionalLight();
+      void OnAddPointLight();
 
     signals:
         void UpdateTransformUI(Transform);
@@ -112,9 +114,6 @@ private:
     //ngl::Vec3 m_modelPos = {0.0f, 0.0f, 0.0f};
     std::shared_ptr<Camera> m_camera;
     std::unique_ptr<Gizmo> m_gizmo;
-
-    std::vector<std::shared_ptr<Light>> m_directionalLights;
-    std::vector<std::shared_ptr<Light>> m_pointLights;
     //std::unique_ptr<PBRShaderManager> m_shaderManager;
     std::vector< std::shared_ptr<SceneObject> > m_sceneObjects;
 

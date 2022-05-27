@@ -125,6 +125,8 @@ void MainWindow::OnShowSceneObjectContextMenu(const QPoint& pos)
     QMenu myMenu;
     //myMenu.addAction("Insert", this, SLOT(addItem()));
     myMenu.addAction("Add Mesh",  this, SLOT(OnCreateMesh()));
+    myMenu.addAction("Add Directional Light",  m_scene, SLOT(OnAddDirectionalLight()));
+    myMenu.addAction("Add Point Light",  m_scene, SLOT(OnAddPointLight()));
     myMenu.addAction("Delete",  this, SLOT(OnEraseItem()));
 
     // Show context menu at handling position

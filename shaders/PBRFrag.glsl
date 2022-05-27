@@ -12,6 +12,8 @@ layout(binding=2) uniform sampler2D roughnessMap;
 layout(binding=3) uniform sampler2D normalMap;
 layout(binding=4) uniform sampler2D aoMap;
 layout(binding=5) uniform sampler2D metallicMap;
+layout (binding = 6) uniform sampler2DArray shadowMap;
+layout (binding = 7) uniform samplerCubeArray pointShadowMap;
 
 #if dirLightCount != 0
 uniform vec3 dirLightDirs[dirLightCount];
@@ -32,6 +34,9 @@ uniform vec3 camPos;
 in vec3 Normal;
 in vec2 UV;
 in vec3 WorldPos;
+#if dirLightCount != 0
+in vec4 LightSpacePos[dirLightCount];
+#endif
 //flat in int v_objectID;
 
 const float PI = 3.14159265359;
@@ -101,6 +106,66 @@ vec3 PowerVec3(vec3 color, float power)
     return v;
 }
 
+float ShadowCalculation(vec4 fragPosLightSpace, int index)
+{
+    float bias = 0.025;
+    // perform perspective divide
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    projCoords = projCoords * 0.5 + 0.5;
+    float shadow = 0;
+    if(projCoords.z > 1.0)
+        return shadow;
+    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+    //float closestDepth = texture(shadowMap, vec3(projCoords.xy, index)).r; 
+    // get depth of current fragment from light's perspective
+    float currentDepth = projCoords.z;
+    vec2 texelSize = vec3(1.0 / textureSize(shadowMap, 0)).xy;
+    for(int x = -1; x <= 1; ++x)
+    {
+        for(int y = -1; y <= 1; ++y)
+        {
+            float pcfDepth = texture(shadowMap, vec3(projCoords.xy+vec2(x, y)*texelSize, index)).r; 
+            shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
+        }    
+    }
+    shadow /= 9.0;
+
+    return shadow;
+}
+
+#if pLightCount != 0
+vec3 sampleOffsetDirections[20] = vec3[]
+(
+   vec3( 1,  1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1,  1,  1), 
+   vec3( 1,  1, -1), vec3( 1, -1, -1), vec3(-1, -1, -1), vec3(-1,  1, -1),
+   vec3( 1,  1,  0), vec3( 1, -1,  0), vec3(-1, -1,  0), vec3(-1,  1,  0),
+   vec3( 1,  0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1,  0, -1),
+   vec3( 0,  1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0,  1, -1)
+); 
+float PointShadowCalculation(vec3 fragPos, int index)
+{
+    float far_plane = 25.0;
+    float shadow = 0.0;
+    vec3 fragToLight = fragPos - pLightPos[index];
+    float currentDepth = length(fragToLight);
+    
+    float closestDepth = texture(pointShadowMap, vec4(fragToLight, index)).r;
+    int samples = 20;
+    float diskRadius = (1.0 + (length( camPos - fragPos ) / far_plane)) / 25.0 * 0.1;
+    float bias = 0.0125;
+    for(int i = 0; i < samples; ++i)
+    {
+        float closestDepth = texture(pointShadowMap, vec4(fragToLight + sampleOffsetDirections[i] *
+                    diskRadius, index)).r;
+        closestDepth *= 25.0;   //far_plane
+        if(currentDepth - bias > closestDepth)
+            shadow += 1.0;
+    }
+
+    return shadow /= float(samples);
+}
+#endif
+
 void main()
 {
     vec3 albedo     = PowerVec3( texture(albedoMap, UV).rgb, 2.2);
@@ -140,7 +205,8 @@ void main()
             
         // add to outgoing radiance Lo
         float NdotL = max(dot(N, L), 0.0);                
-        Lo += (kD * albedo / PI + specular) * radiance * NdotL * pLightIntensities[i]; 
+        Lo += (kD * albedo / PI + specular) * radiance * NdotL *
+                pLightIntensities[i] * ( 1 - PointShadowCalculation(WorldPos, i) ); 
     }
     #endif
 
@@ -168,10 +234,16 @@ void main()
             
         // add to outgoing radiance Lo
         float NdotL = max(dot(N, L), 0.0);                
-        Lo += (kD * albedo / PI + specular) * radiance * NdotL * dirLightIntensities[i]; 
+        Lo += (kD * albedo / PI + specular) * radiance * NdotL
+            * dirLightIntensities[i] * (1-ShadowCalculation(LightSpacePos[i], i)); 
     }
     #endif
 
+    /*float shadow = 0;
+    for(int i = 0; i < dirLightCount; i++)
+    {
+        shadow += ShadowCalculation(LightSpacePos[i], i); 
+    }*/
     vec3 ambient = vec3(0.03) * albedo * ao;
     vec3 color = ambient + Lo;
 	
