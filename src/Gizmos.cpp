@@ -50,8 +50,8 @@ Gizmo::Gizmo(std::shared_ptr<Camera> camera)
     triangleVerts.clear();
     const float segmentAngle = ngl::radians( m_rotationGizmoAngleSpan / m_rotateGizmoSegments );
 
-    linePoints.push_back(ngl::Vec3{ cos(0) * (m_gizmoRadius - m_lineWidth), sin(0) * (m_gizmoRadius - m_lineWidth), 0});
-    linePoints.push_back(ngl::Vec3{ cos(0) * m_gizmoRadius, sin(0) * m_gizmoRadius, 0});
+    linePoints.push_back(ngl::Vec3{ float(cos(0)) * (m_gizmoRadius - m_lineWidth), float(sin(0)) * (m_gizmoRadius - m_lineWidth), 0});
+    linePoints.push_back(ngl::Vec3{ float(cos(0)) * m_gizmoRadius, float(sin(0)) * m_gizmoRadius, 0});
     int vertIndex = 1;
     for(int i = 1; i <= m_rotateGizmoSegments; ++i)
     {
@@ -65,8 +65,8 @@ Gizmo::Gizmo(std::shared_ptr<Camera> camera)
     linePoints.clear();
     triangleVerts.clear();
 
-    linePoints.push_back(ngl::Vec3{ cos(0) * (m_gizmoRadius - m_lineWidth), 0, sin(0) * (m_gizmoRadius - m_lineWidth)});
-    linePoints.push_back(ngl::Vec3{ cos(0) * m_gizmoRadius, 0, sin(0) * m_gizmoRadius});
+    linePoints.push_back(ngl::Vec3{ float(cos(0)) * (m_gizmoRadius - m_lineWidth), 0, float(sin(0)) * (m_gizmoRadius - m_lineWidth)});
+    linePoints.push_back(ngl::Vec3{ float(cos(0)) * m_gizmoRadius, 0, float(sin(0)) * m_gizmoRadius});
     vertIndex = 1;
     for(int i = 1; i <= m_rotateGizmoSegments; ++i)
     {
@@ -80,8 +80,8 @@ Gizmo::Gizmo(std::shared_ptr<Camera> camera)
 
     linePoints.clear();
     triangleVerts.clear();
-    linePoints.push_back(ngl::Vec3{0, cos(0) * (m_gizmoRadius - m_lineWidth), sin(0) * (m_gizmoRadius - m_lineWidth)});
-    linePoints.push_back(ngl::Vec3{0, cos(0) * m_gizmoRadius, sin(0) * m_gizmoRadius});
+    linePoints.push_back(ngl::Vec3{0, float(cos(0)) * (m_gizmoRadius - m_lineWidth), float(sin(0)) * (m_gizmoRadius - m_lineWidth)});
+    linePoints.push_back(ngl::Vec3{0, float(cos(0)) * m_gizmoRadius, float(sin(0)) * m_gizmoRadius});
     vertIndex = 1;
     for(int i = 1; i <= m_rotateGizmoSegments; ++i)
     {

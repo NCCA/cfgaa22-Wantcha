@@ -98,6 +98,7 @@ void Mesh::CreateVAO()
 
 void Mesh::SetVertices(const std::vector<ngl::Vec3>& verts)
 {
+    m_verts.resize(verts.size());
     m_verts = verts;
     std::vector <VertData> vboMesh;
     VertData d;
@@ -107,7 +108,7 @@ void Mesh::SetVertices(const std::vector<ngl::Vec3>& verts)
     d.u = 0;
     d.v = 0;
 
-    for(int i = 0; i <= m_verts.size(); ++i)
+    for(int i = 0; i < m_verts.size(); ++i)
     {
         d.x = m_verts[i].m_x;
         d.y = m_verts[i].m_y;
@@ -144,8 +145,6 @@ void Mesh::UnbindVAO() const
 
 void Mesh::Draw() const
 {
-    //ngl::ShaderLib::setUniform("baseColor", m_material.m_baseColor);
-    m_material.BindTextures();
     if(m_hasVAO)
     {
         m_vaoMesh->bind();

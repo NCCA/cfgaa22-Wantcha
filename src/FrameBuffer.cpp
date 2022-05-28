@@ -1,5 +1,4 @@
 #include "FrameBuffer.h"
-#include <ngl/Shader.h>
 
 static const uint32_t s_MaxFrameBufferSize = 8192;
 
@@ -21,7 +20,7 @@ namespace Utils
         glBindTexture(TextureTarget(multisampled), id);
     }
 
-    static void AttachColorTexture(uint32_t id, int samples, GLenum internalFormat, GLenum format, uint32_t width, uint32_t height, int index)
+    static void AttachColorTexture(uint32_t id, int samples, GLenum internalFormat, GLenum format, GLenum type, uint32_t width, uint32_t height, int index)
     {
         bool multisampled = samples > 1;
         if (multisampled)
@@ -30,7 +29,7 @@ namespace Utils
         }
         else
         {
-            glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, nullptr);
+            glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, nullptr);
 
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -76,6 +75,7 @@ namespace Utils
         switch (format)
         {
             case FramebufferTextureFormat::RGBA8: return GL_RGBA8;
+            case FramebufferTextureFormat::RGB16F: return GL_RGB16F;
             case FramebufferTextureFormat::RED_INTEGER: return GL_RED_INTEGER;
             case FramebufferTextureFormat::DEPTH24STENCIL8: return GL_DEPTH24_STENCIL8;
         }
@@ -120,6 +120,11 @@ FrameBuffer::FrameBuffer(uint32_t textureArray)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+void FrameBuffer::SetAttachment(GLenum attachment, GLenum textureTarget, uint32_t textureID)
+{
+    glFramebufferTexture2D( GL_FRAMEBUFFER, attachment, textureTarget, textureID, 0);
+}
+
 FrameBuffer::~FrameBuffer()
 {
     glDeleteFramebuffers(1, &m_RendererID);
@@ -156,10 +161,13 @@ void FrameBuffer::Invalidate()
             switch (m_ColorAttachmentSpecs[i].TextureFormat)
             {
             case FramebufferTextureFormat::RGBA8:
-                Utils::AttachColorTexture(m_ColorAttachments[i], m_Specs.Samples, GL_RGBA8, GL_RGBA, m_Specs.Width, m_Specs.Height, i);
+                Utils::AttachColorTexture(m_ColorAttachments[i], m_Specs.Samples, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, m_Specs.Width, m_Specs.Height, i);
                 break;
             case FramebufferTextureFormat::RED_INTEGER:
-                Utils::AttachColorTexture(m_ColorAttachments[i], m_Specs.Samples, GL_R32I, GL_RED_INTEGER, m_Specs.Width, m_Specs.Height, i);
+                Utils::AttachColorTexture(m_ColorAttachments[i], m_Specs.Samples, GL_R32I, GL_RED_INTEGER, GL_UNSIGNED_BYTE, m_Specs.Width, m_Specs.Height, i);
+                break;
+            case FramebufferTextureFormat::RGB16F:
+                Utils::AttachColorTexture(m_ColorAttachments[i], m_Specs.Samples, GL_RGB16F, GL_RGB, GL_FLOAT, m_Specs.Width, m_Specs.Height, i);
                 break;
             }
         }

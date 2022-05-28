@@ -2,6 +2,7 @@
 #include <Lights.h>
 #include <fstream>
 #include <iostream>
+#include <../3rdparty/stb_image.h>
 
 uint32_t PBRShaderManager::s_whiteTextureID = 0;
 uint32_t PBRShaderManager::s_blackTextureID = 0;
@@ -15,6 +16,8 @@ uint32_t PBRShaderManager::s_curDirShadowIndex = 0;
 uint32_t PBRShaderManager::s_maxPointShadows = 4;
 uint32_t PBRShaderManager::s_curPointShadowIndex = 0;
 std::unique_ptr<FrameBuffer> PBRShaderManager::s_pointShadowBuffer;
+
+EnvironmentTexture PBRShaderManager::s_envMap;
 
 /*PBRShaderManager::PBRShaderManager(const std::string& name, const std::string& vert, const std::string& frag)
     : m_vertPath(vert), m_fragPath(frag), m_name(name)
@@ -129,6 +132,9 @@ void PBRShaderManager::Init(const std::string& name,
     glTexParameterfv(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_BORDER_COLOR, borderColor);
 
     s_pointShadowBuffer.reset( new FrameBuffer(s_pointShadowMap) );
+    std::cout<<"Loading HDRI\n";
+    //s_envMap->loadImage("textures/HDRI/Factory_Catwalk_Env.hdr");
+    
 
     ngl::ShaderLib::useNullProgram();
 
@@ -192,6 +198,8 @@ void PBRShaderManager::UpdateLightCounts()
         fragFile.close();
         vertFile.close();
     }
+    s_envMap = EnvironmentTexture("textures/HDRI/Factory_Catwalk_2k.hdr");
+
     ngl::ShaderLib::useNullProgram();
 
     ngl::ShaderLib::loadShader(m_name, m_vertPath, m_fragPath);

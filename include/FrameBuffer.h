@@ -7,6 +7,7 @@
 #include <memory>
 #include <cstdint>
 #include <vector>
+#include <ngl/Shader.h>
 
 enum class FramebufferTextureFormat
 	{
@@ -15,6 +16,7 @@ enum class FramebufferTextureFormat
 		// Color
 		RGBA8,
 		RED_INTEGER,
+		RGB16F,
 
 		// Depth/stencil
 		DEPTH24STENCIL8,
@@ -72,6 +74,7 @@ public:
     int ReadPixel(uint32_t attachmentIndex, int x, int y);
 
     void ClearAttachment(uint32_t attachmentIndex, int value);
+	void SetAttachment(GLenum attachment, GLenum textureTarget, uint32_t textureID);
 
     uint32_t GetColorAttachmentRendererID(uint32_t index = 0) const { return m_ColorAttachments[index]; }
 

@@ -62,6 +62,7 @@ void NGLScene::initializeGL()
   glEnable(GL_DEPTH_TEST);
   // enable multisampling for smoother drawing
   glEnable(GL_MULTISAMPLE);
+  //glEnable(GL_CULL_FACE);  
 
   FramebufferSpecification fbSpec;
 	fbSpec.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };
@@ -70,16 +71,6 @@ void NGLScene::initializeGL()
 	m_viewportFrameBuffer = std::make_unique<FrameBuffer>(fbSpec);
 
   PBRShaderManager::Init("PBR", "shaders/PBRVert.glsl", "shaders/PBRFrag.glsl");
-
-
-  /*std::shared_ptr<Light> l1 = std::make_shared<Light>(LightType::Directional,
-        ngl::Vec3{0, 2.0f, 0.5f}, ngl::Vec3{ 135, 0 ,0 }, ngl::Vec3{1.0f, 1.0f, 1.0f}, 2.0f);
-
-    std::shared_ptr<Light> l2 = std::make_shared<Light>(LightType::Directional,
-        ngl::Vec3{1.0f, 2.0f, 0.5f}, ngl::Vec3{ 45, 90 ,0 }, ngl::Vec3{1.0f, 0.7f, 0.8f}, 2.0f);*/
-
-  /*Light l2(LightType::Directional, {0, 0, 0}, { 0, 0, 0 },
-            {1.0f, 1.0f, 1.0f}, 0.9f);*/
 
   //std::shared_ptr<Light> l3 = std::make_shared<Light>(LightType::Point, ngl::Vec3{-1, 2, 0}, ngl::Vec3{ 0, 0 ,0 }, ngl::Vec3{1, 0.9f, 1});
 
@@ -90,10 +81,10 @@ void NGLScene::initializeGL()
   ngl::ShaderLib::loadShader("SimpleDepth", "shaders/SimpleDepthVert.glsl", "shaders/SimpleDepthFrag.glsl");
   ngl::ShaderLib::loadShader("LinearDepth", "shaders/LinearDepthVert.glsl", "shaders/LinearDepthFrag.glsl", "shaders/LinearDepthGeo.glsl");
   ngl::ShaderLib::loadShader("SimpleTexture", "shaders/SimpleTextureVert.glsl", "shaders/SimpleTextureFrag.glsl");
+  ngl::ShaderLib::loadShader("HDRToCubemap", "shaders/HDRToCubeVert.glsl", "shaders/HDRToCubeFrag.glsl");
+  ngl::ShaderLib::loadShader("Skybox", "shaders/SkyboxVert.glsl", "shaders/SkyboxFrag.glsl");
 
   m_gizmo = std::make_unique<Gizmo>( m_camera );
-  //ngl::ShaderLib::setUniform("directionalLightCount", static_cast<int>(m_directionalLights.size()));
-
 
   m_sceneObjects.push_back(std::make_shared<MeshObject>("meshes/yuri.obj"));
   //static_cast<MeshObject>(m_sceneObjects[0])->GetMesh()->GetMaterial().SetTexture("textures/checkerboard.jpg");
@@ -122,8 +113,6 @@ void NGLScene::initializeGL()
   m_sceneObjects[2]->SetScale({5.0f, 1.25f, 5.0f});
   m_sceneObjects[2]->SetName("Plane");
 
-  //m_sceneObjects.push_back(l1);
-  //m_sceneObjects.push_back(l2);
   m_sceneObjects.push_back(PBRShaderManager::AddDirectionalLight(ngl::Vec3{0, 2.0f, 0.5f}, ngl::Vec3{ 135, 0 ,0 }, ngl::Vec3{1.0f, 1.0f, 1.0f}, 0.5f));
   m_sceneObjects.push_back(PBRShaderManager::AddDirectionalLight(ngl::Vec3{1.0f, 2.0f, 0.5f}, ngl::Vec3{ 45, 90 ,0 }, ngl::Vec3{1.0f, 0.7f, 0.8f}, 0.5f));
   m_sceneObjects.push_back(PBRShaderManager::AddPointLight(ngl::Vec3{-1, 2, 0}, ngl::Vec3{1, 0.5f, 0.7f}, 5.0f));
@@ -219,6 +208,8 @@ void NGLScene::paintGL()
   ngl::Mat4 VP = m_camera->GetProjection() * m_camera->GetView();
 
   //PBRShaderManager::UseShader();
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LEQUAL);
   for(auto mesh : m_sceneObjects)
   {
     ngl::Mat4 MVP = VP * mesh->GetTransform().getMatrix();
@@ -243,6 +234,7 @@ void NGLScene::paintGL()
       
       ngl::ShaderLib::setUniform("objectID", it);
 
+      mesh->GetMesh()->GetMaterial().BindTextures();
       mesh->Draw();
 
       if(mesh == m_selectedObject)
@@ -255,6 +247,8 @@ void NGLScene::paintGL()
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         mesh->DrawHighlighted();
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        //ngl::ShaderLib::setUniform("MVP", VP);
+        //PBRShaderManager::s_envMap.GetCube()->Draw();
       }
     }
     else
@@ -269,6 +263,18 @@ void NGLScene::paintGL()
     
     ++it;
   }
+
+  //glDepthFunc(GL_LEQUAL);
+  ngl::ShaderLib::use("Skybox");
+
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_CUBE_MAP, PBRShaderManager::s_envMap.GetEnvironmentMap());
+  ngl::ShaderLib::setUniform("projection", m_camera->GetProjection());
+  ngl::ShaderLib::setUniform("view", m_camera->GetView());
+  PBRShaderManager::s_envMap.GetCube()->Draw();
+
+  //glDepthFunc(GL_LESS);
+
   if(m_selectedObject)
   {
     Transform trans = m_selectedObject->GetTransform();

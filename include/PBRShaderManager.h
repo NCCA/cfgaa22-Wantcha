@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include <ngl/Texture.h>
-#include <FrameBuffer.h>
+#include <EnvironmentTexture.h>
 #include <memory>
 
 class Light;
@@ -51,6 +51,7 @@ public:
     static uint32_t s_directionalShadowMap;
     static uint32_t s_pointShadowMap;
     static std::unique_ptr<FrameBuffer> s_pointShadowBuffer;
+    static EnvironmentTexture s_envMap;
     static std::vector<std::shared_ptr<Light>> s_directionalLights;
     static std::vector<std::shared_ptr<Light>> s_pointLights;
 
