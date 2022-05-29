@@ -33,6 +33,7 @@ NGLScene::NGLScene()
   this->setFormat(format);
 
   AssetManager::RegisterCache(std::make_unique<AssetCache<ObjMesh>>());
+  AssetManager::RegisterCache(std::make_unique<AssetCache<ngl::Texture>>());
 }
 
 
@@ -64,7 +65,6 @@ void NGLScene::initializeGL()
   // enable multisampling for smoother drawing
   glEnable(GL_MULTISAMPLE);
   glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS); 
-  //glEnable(GL_CULL_FACE);  
 
   FramebufferSpecification fbSpec;
 	fbSpec.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };
@@ -95,11 +95,11 @@ void NGLScene::initializeGL()
   //static_cast<MeshObject>(m_sceneObjects[0])->GetMesh()->GetMaterial().SetTexture("textures/checkerboard.jpg");
   m_sceneObjects[0]->SetPosition({0.1f, 0.23f, -1.6f});
   m_sceneObjects[0]->SetScale({0.75f, 0.75f, 0.75f});
-  m_sceneObjects[0]->GetMesh()->GetMaterial().SetTexture(TextureType::ALBEDO, "textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_albedo.tif");
+  m_sceneObjects[0]->GetMesh()->GetMaterial().SetTexture(TextureType::ALBEDO, AssetManager::GetAsset<ngl::Texture>("textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_albedo.tif"));
   //m_sceneObjects[0]->GetMesh()->GetMaterial().SetTexture(TextureType::ALBEDO, "textures/checkerboard.jpg");
-  m_sceneObjects[0]->GetMesh()->GetMaterial().SetTexture(TextureType::ROUGHNESS, "textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_roughness.tif");
-  m_sceneObjects[0]->GetMesh()->GetMaterial().SetTexture(TextureType::NORMAL, "textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_normal.tif");
-  m_sceneObjects[0]->GetMesh()->GetMaterial().SetTexture(TextureType::AO, "textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_ao.tif");
+  m_sceneObjects[0]->GetMesh()->GetMaterial().SetTexture(TextureType::ROUGHNESS, AssetManager::GetAsset<ngl::Texture>("textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_roughness.tif"));
+  m_sceneObjects[0]->GetMesh()->GetMaterial().SetTexture(TextureType::NORMAL, AssetManager::GetAsset<ngl::Texture>("textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_normal.tif"));
+  m_sceneObjects[0]->GetMesh()->GetMaterial().SetTexture(TextureType::AO, AssetManager::GetAsset<ngl::Texture>("textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_ao.tif"));
   m_selectedObject = m_sceneObjects[0];
 
 
@@ -107,11 +107,11 @@ void NGLScene::initializeGL()
   m_sceneObjects[1]->SetPosition({0.0f, 0.5f, 0.0f});
   m_sceneObjects[1]->SetScale({0.75f, 0.75f, 0.75f});
   m_sceneObjects[1]->SetName("Buncf");
-  m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::ALBEDO, "textures/Cerberus/Cerberus_A.png");
-  m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::ROUGHNESS, "textures/Cerberus/Cerberus_R.png");
-  m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::NORMAL, "textures/Cerberus/Cerberus_N.png");
-  m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::AO, "textures/Cerberus/Cerberus_AO.png");
-  m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::METALLIC, "textures/Cerberus/Cerberus_M.png");
+  m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::ALBEDO, AssetManager::GetAsset<ngl::Texture>("textures/Cerberus/Cerberus_A.png"));
+  m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::ROUGHNESS, AssetManager::GetAsset<ngl::Texture>("textures/Cerberus/Cerberus_R.png"));
+  m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::NORMAL, AssetManager::GetAsset<ngl::Texture>("textures/Cerberus/Cerberus_N.png"));
+  m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::AO, AssetManager::GetAsset<ngl::Texture>("textures/Cerberus/Cerberus_AO.png"));
+  m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::METALLIC, AssetManager::GetAsset<ngl::Texture>("textures/Cerberus/Cerberus_M.png"));
 
   m_sceneObjects.push_back(std::make_shared<MeshObject>("meshes/plane.obj"));
   m_sceneObjects[2]->SetPosition({0.0f, -0.6f, 0.0f});
@@ -136,6 +136,7 @@ void NGLScene::paintGL()
   makeCurrent();
   std::vector<ngl::Mat4> directionalLightSpaceMats;
   // Render shadow maps
+  glEnable(GL_CULL_FACE);  
   glCullFace(GL_FRONT);
   for(int i = 0; i < PBRShaderManager::s_directionalLights.size() && i < PBRShaderManager::s_maxDirectionalShadows; i++)
   {
@@ -276,17 +277,21 @@ void NGLScene::paintGL()
     
     ++it;
   }
+  glDisable(GL_CULL_FACE);  
 
-  glDepthFunc(GL_LEQUAL);
-  ngl::ShaderLib::use("Skybox");
+  if(m_renderEnvironment)
+  {
+    glDepthFunc(GL_LEQUAL);
+    ngl::ShaderLib::use("Skybox");
 
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_CUBE_MAP, m_environment->GetEnvironmentCubeMap());
-  ngl::ShaderLib::setUniform("projection", m_camera->GetProjection());
-  ngl::ShaderLib::setUniform("view", m_camera->GetView());
-  m_environment->GetCube()->Draw();
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_environment->GetEnvironmentCubeMap());
+    ngl::ShaderLib::setUniform("projection", m_camera->GetProjection());
+    ngl::ShaderLib::setUniform("view", m_camera->GetView());
+    m_environment->GetCube()->Draw();
 
-  glDepthFunc(GL_LESS);
+    glDepthFunc(GL_LESS);
+  }
 
   if(m_selectedObject)
   {
@@ -311,7 +316,9 @@ void NGLScene::keyPressEvent(QKeyEvent *_event)
   // this method is called every time the main window recives a key event.
   // we then switch on the key value and set the camera in the GLWindow
   switch (_event->key())
-  {);
+  {
+    case Qt::Key_W :
+      m_gizmo->SetType(GizmoType::TRANSLATE); break;
 
   case Qt::Key_R :
       m_gizmo->SetType(GizmoType::ROTATE); break;
@@ -432,24 +439,30 @@ void NGLScene::setScaleZ(double val)
 
 void NGLScene::OnAddMesh(const std::string& path)
 {
+  makeCurrent();
   m_sceneObjects.push_back(std::make_shared<MeshObject>(path));
   auto lastSlashPos = path.find_last_of('/');
   auto lastDotPos = path.find_last_of('.');
   m_sceneObjects[m_sceneObjects.size() - 1]->SetName(path.substr(lastSlashPos + 1, lastDotPos - (lastSlashPos + 1)));
   emit UpdateSceneListUI(m_sceneObjects);
   update();
+  doneCurrent();
 }
 
 void NGLScene::OnAddDirectionalLight()
 {
+  makeCurrent();
   m_sceneObjects.push_back(PBRShaderManager::AddDirectionalLight());
   emit UpdateSceneListUI(m_sceneObjects);
+  doneCurrent();
 }
 
 void NGLScene::OnAddPointLight()
 {
+  makeCurrent();
   m_sceneObjects.push_back(PBRShaderManager::AddPointLight());
   emit UpdateSceneListUI(m_sceneObjects);
+  doneCurrent();
 }
 
 void NGLScene::OnSceneListItemSelected(int index)

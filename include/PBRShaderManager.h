@@ -7,6 +7,7 @@
 #include <ngl/Texture.h>
 #include <EnvironmentTexture.h>
 #include <memory>
+#include "Assets/AssetManager.h"
 
 class Light;
 
@@ -73,36 +74,36 @@ struct Material
     //Material() = default;
     //Material(const Material&);
 
-    void SetTexture(TextureType type, const std::string& path)
+    void SetTexture(TextureType type, std::shared_ptr<ngl::Texture> texture)
     {
         switch(type)
         {
             case TextureType::ALBEDO:
-                m_albedoTexture = std::make_shared<ngl::Texture>(path);
+                m_albedoTexture = texture; /*std::make_shared<ngl::Texture>(path)*/;
                 m_albedoTexture->setMultiTexture(0);
                 m_albedoID = m_albedoTexture->setTextureGL();
                 break;
 
             case TextureType::ROUGHNESS:
-                m_roughnessTexture = std::make_shared<ngl::Texture>(path);
+                m_roughnessTexture = texture;
                 m_roughnessTexture->setMultiTexture(0);
                 m_roughnessID = m_roughnessTexture->setTextureGL();
                 break;
 
             case TextureType::NORMAL:
-                m_normalTexture = std::make_shared<ngl::Texture>(path);
+                m_normalTexture = texture;
                 m_normalTexture->setMultiTexture(0);
                 m_normalID = m_normalTexture->setTextureGL();
                     break;
 
             case TextureType::AO:
-                m_aoTexture = std::make_shared<ngl::Texture>(path);
+                m_aoTexture = texture;
                 m_aoTexture->setMultiTexture(0);
                 m_aoID = m_aoTexture->setTextureGL();
                     break;
 
             case TextureType::METALLIC:
-                m_metallicTexture = std::make_shared<ngl::Texture>(path);
+                m_metallicTexture = texture;
                 m_metallicTexture->setMultiTexture(0);
                 m_metallicID = m_metallicTexture->setTextureGL();
                     break;

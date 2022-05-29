@@ -89,7 +89,7 @@ void TextureWidget::mousePressEvent(QMouseEvent *event)
     std::string filepath = q_filepath.toStdString();
     if(m_texture != nullptr)
     {
-        m_texture = std::make_shared<ngl::Texture>(filepath);
+        m_texture = AssetManager::GetAsset<ngl::Texture>(filepath);
         m_texture->setMultiTexture(0);
         *m_id = m_texture->setTextureGL();
         std::cout<<"AAAAAA\n";

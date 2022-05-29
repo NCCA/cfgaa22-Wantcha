@@ -28,7 +28,7 @@ public:
 
     bool IsLoaded() const noexcept {return m_isLoaded;}
 
-    ASSET_CLASS(AssetType::Mesh)
+    //ASSET_CLASS(AssetType::Mesh)
 private:
     void Triangulate();
 

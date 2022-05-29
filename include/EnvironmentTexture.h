@@ -25,6 +25,7 @@ public:
     uint32_t GetPrefilteredMap() const { return m_prefilterID; }
     uint32_t GetHDRMap() const { return m_hdrID; }
     uint32_t* GetHDRMapPointer() { return &m_hdrID; }
+    std::string GetFilepath() const { return m_filepath; }
 
     void SetTexture(const std::string& path);
     void SetTexture(uint32_t textureID);
@@ -46,5 +47,6 @@ private:
     std::shared_ptr<Mesh> m_mesh;
     std::unique_ptr<ngl::AbstractVAO> m_quad;
     std::array<ngl::Mat4, 6> m_captureViews;
+    std::string m_filepath;
 };
 #endif

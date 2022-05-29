@@ -59,6 +59,8 @@ class NGLScene : public QOpenGLWidget
     void setAmbientIntensity(float intensity) { m_ambientIntensity = intensity; }
     EnvironmentTexture* getEnvironmentMap() { return m_environment.get(); }
     std::vector< std::shared_ptr<SceneObject> >& getSceneObjects() { return m_sceneObjects; }
+    bool getRenderEnvironment() const { return m_renderEnvironment; }
+    void setRenderEnvironment(bool render) { m_renderEnvironment = render; }
 
     public slots:
       void setPosX(double val);
@@ -129,6 +131,7 @@ private:
     std::unique_ptr<FrameBuffer> m_viewportFrameBuffer;
 
     std::unique_ptr<EnvironmentTexture> m_environment;
+    bool m_renderEnvironment = true;
 
     float m_ambientIntensity = 1.0f;
 

@@ -74,7 +74,7 @@ QGridLayout* Light::GetLayout()
     ColorPicker* picker = new ColorPicker(m_color);
     
     QObject::connect(picker, qOverload<const ngl::Vec3&>(&ColorPicker::PickedColor),
-       [this](const ngl::Vec3& arg) { m_color = arg; PBRShaderManager::RefreshCurrentLights(); });
+       [this, picker](const ngl::Vec3& arg) { m_color = arg; PBRShaderManager::RefreshCurrentLights(); picker->update(); });
 
     layout->addWidget( picker, 1, 1, Qt::AlignLeft );
 

@@ -6,13 +6,14 @@
 
 #include <unordered_map>
 #include "Asset.h"
+#include "ngl/Texture.h"
 #include <string>
 #include <memory>
 
 class IAssetCache
 {
 public:
-    virtual AssetType GetCachedType() = 0;
+    //virtual AssetType GetCachedType() = 0;
     virtual void CollectGarbage() = 0;
 };
 
@@ -20,10 +21,15 @@ template<typename T>
 class AssetCache : public IAssetCache
 {
 public:
-    AssetType GetCachedType() override
+    /*AssetType GetCachedType() override
     {
-        return T::GetAssetType();
-    }
+        if(!std::is_same<T, ngl::Texture>())
+        {
+            return T::GetAssetType();
+        }
+        return AssetType::Texture2D;
+        
+    }*/
 
     void CacheAsset(const std::string& id, std::shared_ptr<T> asset)
     {

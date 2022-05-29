@@ -7,6 +7,7 @@
 #include <QGridLayout>
 #include <QLayoutItem>
 #include <QDoubleSpinBox>
+#include <QCheckBox>
 #include "TextureWidget.h"
 //#include "ui_MainWindow.h"
 
@@ -79,18 +80,25 @@ void MainWindow::OnUpdatePropertiesBox(QGridLayout* newLayout)
         TextureWidget* envWidget = new TextureWidget(m_scene->getEnvironmentMap()->GetHDRMapPointer(), 100, 75, nullptr);
 
         QObject::connect(envWidget, qOverload<const std::string&>(&TextureWidget::selectedPath),
-        [this](const std::string& path) { m_scene->getEnvironmentMap()->SetTexture(path); });
+        [this](const std::string& path) { m_scene->makeCurrent(); m_scene->getEnvironmentMap()->SetTexture(path); m_scene->doneCurrent(); });
         newLayout->addWidget(envWidget, 1, 1, Qt::AlignLeft);
 
-        newLayout->addWidget( new QLabel("Ambient Intensity"), 2, 0 );
+        QCheckBox* display = new QCheckBox();
+        display->setText("Render Environment"); display->setChecked(m_scene->getRenderEnvironment());
+        QObject::connect(display, qOverload<bool>(&QCheckBox::clicked),
+        [this](bool arg) { m_scene->setRenderEnvironment(arg); m_scene->update(); });
+
+        newLayout->addWidget( display, 2, 0, Qt::AlignLeft );
+
+        newLayout->addWidget( new QLabel("Ambient Intensity"), 3, 0 );
         QDoubleSpinBox* intensity = new QDoubleSpinBox();
         intensity->setMaximum(10); intensity->setMinimum(0); intensity->setSingleStep(0.1f); intensity->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::PlusMinus);
         intensity->setValue(m_scene->getAmbientIntensity());
 
         QObject::connect(intensity, qOverload<double>(&QDoubleSpinBox::valueChanged),
-        [this](double arg) { m_scene->setAmbientIntensity( arg ); });
+        [this](double arg) { m_scene->setAmbientIntensity( arg ); m_scene->update(); });
 
-        newLayout->addWidget( intensity, 2, 1, Qt::AlignLeft );
+        newLayout->addWidget( intensity, 3, 1, Qt::AlignLeft );
 
 
         //newLayout->addWidget( new QLabel("No object selected"), 1, 0 );

@@ -100,10 +100,12 @@ void EnvironmentTexture::SetTexture(const std::string& path)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         stbi_image_free(data); 
+        m_filepath = path;
     }
     else
     {
         std::cout << "Failed to load HDR image." << std::endl;
+        SetTexture(PBRShaderManager::s_whiteTextureID);
     }
     Render();
 }
@@ -115,6 +117,7 @@ void EnvironmentTexture::SetTexture(uint32_t textureID)
         glDeleteTextures(1, &m_hdrID);
     }
     m_hdrID = textureID;
+    m_filepath = "";
     Render();
 }
 

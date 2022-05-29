@@ -9,12 +9,12 @@
 class AssetManager
 {
 public:
-    static void RegisterCache(std::unique_ptr<IAssetCache> cache);
-    //static void RegisterAsset(const std::string& id);
+    template<typename T>
+    static void RegisterCache(T cache);
 
     template<typename T>
-    static std::shared_ptr<T> GetAsset(const std::string& id)
-    {
+    static std::shared_ptr<T> GetAsset(const std::string& id);
+    /*{
         AssetType type = T::GetAssetType();
         if (s_Caches.find(type) != s_Caches.end())
         {
@@ -27,7 +27,8 @@ public:
 
             return asset;
         }
-    }
+    }*/
+
     static void CollectGarbage();
 
 private:
