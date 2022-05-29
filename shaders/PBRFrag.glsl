@@ -14,6 +14,9 @@ layout(binding=4) uniform sampler2D aoMap;
 layout(binding=5) uniform sampler2D metallicMap;
 layout (binding = 6) uniform sampler2DArray shadowMap;
 layout (binding = 7) uniform samplerCubeArray pointShadowMap;
+layout (binding = 8) uniform samplerCube irradianceMap;
+layout (binding = 9) uniform samplerCube prefilterMap;
+layout (binding = 10) uniform sampler2D brdfLUT;
 
 #if dirLightCount != 0
 uniform vec3 dirLightDirs[dirLightCount];
@@ -30,6 +33,8 @@ uniform float pLightIntensities[pLightCount];
 uniform int objectID;
 
 uniform vec3 camPos;
+
+uniform float ambientIntensity;
 
 in vec3 Normal;
 in vec2 UV;
@@ -96,6 +101,11 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
+
+vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
+{
+    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+}   
 
 vec3 PowerVec3(vec3 color, float power)
 {
@@ -239,12 +249,22 @@ void main()
     }
     #endif
 
-    /*float shadow = 0;
-    for(int i = 0; i < dirLightCount; i++)
-    {
-        shadow += ShadowCalculation(LightSpacePos[i], i); 
-    }*/
-    vec3 ambient = vec3(0.03) * albedo * ao;
+    vec3 R = reflect(-V, N);   
+    vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
+
+    vec3 kS = F; 
+    vec3 kD = 1.0 - kS;
+    kD *= 1.0 - metallic;
+    vec3 irradiance = texture(irradianceMap, N).rgb;
+    vec3 diffuse    = irradiance * albedo;
+
+    const float MAX_REFLECTION_LOD = 4.0;
+    vec3 prefilteredColor = textureLod(prefilterMap, R, roughness * MAX_REFLECTION_LOD).rgb;
+    vec2 envBRDF  = texture(brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
+    vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
+
+    vec3 ambient    = (kD * diffuse + specular) * ao * ambientIntensity; 
+
     vec3 color = ambient + Lo;
 	
     color = color / (color + vec3(1.0));

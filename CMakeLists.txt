@@ -41,9 +41,10 @@ set(CMAKE_CXX_EXTENSIONS ON)
 add_executable(${TargetName})
 
 # Add NGL include path
-include_directories(include $ENV{HOME}/NGL/include ui)
+include_directories(include $ENV{HOME}/NGL/include ui 3rdparty)
 
 target_sources(${TargetName} PRIVATE ${PROJECT_SOURCE_DIR}/src/main.cpp  
+            ${PROJECT_SOURCE_DIR}/3rdparty/stb_image.h   
 			${PROJECT_SOURCE_DIR}/src/NGLScene.cpp  
 			${PROJECT_SOURCE_DIR}/src/NGLSceneMouseControls.cpp  
             ${PROJECT_SOURCE_DIR}/src/MainWindow.cpp 
@@ -61,6 +62,7 @@ target_sources(${TargetName} PRIVATE ${PROJECT_SOURCE_DIR}/src/main.cpp
             ${PROJECT_SOURCE_DIR}/src/TextureWidget.cpp 
             ${PROJECT_SOURCE_DIR}/src/ColorPicker.cpp 
             ${PROJECT_SOURCE_DIR}/src/EnvironmentTexture.cpp 
+            ${PROJECT_SOURCE_DIR}/src/SceneSerializer.cpp 
 			${PROJECT_SOURCE_DIR}/include/NGLScene.h 
             ${PROJECT_SOURCE_DIR}/include/MainWindow.h 
             ${PROJECT_SOURCE_DIR}/include/Camera.h 
@@ -79,7 +81,7 @@ target_sources(${TargetName} PRIVATE ${PROJECT_SOURCE_DIR}/src/main.cpp
             ${PROJECT_SOURCE_DIR}/include/TextureWidget.h  
             ${PROJECT_SOURCE_DIR}/include/ColorPicker.h  
             ${PROJECT_SOURCE_DIR}/include/EnvironmentTexture.h 
-            ${PROJECT_SOURCE_DIR}/3rdparty/stb_image.h   
+            ${PROJECT_SOURCE_DIR}/include/SceneSerializer.h 
             ${PROJECT_SOURCE_DIR}/ui/MainWindow.ui
 )
 

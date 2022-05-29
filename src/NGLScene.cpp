@@ -11,6 +11,7 @@
 
 #include "MeshObject.h"
 #include "Assets/AssetManager.h"
+#include "SceneSerializer.h"
 #include <Lights.h>
 
 NGLScene::NGLScene()
@@ -62,6 +63,7 @@ void NGLScene::initializeGL()
   glEnable(GL_DEPTH_TEST);
   // enable multisampling for smoother drawing
   glEnable(GL_MULTISAMPLE);
+  glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS); 
   //glEnable(GL_CULL_FACE);  
 
   FramebufferSpecification fbSpec;
@@ -69,8 +71,6 @@ void NGLScene::initializeGL()
 	fbSpec.Width = 1600;
 	fbSpec.Height = 900;
 	m_viewportFrameBuffer = std::make_unique<FrameBuffer>(fbSpec);
-
-  PBRShaderManager::Init("PBR", "shaders/PBRVert.glsl", "shaders/PBRFrag.glsl");
 
   //std::shared_ptr<Light> l3 = std::make_shared<Light>(LightType::Point, ngl::Vec3{-1, 2, 0}, ngl::Vec3{ 0, 0 ,0 }, ngl::Vec3{1, 0.9f, 1});
 
@@ -83,6 +83,11 @@ void NGLScene::initializeGL()
   ngl::ShaderLib::loadShader("SimpleTexture", "shaders/SimpleTextureVert.glsl", "shaders/SimpleTextureFrag.glsl");
   ngl::ShaderLib::loadShader("HDRToCubemap", "shaders/HDRToCubeVert.glsl", "shaders/HDRToCubeFrag.glsl");
   ngl::ShaderLib::loadShader("Skybox", "shaders/SkyboxVert.glsl", "shaders/SkyboxFrag.glsl");
+  ngl::ShaderLib::loadShader("Iradiance", "shaders/HDRToCubeVert.glsl", "shaders/ConvoluteCubeMapFrag.glsl");
+  ngl::ShaderLib::loadShader("PrefilterHDR", "shaders/HDRToCubeVert.glsl", "shaders/PrefilterHDRFrag.glsl");
+  ngl::ShaderLib::loadShader("BRDF", "shaders/SimpleTextureVert.glsl", "shaders/BRDFFrag.glsl");
+
+  PBRShaderManager::Init("PBR", "shaders/PBRVert.glsl", "shaders/PBRFrag.glsl");
 
   m_gizmo = std::make_unique<Gizmo>( m_camera );
 
@@ -113,12 +118,13 @@ void NGLScene::initializeGL()
   m_sceneObjects[2]->SetScale({5.0f, 1.25f, 5.0f});
   m_sceneObjects[2]->SetName("Plane");
 
-  m_sceneObjects.push_back(PBRShaderManager::AddDirectionalLight(ngl::Vec3{0, 2.0f, 0.5f}, ngl::Vec3{ 135, 0 ,0 }, ngl::Vec3{1.0f, 1.0f, 1.0f}, 0.5f));
+  /*m_sceneObjects.push_back(PBRShaderManager::AddDirectionalLight(ngl::Vec3{0, 2.0f, 0.5f}, ngl::Vec3{ 135, 0 ,0 }, ngl::Vec3{1.0f, 1.0f, 1.0f}, 0.5f));
   m_sceneObjects.push_back(PBRShaderManager::AddDirectionalLight(ngl::Vec3{1.0f, 2.0f, 0.5f}, ngl::Vec3{ 45, 90 ,0 }, ngl::Vec3{1.0f, 0.7f, 0.8f}, 0.5f));
   m_sceneObjects.push_back(PBRShaderManager::AddPointLight(ngl::Vec3{-1, 2, 0}, ngl::Vec3{1, 0.5f, 0.7f}, 5.0f));
-  m_sceneObjects.push_back(PBRShaderManager::AddPointLight(ngl::Vec3(0.5f, 2.0f, -1.0f), ngl::Vec3{1,1,1}, 2.0f));
+  m_sceneObjects.push_back(PBRShaderManager::AddPointLight(ngl::Vec3(0.5f, 2.0f, -1.0f), ngl::Vec3{1,1,1}, 2.0f));*/
   //m_sceneObjects.push_back(pl2);
   //m_sceneObjects.push_back(l3);
+  m_environment = std::make_unique<EnvironmentTexture>( PBRShaderManager::s_whiteTextureID );
 
   emit UpdateSceneListUI(m_sceneObjects);
   emit UpdateTransformUI(m_selectedObject->GetTransform());
@@ -218,6 +224,7 @@ void NGLScene::paintGL()
       PBRShaderManager::UseShader();
       ngl::ShaderLib::setUniform("camPos", m_camera->GetTransform().getPosition());
       ngl::ShaderLib::setUniform("MVP", MVP);
+      ngl::ShaderLib::setUniform("ambientIntensity", m_ambientIntensity);
       ngl::ShaderLib::setUniform("M", mesh->GetTransform().getMatrix());
       for(int i = 0; i < PBRShaderManager::s_directionalLights.size() && i < PBRShaderManager::s_maxDirectionalShadows; i++)
       {
@@ -228,6 +235,12 @@ void NGLScene::paintGL()
       glBindTexture(GL_TEXTURE_2D_ARRAY, PBRShaderManager::s_directionalShadowMap);
       glActiveTexture(GL_TEXTURE7);
       glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, PBRShaderManager::s_pointShadowMap);
+      glActiveTexture(GL_TEXTURE8);
+      glBindTexture(GL_TEXTURE_CUBE_MAP, m_environment->GetIradianceMap());
+      glActiveTexture(GL_TEXTURE9);
+      glBindTexture(GL_TEXTURE_CUBE_MAP, m_environment->GetPrefilteredMap());
+      glActiveTexture(GL_TEXTURE10);
+      glBindTexture(GL_TEXTURE_2D, m_environment->GetBRDFMap());
       //ngl::Mat4 normalMatrix = m_camera->GetView() * mesh->GetTransform().getMatrix();
       //normalMatrix.inverse().transpose();
       //ngl::ShaderLib::setUniform("NormalMatrix", normalMatrix);
@@ -264,16 +277,16 @@ void NGLScene::paintGL()
     ++it;
   }
 
-  //glDepthFunc(GL_LEQUAL);
+  glDepthFunc(GL_LEQUAL);
   ngl::ShaderLib::use("Skybox");
 
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_CUBE_MAP, PBRShaderManager::s_envMap.GetEnvironmentMap());
+  glBindTexture(GL_TEXTURE_CUBE_MAP, m_environment->GetEnvironmentCubeMap());
   ngl::ShaderLib::setUniform("projection", m_camera->GetProjection());
   ngl::ShaderLib::setUniform("view", m_camera->GetView());
-  PBRShaderManager::s_envMap.GetCube()->Draw();
+  m_environment->GetCube()->Draw();
 
-  //glDepthFunc(GL_LESS);
+  glDepthFunc(GL_LESS);
 
   if(m_selectedObject)
   {
@@ -298,18 +311,16 @@ void NGLScene::keyPressEvent(QKeyEvent *_event)
   // this method is called every time the main window recives a key event.
   // we then switch on the key value and set the camera in the GLWindow
   switch (_event->key())
-  {
-  // escape key to quite
-  case Qt::Key_Escape : QGuiApplication::exit(EXIT_SUCCESS); break;
+  {);
 
-  case Qt::Key_W :
-      m_gizmo->SetType(GizmoType::TRANSLATE); break;
   case Qt::Key_R :
       m_gizmo->SetType(GizmoType::ROTATE); break;
   case Qt::Key_E :
       m_gizmo->SetType(GizmoType::SCALE); break;
   case Qt::Key_Q :
       m_gizmo->SetType(GizmoType::NONE); break;
+  case Qt::Key_Return :
+      SceneSerializer::Serialize("scene.lol", *this); break;
 
   default : break;
   }

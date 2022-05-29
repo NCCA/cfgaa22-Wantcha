@@ -6,6 +6,8 @@
 #include <QLayout>
 #include <QGridLayout>
 #include <QLayoutItem>
+#include <QDoubleSpinBox>
+#include "TextureWidget.h"
 //#include "ui_MainWindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -72,7 +74,25 @@ void MainWindow::OnUpdatePropertiesBox(QGridLayout* newLayout)
 
     if(newLayout->count() == 0)
     {
-        newLayout->addWidget( new QLabel("No object selected"), 0, 0 );
+        newLayout->addWidget( new QLabel("SCENE PROPERTIES"), 0, 0 );
+        newLayout->addWidget( new QLabel("Environment Texture"), 1, 0 );
+        TextureWidget* envWidget = new TextureWidget(m_scene->getEnvironmentMap()->GetHDRMapPointer(), 100, 75, nullptr);
+
+        QObject::connect(envWidget, qOverload<const std::string&>(&TextureWidget::selectedPath),
+        [this](const std::string& path) { m_scene->getEnvironmentMap()->SetTexture(path); });
+        newLayout->addWidget(envWidget, 1, 1, Qt::AlignLeft);
+
+        newLayout->addWidget( new QLabel("Ambient Intensity"), 2, 0 );
+        QDoubleSpinBox* intensity = new QDoubleSpinBox();
+        intensity->setMaximum(10); intensity->setMinimum(0); intensity->setSingleStep(0.1f); intensity->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::PlusMinus);
+        intensity->setValue(m_scene->getAmbientIntensity());
+
+        QObject::connect(intensity, qOverload<double>(&QDoubleSpinBox::valueChanged),
+        [this](double arg) { m_scene->setAmbientIntensity( arg ); });
+
+        newLayout->addWidget( intensity, 2, 1, Qt::AlignLeft );
+
+
         //newLayout->addWidget( new QLabel("No object selected"), 1, 0 );
     }
     QSpacerItem* spacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);

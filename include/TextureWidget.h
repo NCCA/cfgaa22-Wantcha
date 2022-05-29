@@ -17,11 +17,6 @@
 #include <QGLFunctions>
 #include <memory>*/
 
-struct SimpleVertData
-{
-    ngl::Vec3 pos;
-    ngl::Vec2 uv;
-};
 
 class TextureWidget : public QOpenGLWidget//, protected QGLFunctions
 {
@@ -37,7 +32,8 @@ public:
     void resizeGL(int width, int height) override;
     QSize minimumSizeHint() const override;
     QSize sizeHint() const override;
-    
+    signals:
+    void selectedPath(const std::string& path);
 
 private:
     void mousePressEvent(QMouseEvent *event) override;
@@ -45,7 +41,7 @@ private:
     void mouseReleaseEvent(QMouseEvent *event) override;
 
     GLuint* m_id = 0;
-    SimpleVertData m_vbo[6];
+    //SimpleVertData m_vbo[6];
     std::unique_ptr<ngl::AbstractVAO> m_vaoMesh;
 
     QRectF m_target;

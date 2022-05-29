@@ -2,6 +2,7 @@
 #include <Lights.h>
 #include <fstream>
 #include <iostream>
+#include <ngl/VAOFactory.h>
 #include <../3rdparty/stb_image.h>
 
 uint32_t PBRShaderManager::s_whiteTextureID = 0;
@@ -16,8 +17,9 @@ uint32_t PBRShaderManager::s_curDirShadowIndex = 0;
 uint32_t PBRShaderManager::s_maxPointShadows = 4;
 uint32_t PBRShaderManager::s_curPointShadowIndex = 0;
 std::unique_ptr<FrameBuffer> PBRShaderManager::s_pointShadowBuffer;
+//std::unique_ptr<ngl::AbstractVAO> PBRShaderManager::s_quadMesh;
 
-EnvironmentTexture PBRShaderManager::s_envMap;
+//EnvironmentTexture PBRShaderManager::s_envMap;
 
 /*PBRShaderManager::PBRShaderManager(const std::string& name, const std::string& vert, const std::string& frag)
     : m_vertPath(vert), m_fragPath(frag), m_name(name)
@@ -88,6 +90,7 @@ void PBRShaderManager::CreateBlueTexture()
 std::string PBRShaderManager::m_fragPath = "";
 std::string PBRShaderManager::m_vertPath = "";
 std::string PBRShaderManager::m_name = "";
+//SimpleVertData PBRShaderManager::m_vbo[6];
 std::vector<std::shared_ptr<Light>> PBRShaderManager::s_directionalLights = std::vector<std::shared_ptr<Light>>();
 std::vector<std::shared_ptr<Light>> PBRShaderManager::s_pointLights = std::vector<std::shared_ptr<Light>>();
 
@@ -111,18 +114,14 @@ void PBRShaderManager::Init(const std::string& name,
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
     float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
     glTexParameterfv(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BORDER_COLOR, borderColor);
-    /*glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT32, s_shadowMapSize, s_shadowMapSize,
-            s_maxDirectionalShadows, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);*/
+
     glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_DEPTH_COMPONENT32, s_shadowMapSize, s_shadowMapSize, s_maxDirectionalShadows);
     glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 
 
     glGenTextures(1, &s_pointShadowMap);
     glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, s_pointShadowMap);
-    /*for(int i = 0; i < 6; i++)
-    {
-        glTexImage3D(GL_TEXTURE_CUBE_MAP)
-    }*/
+
     glTexStorage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 1, GL_DEPTH_COMPONENT32, s_shadowMapSize, s_shadowMapSize, s_maxPointShadows * 6);
     glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -132,13 +131,33 @@ void PBRShaderManager::Init(const std::string& name,
     glTexParameterfv(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_BORDER_COLOR, borderColor);
 
     s_pointShadowBuffer.reset( new FrameBuffer(s_pointShadowMap) );
-    std::cout<<"Loading HDRI\n";
-    //s_envMap->loadImage("textures/HDRI/Factory_Catwalk_Env.hdr");
-    
 
+    /*ngl::Vec3 points[4] = { ngl::Vec3{ -1, -1, 0 }, ngl::Vec3{ 1, -1, 0 }, ngl::Vec3{ 1, 1, 0 }, ngl::Vec3{ -1, 1, 0 } };
+    ngl::Vec2 uvs[4] = { ngl::Vec2{ 0,0 }, ngl::Vec2{ 1, 0 }, ngl::Vec2{ 1,1 }, ngl::Vec2{ 0,1 } };
+
+    m_vbo[0].pos = points[0]; m_vbo[0].uv = uvs[0];
+    m_vbo[1].pos = points[1]; m_vbo[1].uv = uvs[1];
+    m_vbo[2].pos = points[2]; m_vbo[2].uv = uvs[2];
+    m_vbo[3].pos = points[3]; m_vbo[3].uv = uvs[3];
+    m_vbo[4].pos = points[0]; m_vbo[4].uv = uvs[0];
+    m_vbo[5].pos = points[2]; m_vbo[5].uv = uvs[2];
+
+    s_quadMesh = ngl::VAOFactory::createVAO(ngl::simpleVAO, GL_TRIANGLES);
+    s_quadMesh->bind();
+
+    s_quadMesh->setData(ngl::SimpleVAO::VertexData(6*sizeof(SimpleVertData), m_vbo[0].pos.m_x));
+    s_quadMesh->setVertexAttributePointer(0, 3, GL_FLOAT, sizeof(SimpleVertData), 0);
+    s_quadMesh->setVertexAttributePointer(1, 2, GL_FLOAT, sizeof(SimpleVertData), 3);
+    s_quadMesh->setNumIndices(6);
+
+    s_quadMesh->unbind();*/
+    
     ngl::ShaderLib::useNullProgram();
 
     ngl::ShaderLib::loadShader(m_name, m_vertPath, m_fragPath);
+
+    //s_envMap = EnvironmentTexture("textures/HDRI/Factory_Catwalk_2k.hdr");
+    //s_envMap = EnvironmentTexture(s_whiteTextureID);
 }
 
 void PBRShaderManager::UpdateLightCounts()
@@ -198,8 +217,6 @@ void PBRShaderManager::UpdateLightCounts()
         fragFile.close();
         vertFile.close();
     }
-    s_envMap = EnvironmentTexture("textures/HDRI/Factory_Catwalk_2k.hdr");
-
     ngl::ShaderLib::useNullProgram();
 
     ngl::ShaderLib::loadShader(m_name, m_vertPath, m_fragPath);

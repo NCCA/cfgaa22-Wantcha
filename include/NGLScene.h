@@ -11,6 +11,7 @@
 #include "MeshObject.h"
 #include "FrameBuffer.h"
 #include "Gizmos.h"
+#include "EnvironmentTexture.h"
 // this must be included after NGL includes else we get a clash with gl libs
 //#include <QOpenGLWindow>
 #include <QOpenGLWidget>
@@ -53,6 +54,12 @@ class NGLScene : public QOpenGLWidget
     /// @brief this is called everytime we resize the window
     //----------------------------------------------------------------------------------------------------------------------
     void resizeGL(int _w, int _h) override;
+
+    float getAmbientIntensity() const { return m_ambientIntensity; }
+    void setAmbientIntensity(float intensity) { m_ambientIntensity = intensity; }
+    EnvironmentTexture* getEnvironmentMap() { return m_environment.get(); }
+    std::vector< std::shared_ptr<SceneObject> >& getSceneObjects() { return m_sceneObjects; }
+
     public slots:
       void setPosX(double val);
       void setPosY(double val);
@@ -120,6 +127,10 @@ private:
     std::shared_ptr<SceneObject> m_selectedObject;
 
     std::unique_ptr<FrameBuffer> m_viewportFrameBuffer;
+
+    std::unique_ptr<EnvironmentTexture> m_environment;
+
+    float m_ambientIntensity = 1.0f;
 
     int m_hoveredObjectID = -100;
 };

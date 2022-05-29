@@ -19,25 +19,29 @@ TextureWidget::~TextureWidget()
 
 void TextureWidget::initializeGL()
 {
+    struct SimpleVertData
+    {
+        ngl::Vec3 pos;
+        ngl::Vec2 uv;
+    };
+
     ngl::Vec3 points[4] = { ngl::Vec3{ -1, -1, 0 }, ngl::Vec3{ 1, -1, 0 }, ngl::Vec3{ 1, 1, 0 }, ngl::Vec3{ -1, 1, 0 } };
     ngl::Vec2 uvs[4] = { ngl::Vec2{ 0,0 }, ngl::Vec2{ 1, 0 }, ngl::Vec2{ 1,1 }, ngl::Vec2{ 0,1 } };
 
-    m_vbo[0].pos = points[0]; m_vbo[0].uv = uvs[0];
-    m_vbo[1].pos = points[1]; m_vbo[1].uv = uvs[1];
-    m_vbo[2].pos = points[2]; m_vbo[2].uv = uvs[2];
-    m_vbo[3].pos = points[3]; m_vbo[3].uv = uvs[3];
-    m_vbo[4].pos = points[0]; m_vbo[4].uv = uvs[0];
-    m_vbo[5].pos = points[2]; m_vbo[5].uv = uvs[2];
+    SimpleVertData vbo[6];
+    vbo[0].pos = points[0]; vbo[0].uv = uvs[0];
+    vbo[1].pos = points[1]; vbo[1].uv = uvs[1];
+    vbo[2].pos = points[2]; vbo[2].uv = uvs[2];
+    vbo[3].pos = points[3]; vbo[3].uv = uvs[3];
+    vbo[4].pos = points[0]; vbo[4].uv = uvs[0];
+    vbo[5].pos = points[2]; vbo[5].uv = uvs[2];
 
     m_vaoMesh = ngl::VAOFactory::createVAO(ngl::simpleVAO, GL_TRIANGLES);
     m_vaoMesh->bind();
 
-    m_vaoMesh->setData(ngl::SimpleVAO::VertexData(6*sizeof(SimpleVertData), m_vbo[0].pos.m_x));
-
+    m_vaoMesh->setData(ngl::SimpleVAO::VertexData(6*sizeof(SimpleVertData), vbo[0].pos.m_x));
     m_vaoMesh->setVertexAttributePointer(0, 3, GL_FLOAT, sizeof(SimpleVertData), 0);
-
     m_vaoMesh->setVertexAttributePointer(1, 2, GL_FLOAT, sizeof(SimpleVertData), 3);
-
     m_vaoMesh->setNumIndices(6);
 
     m_vaoMesh->unbind();
@@ -63,7 +67,7 @@ void TextureWidget::paintGL()
     ngl::ShaderLib::use("SimpleTexture");
     ngl::ShaderLib::setUniform("colorTexture", 0);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, *m_id /*PBRShaderManager::s_directionalShadowMap*/);
+    glBindTexture(GL_TEXTURE_2D, *m_id);
 
     m_vaoMesh->bind();
     m_vaoMesh->draw();
@@ -83,10 +87,15 @@ void TextureWidget::mousePressEvent(QMouseEvent *event)
         return;
     }*/
     std::string filepath = q_filepath.toStdString();
-    m_texture = std::make_shared<ngl::Texture>(filepath);
-    m_texture->setMultiTexture(0);
-    *m_id = m_texture->setTextureGL();
-
+    if(m_texture != nullptr)
+    {
+        m_texture = std::make_shared<ngl::Texture>(filepath);
+        m_texture->setMultiTexture(0);
+        *m_id = m_texture->setTextureGL();
+        std::cout<<"AAAAAA\n";
+    }
+    emit selectedPath(filepath);
+    update();
 }
 
 void TextureWidget::mouseMoveEvent(QMouseEvent *event)
