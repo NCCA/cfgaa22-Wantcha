@@ -24,7 +24,7 @@ After getting my mesh loading functionality in, I started looking into setting u
 ### Mouse Picking
 I added mouse picking functionality by using a second color attachment to my framebuffer, which only holds integers, and storing the Object ID through the fragment shader. I then read from the buffer at the mouse position whenever I want to know which object I am hovering over. I have written and designed my own FrameBuffer class to handle creation and management of attachments, allowing me to easily configurate opengl framebuffers.
 
-<img src="report/framebuffer.png" width="600">
+<img src="report/framebuffer.png" width="800">
 
 ### Gizmos
 One feature I wanted to implement as a quality of life addition was a transformation gizmo that would allow the user to easily manipulate selected objects. I couldn't find many online sources on how to approach this, but after collecting information from various scattered sources, I decided I would have my gizmo as a mesh that I procedurally create at the start of the program, and then draw it on top of everything else when an object is selected, using mouse picking to detect when I am clicking on it. Most solutions I've found online use raycasting from the mouse to detect collision with the gizmo, but since I already the picking system, I decided to integrate it into it.
@@ -38,7 +38,7 @@ After some more thought and research, I decided to scrap that system and instead
 This approach increased performance significantly and made the selection process almost instantaneous.
 In addition, I've also had to implement a few custom widgets for my needs, as QT didn't have built-in functionality for them, such as a Texture Selector widget, a custom Color Picker widget, and a few others.
 
-<img src="report/material_proprties.png" width="400">
+<img src="report/material_proprties.png" width="300"> <img src="report/layouts.png" width="650">
 
 ### Shadows
 There are many sources online offering tutorials regarding implementing ONE shadow-casting light of each type, however there are very little covering multiple light shadows. After looking at my options, I decided that using Texture Arrays would probably suit best my forward-rendered, as they offer me the benefit of storing the shadow maps of each type of light in a single texture slot. Directional lights each have a framebuffer with an attachment linked to a layer of a Texture 2D array. Point lights use Texture Cube Arrays, which is stored ony my static PBR Manager, on which I use a geometry shader to loop through the first 4 and render the cube maps respectively. Integrating them into the PBR shader was just a matter of binding their texture arrays and accessing the appropriate index of the array based on which light we are rendering.
@@ -47,6 +47,8 @@ There are many sources online offering tutorials regarding implementing ONE shad
 
 ### Environment Lighting
 In order to feel like I have a complete PBR render engine, I felt the need of adding support for HDR environment maps. Luckily, the rather lengthy and cumbersome process is well documented on the LearnOpenGL website, which I used as reference to implement it into my systems. I couldn't make use of ngl::Texture, as it didn't allow for HDR texture loading, so I imported stbi_image into my project and used it to do the processing. I then hooked the system up to QT and placed in the Scene Properties layout.
+
+<img src="report/shinyball.png" width="600">
 
 ### Scene Serialization
 After getting the hang of RapidJSON, I wrote a serialization system which takes the current scene and writes its properties and objects' properties into a scene file. Deserialization was just a matter of discarding everything in the current scene and re-creating objects based on the information found in the scene file.
