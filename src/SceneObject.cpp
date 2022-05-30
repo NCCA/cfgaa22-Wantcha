@@ -17,10 +17,10 @@ void SceneObject::DrawHighlighted()
     m_mesh->DrawWireframe();
 }
 
-QGridLayout* SceneObject::GetLayout()
+/*QGridLayout* SceneObject::GetLayout()
 {
     return new QGridLayout();
-}
+}*/
 
 /*void SceneObject::BuildLayout()
 {

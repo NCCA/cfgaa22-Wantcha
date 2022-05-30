@@ -18,6 +18,9 @@ public:
     Light(LightType type, const ngl::Vec3& position, const ngl::Vec3& rotation,
         const ngl::Vec3& color = {1, 1, 1}, float intensity = 1.0f);
 
+    void SetColor(const ngl::Vec3& col) { m_color = col; }
+    void SetIntensity(float intensity) { m_intensity = intensity; }
+
     float GetIntensity() const { return m_intensity; }
     ngl::Vec3 GetColor() const { return m_color; }
     ngl::Vec3 GetForward();
@@ -27,7 +30,7 @@ public:
 
     FrameBuffer* GetShadowBuffer() { return m_shadowBuffer.get(); }
     void RecalculateShadowBuffer(uint32_t texture3DIndex);
-    virtual QGridLayout* GetLayout() override;
+    //virtual QGridLayout* GetLayout() override;
     //virtual void BuildLayout() override;
 
     //virtual void Draw() const override {}

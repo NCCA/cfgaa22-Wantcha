@@ -5,6 +5,8 @@
 #include <QStackedLayout>
 #include "NGLScene.h"
 #include "ui_MainWindow.h"
+#include "TextureWidget.h"
+#include "ColorPicker.h"
 
 namespace Ui {
 class MainWindow;
@@ -43,7 +45,20 @@ private:
     NGLScene* m_scene;
     std::string m_lastFilepath = "C://";
     QStackedLayout* m_propertiesLayout;
+
+    TextureWidget* m_envWidget;
+
+    TextureWidget* m_albedoWidget;
+    TextureWidget* m_roughnessWidget;
+    TextureWidget* m_normalWidget;
+    TextureWidget* m_aoWidget;
+    TextureWidget* m_metallicWidget;
+    QSlider* m_roughnessSlider;
+    QSlider* m_metallicSlider;
+    ColorPicker* m_baseColorPicker;
     
+    ColorPicker* m_lightColorPicker;
+    QDoubleSpinBox* m_lightIntensity;
 };
 
 #endif // MAINWINDOW_H

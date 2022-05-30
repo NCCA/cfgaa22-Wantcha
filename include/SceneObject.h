@@ -33,7 +33,7 @@ public:
     bool IsLight() const { return m_isLight; }
     virtual void Draw();
     virtual void DrawHighlighted();
-    virtual QGridLayout* GetLayout();
+    //virtual QGridLayout* GetLayout();
 protected:
 
     Transform m_transform;

@@ -15,7 +15,7 @@ MeshObject::MeshObject(const std::string& filepath) : SceneObject(filepath)
 
 }
 
-QGridLayout* MeshObject::GetLayout()
+/*QGridLayout* MeshObject::GetLayout()
 {
     QGridLayout* layout = new QGridLayout();
     layout->addWidget( new QLabel("MATERIAL PROPERTIES"), 0, 0 );
@@ -60,4 +60,4 @@ QGridLayout* MeshObject::GetLayout()
     layout->addWidget(metallicSlider, 6, 2, Qt::AlignLeft);
 
     return layout;
-}
+}*/

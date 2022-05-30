@@ -12,6 +12,7 @@ Q_OBJECT
 
 public:
     ColorPicker(const ngl::Vec3& color);
+    void SetColor(const ngl::Vec3& color);
 signals:
     void PickedColor(const ngl::Vec3& color);
 

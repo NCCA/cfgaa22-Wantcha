@@ -66,7 +66,7 @@ void Light::RecalculateShadowBuffer(uint32_t texture3DIndex)
     }
 }
 
-QGridLayout* Light::GetLayout()
+/*QGridLayout* Light::GetLayout()
 {
     QGridLayout* layout = new QGridLayout();
     layout->addWidget( new QLabel("LIGHT PROPERTIES"), 0, 0 );
@@ -89,16 +89,11 @@ QGridLayout* Light::GetLayout()
 
     layout->addWidget( intensity, 2, 1, Qt::AlignLeft );
     return layout;
-}
+}*/
 
 ngl::Vec3 Light::GetForward()
 {
-    //float pitch = m_transform.getRotation().m_x;
-    //float yaw = m_transform.getRotation().m_y;
-    //return ngl::Quaternion(ngl::Vec3(pitch, yaw, 0.0f)).toMat4().getForwardVector();
-    return m_transform.getMatrix().getForwardVector()/* * ngl::Vec3(1, 1, -1)*/;
-    //std::cout<<m_transform.getRotation().m_x<<" "<<m_transform.getRotation().m_y<<" "<<m_transform.getRotation().m_z<<"\n";
-    //return m_transform.getMatrix().getForwardVector();
+    return m_transform.getMatrix().getForwardVector();
 }
 
 ngl::Mat4 Light::GetView()

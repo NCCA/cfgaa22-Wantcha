@@ -63,6 +63,7 @@ class NGLScene : public QOpenGLWidget
     void setRenderEnvironment(bool render) { m_renderEnvironment = render; }
     void resetScene();
     void DeselectAll() { m_selectedObject = nullptr; }
+    std::shared_ptr<SceneObject> GetSelectedObject() { return m_selectedObject; }
 
     public slots:
       void setPosX(double val);

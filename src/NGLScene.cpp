@@ -66,6 +66,9 @@ void NGLScene::initializeGL()
   // enable multisampling for smoother drawing
   glEnable(GL_MULTISAMPLE);
   glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+  glEnable(GL_STENCIL_TEST);
+  glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+  glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
   FramebufferSpecification fbSpec;
 	fbSpec.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };
@@ -81,6 +84,7 @@ void NGLScene::initializeGL()
   ngl::ShaderLib::loadShader("Iradiance", "shaders/HDRToCubeVert.glsl", "shaders/ConvoluteCubeMapFrag.glsl");
   ngl::ShaderLib::loadShader("PrefilterHDR", "shaders/HDRToCubeVert.glsl", "shaders/PrefilterHDRFrag.glsl");
   ngl::ShaderLib::loadShader("BRDF", "shaders/SimpleTextureVert.glsl", "shaders/BRDFFrag.glsl");
+  ngl::ShaderLib::loadShader("StencilTest", "shaders/StencilColorVert.glsl", "shaders/StencilColorFrag.glsl");
 
   PBRShaderManager::Init("PBR", "shaders/PBRVert.glsl", "shaders/PBRFrag.glsl");
 
@@ -95,7 +99,7 @@ void NGLScene::initializeGL()
   m_sceneObjects[0]->GetMaterial().SetTexture(TextureType::ROUGHNESS, AssetManager::GetAsset<ngl::Texture>("textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_roughness.tif"));
   m_sceneObjects[0]->GetMaterial().SetTexture(TextureType::NORMAL, AssetManager::GetAsset<ngl::Texture>("textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_normal.tif"));
   m_sceneObjects[0]->GetMaterial().SetTexture(TextureType::AO, AssetManager::GetAsset<ngl::Texture>("textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_ao.tif"));
-  m_selectedObject = m_sceneObjects[0];
+  //m_selectedObject = m_sceneObjects[0];
 
 
   m_sceneObjects.push_back(std::make_shared<MeshObject>("meshes/cerberus_gun.obj"));
@@ -122,7 +126,8 @@ void NGLScene::initializeGL()
   m_environment = std::make_unique<EnvironmentTexture>( PBRShaderManager::s_whiteTextureID );
 
   emit UpdateSceneListUI(m_sceneObjects);
-  emit UpdateTransformUI(m_selectedObject->GetTransform());
+  emit UpdateTransformUI(Transform());
+  emit UpdatePropertiesBox(nullptr);
 }
 
 
@@ -196,7 +201,7 @@ void NGLScene::paintGL()
   // clear the screen and depth buffer
   glClearColor(0.15f, 0.15f, 0.18f, 1.0f);			   // Grey Background
   glClearDepth(1);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   glViewport(0, 0, m_win.width, m_win.height);
   glCullFace(GL_BACK);
 
@@ -207,10 +212,22 @@ void NGLScene::paintGL()
   ngl::Mat4 VP = m_camera->GetProjection() * m_camera->GetView();
 
   //PBRShaderManager::UseShader();
+
   glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LEQUAL);
+  glDepthFunc(GL_LESS);
+  glEnable(GL_STENCIL_TEST);
   for(auto mesh : m_sceneObjects)
   {
+    if(m_selectedObject == mesh)
+    {
+      glStencilFunc(GL_ALWAYS, 1, 0xFF);
+      glStencilMask(0xFF);
+    }
+    else
+    {
+      //glStencilFunc(GL_ALWAYS, 1, 0x00);
+      glStencilMask(0x00);
+    }
     ngl::Mat4 MVP = VP * mesh->GetTransform().getMatrix();
     if(!mesh->IsLight())
     {
@@ -243,7 +260,7 @@ void NGLScene::paintGL()
       mesh->GetMaterial().BindTextures();
       mesh->Draw();
 
-      if(mesh == m_selectedObject)
+      /*if(mesh == m_selectedObject)
       {
         ngl::ShaderLib::use(ngl::nglColourShader);
         ngl::ShaderLib::setUniform("MVP", MVP);
@@ -253,7 +270,7 @@ void NGLScene::paintGL()
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         mesh->DrawHighlighted();
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-      }
+      }*/
     }
     else
     {
@@ -267,10 +284,13 @@ void NGLScene::paintGL()
     
     ++it;
   }
+
   glDisable(GL_CULL_FACE);  
 
+  //glDisable(GL_STENCIL_TEST);
   if(m_renderEnvironment)
   {
+    //glStencilMask(0x00);
     glDepthFunc(GL_LEQUAL);
     ngl::ShaderLib::use("Skybox");
 
@@ -281,6 +301,22 @@ void NGLScene::paintGL()
     m_environment->GetCube()->Draw();
 
     glDepthFunc(GL_LESS);
+  }
+
+    // Now draw selection borders
+  if(m_selectedObject && !m_selectedObject->IsLight())
+  {
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    glStencilMask(0x00);
+    //glDisable(GL_DEPTH_TEST);
+    ngl::ShaderLib::use("StencilTest");
+    //Transform t = m_selectedObject->GetTransform();
+    //t.addScale(0.05f, 0.05f, 0.05f);
+    ngl::ShaderLib::setUniform("MVP", VP * m_selectedObject->GetTransform().getMatrix());
+    m_selectedObject->Draw();
+    glStencilMask(0xFF);
+    glStencilFunc(GL_ALWAYS, 0, 0xFF);
+    //glEnable(GL_DEPTH_TEST);
   }
 
   if(m_selectedObject)

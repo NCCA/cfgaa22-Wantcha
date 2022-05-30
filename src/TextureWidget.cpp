@@ -28,7 +28,7 @@ TextureWidget::~TextureWidget()
 
 void TextureWidget::initializeGL()
 {
-    struct SimpleVertData
+    /*struct SimpleVertData
     {
         ngl::Vec3 pos;
         ngl::Vec2 uv;
@@ -53,7 +53,7 @@ void TextureWidget::initializeGL()
     m_vaoMesh->setVertexAttributePointer(1, 2, GL_FLOAT, sizeof(SimpleVertData), 3);
     m_vaoMesh->setNumIndices(6);
 
-    m_vaoMesh->unbind();
+    m_vaoMesh->unbind();*/
 }
 
 void TextureWidget::resizeGL(int width, int height)
@@ -64,17 +64,16 @@ void TextureWidget::resizeGL(int width, int height)
 
 void TextureWidget::paintGL()
 {
-    makeCurrent();
-    glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebufferObject());
-    //glDisable(GL_CULL_FACE);
-    //glPointSize(2);
-
-    glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glViewport(0, 0, m_target.size().width(), m_target.size().height());
-
-    if(m_id)
+    if(m_initialized)
     {
+        glDisable(GL_CULL_FACE);  
+        //makeCurrent();
+        glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebufferObject());
+
+        glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        glViewport(0, 0, m_target.size().width(), m_target.size().height());
+
         ngl::ShaderLib::use("SimpleTexture");
         ngl::ShaderLib::setUniform("colorTexture", 0);
         glActiveTexture(GL_TEXTURE0);
@@ -83,19 +82,59 @@ void TextureWidget::paintGL()
         m_vaoMesh->bind();
         m_vaoMesh->draw();
         m_vaoMesh->unbind();
-    }
-    //std::cout<<"ID "<< m_id <<"\n";
+        //std::cout<<"INDICES "<< m_vaoMesh->numIndices() <<"\n";
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    doneCurrent();
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glEnable(GL_CULL_FACE); 
+        //doneCurrent();
+    }
 }
 
 void TextureWidget::SetTexture(GLuint* textureID, std::shared_ptr<ngl::Texture> texture)
 {
+    makeCurrent();
     if(!m_initialized)
     {
-        
+        struct SimpleVertData
+        {
+            ngl::Vec3 pos;
+            ngl::Vec2 uv;
+        };
+
+        ngl::Vec3 points[4] = { ngl::Vec3{ -1, -1, 0 }, ngl::Vec3{ 1, -1, 0 }, ngl::Vec3{ 1, 1, 0 }, ngl::Vec3{ -1, 1, 0 } };
+        ngl::Vec2 uvs[4] = { ngl::Vec2{ 0,0 }, ngl::Vec2{ 1, 0 }, ngl::Vec2{ 1,1 }, ngl::Vec2{ 0,1 } };
+
+        SimpleVertData vbo[6];
+        vbo[0].pos = points[0]; vbo[0].uv = uvs[0];
+        vbo[1].pos = points[1]; vbo[1].uv = uvs[1];
+        vbo[2].pos = points[2]; vbo[2].uv = uvs[2];
+        vbo[3].pos = points[3]; vbo[3].uv = uvs[3];
+        vbo[4].pos = points[0]; vbo[4].uv = uvs[0];
+        vbo[5].pos = points[2]; vbo[5].uv = uvs[2];
+
+        m_vaoMesh = ngl::VAOFactory::createVAO(ngl::simpleVAO, GL_TRIANGLES);
+        m_vaoMesh->bind();
+
+        m_vaoMesh->setData(ngl::SimpleVAO::VertexData(6*sizeof(SimpleVertData), vbo[0].pos.m_x));
+        m_vaoMesh->setVertexAttributePointer(0, 3, GL_FLOAT, sizeof(SimpleVertData), 0);
+        m_vaoMesh->setVertexAttributePointer(1, 2, GL_FLOAT, sizeof(SimpleVertData), 3);
+        m_vaoMesh->setNumIndices(6);
+
+        m_vaoMesh->unbind();
+        m_initialized = true;
+        std::cout<<"INITIALIZED\n";
     }
+    if(texture == nullptr)
+    {
+        m_modifyTexture = false;
+    }
+    else
+    {
+        m_texture = texture;
+        m_modifyTexture = true;
+    }
+    m_id = textureID;
+    update();
 }
 
 void TextureWidget::mousePressEvent(QMouseEvent *event)

@@ -20,7 +20,7 @@ void SceneSerializer::Serialize(const std::string& file, NGLScene& scene)
     std::vector<std::shared_ptr<SceneObject>>& objects = scene.getSceneObjects();
 
     writer.StartObject();
-    writer.Key("LOL Version");
+    writer.Key("Lightweight OpenGL Loader Version");
     writer.Double(1.0f);
 
     writer.Key("EnvironmentTexture");
@@ -81,7 +81,12 @@ void SceneSerializer::Serialize(const std::string& file, NGLScene& scene)
 
             writer.Key("MetallicTexture");
             writer.String(AssetManager::GetPath<std::shared_ptr<ngl::Texture>>(objects[i]->GetMaterial().m_metallicTexture).c_str());
+
+            writer.Key("RoughnessValue");
+            writer.Double(objects[i]->GetMaterial().m_roughness);
             
+            writer.Key("MetallicValue");
+            writer.Double(objects[i]->GetMaterial().m_metallic);
         }
         else
         {
@@ -122,7 +127,7 @@ void SceneSerializer::Deserialize(const std::string& file, NGLScene& scene)
 
     d.ParseStream(isw);
     d.IsObject();
-    if(d.HasMember("LOL Version"))
+    if(d.HasMember("Lightweight OpenGL Loader Version"))
     {
         scene.DeselectAll();
         scene.makeCurrent();
@@ -172,13 +177,32 @@ void SceneSerializer::Deserialize(const std::string& file, NGLScene& scene)
                         sceneObjects[sceneObjects.size() - 1]->GetMaterial().SetTexture(TextureType::METALLIC,
                                         AssetManager::GetAsset<ngl::Texture>(objects[i]["MetallicTexture"].GetString()));
                     }
+
+                    sceneObjects[sceneObjects.size() - 1]->GetMaterial().m_roughness = objects[i]["RoughnessValue"].GetDouble();
+                    sceneObjects[sceneObjects.size() - 1]->GetMaterial().m_metallic = objects[i]["MetallicValue"].GetDouble();
+
                     break;
                 case 'D':
+                {
                     scene.OnAddDirectionalLight();
+                    std::shared_ptr<Light> light1 = std::dynamic_pointer_cast<Light>(sceneObjects[sceneObjects.size() - 1]);
+
+                    const rj::Value& color1 = objects[i]["Color"];
+                    light1->SetColor( ngl::Vec3( color1[0].GetDouble(), color1[1].GetDouble(), color1[2].GetDouble() ) );
+                    light1->SetIntensity( objects[i]["Intensity"].GetDouble() );
                     break;
+                }
                 case 'P':
+                {
                     scene.OnAddPointLight();
+
+                    std::shared_ptr<Light> light2 = std::dynamic_pointer_cast<Light>(sceneObjects[sceneObjects.size() - 1]);
+
+                    const rj::Value& color2 = objects[i]["Color"];
+                    light2->SetColor( ngl::Vec3( color2[0].GetDouble(), color2[1].GetDouble(), color2[2].GetDouble() ) );
+                    light2->SetIntensity( objects[i]["Intensity"].GetDouble() );
                     break;
+                }
             }
             sceneObjects[sceneObjects.size() - 1]->SetName(objects[i]["Name"].GetString());
             const rj::Value& pos = objects[i]["Position"];

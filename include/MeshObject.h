@@ -11,7 +11,7 @@ public:
     MeshObject(const std::string& filepath);
     virtual ~MeshObject() = default;
 
-    virtual QGridLayout* GetLayout() override;
+    //virtual QGridLayout* GetLayout() override;
     //virtual void BuildLayout() override;
 /*public slots:
     void OnChangeAlbedoTexture(const std::string& path);
