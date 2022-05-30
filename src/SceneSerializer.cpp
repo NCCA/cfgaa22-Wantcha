@@ -29,6 +29,12 @@ void SceneSerializer::Serialize(const std::string& file, NGLScene& scene)
     writer.Bool(scene.getRenderEnvironment());
     writer.Key("AmbientIntensity");
     writer.Double(scene.getAmbientIntensity());
+    writer.Key("BackgroundColor");
+    writer.StartArray();           
+    writer.Double(scene.GetBackgroundColor().m_x);
+    writer.Double(scene.GetBackgroundColor().m_y);
+    writer.Double(scene.GetBackgroundColor().m_z);
+    writer.EndArray();
 
     writer.Key("SceneObjects");
     writer.StartArray();
@@ -143,6 +149,8 @@ void SceneSerializer::Deserialize(const std::string& file, NGLScene& scene)
         }
         scene.setRenderEnvironment(d["RenderEnvironment"].GetBool());
         scene.setAmbientIntensity(d["AmbientIntensity"].GetDouble());
+        const rj::Value& bg = d["BackgroundColor"];
+        scene.SetBackgroundColor( ngl::Vec3(bg[0].GetDouble(), bg[1].GetDouble(), bg[2].GetDouble() ));
 
         const rj::Value& objects = d["SceneObjects"];
         for (rj::SizeType i = 0; i < objects.Size(); i++)

@@ -31,7 +31,7 @@ public:
     void initializeGL() override;
     void paintGL() override;
     void resizeGL(int width, int height) override;
-    void SetTexture(GLuint* textureID, std::shared_ptr<ngl::Texture> texture);
+    void SetTexture(GLuint* textureID, std::shared_ptr<ngl::Texture> texture, bool modifyTexture = true);
     QSize minimumSizeHint() const override;
     QSize sizeHint() const override;
     signals:

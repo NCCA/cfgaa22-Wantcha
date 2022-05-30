@@ -151,7 +151,7 @@ struct Material
     GLuint m_metallicID = PBRShaderManager::s_whiteTextureID;
 
     float m_roughness = 0.5f;
-    float m_metallic = 1.0f;
+    float m_metallic = 0.0f;
 };
 
 #endif

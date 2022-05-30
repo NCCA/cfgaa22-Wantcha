@@ -107,6 +107,7 @@ void NGLScene::mouseReleaseEvent( QMouseEvent* _event )
       else if(m_hoveredObjectID >= 0 && m_hoveredObjectID < m_sceneObjects.size())
       {
         m_selectedObject = m_sceneObjects[m_hoveredObjectID];
+        emit UpdateSelectedIndex(m_hoveredObjectID);
         if(m_selectedObject)
         {
           Transform trans = m_selectedObject->GetTransform();

@@ -56,6 +56,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(m_scene, SIGNAL(UpdateTransformUI(Transform)),
             this, SLOT(OnUpdateTransformWidget(Transform)));
+    connect(m_scene, SIGNAL(UpdateSelectedIndex(int)),
+            this, SLOT(OnSelectIndex(int)));
     connect(m_scene, SIGNAL(UpdateSceneListUI(const std::vector<std::shared_ptr<SceneObject>>&)),
             this, SLOT(OnUpdateSceneList(const std::vector<std::shared_ptr<SceneObject>>&)));
 
@@ -103,6 +105,13 @@ void MainWindow::PrepareLayouts()
     QObject::connect(intensity, qOverload<double>(&QDoubleSpinBox::valueChanged),
     [this](double arg) { m_scene->setAmbientIntensity( arg ); m_scene->update(); });
     defaultLayout->addWidget( intensity, 3, 1, Qt::AlignLeft );
+
+    defaultLayout->addWidget( new QLabel("Background Color"), 4, 0 );
+    m_backgroundPicker = new ColorPicker(m_scene->GetBackgroundColor());
+    connect(m_backgroundPicker, qOverload<const ngl::Vec3&>(&ColorPicker::PickedColor),
+        [this](const ngl::Vec3& arg) { m_scene->SetBackgroundColor(arg); m_scene->update(); });
+
+    defaultLayout->addWidget(m_backgroundPicker, 4, 1);
 
     QSpacerItem* spacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
     defaultLayout->addItem(spacer, defaultLayout->rowCount(), 0);
@@ -187,7 +196,7 @@ void MainWindow::OnUpdatePropertiesBox(std::shared_ptr<SceneObject> sceneObject)
 {
     if(sceneObject == nullptr)
     {
-        m_envWidget->SetTexture(m_scene->getEnvironmentMap()->GetHDRMapPointer(), nullptr);
+        m_envWidget->SetTexture(m_scene->getEnvironmentMap()->GetHDRMapPointer(), nullptr, false);
         m_propertiesLayout->setCurrentIndex(0);
     }
     else if(!sceneObject->IsLight())
@@ -230,6 +239,11 @@ void MainWindow::OnUpdatePropertiesBox(std::shared_ptr<SceneObject> sceneObject)
        m_propertiesLayout->setCurrentIndex(2);
     }
     
+}
+
+void MainWindow::OnSelectIndex(int index)
+{
+    m_ui->SceneList->setCurrentRow(index);
 }
 
 void MainWindow::OnUpdateTransformWidget(const Transform& transform)

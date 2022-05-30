@@ -199,7 +199,7 @@ void NGLScene::paintGL()
 
   m_viewportFrameBuffer->Bind();
   // clear the screen and depth buffer
-  glClearColor(0.15f, 0.15f, 0.18f, 1.0f);			   // Grey Background
+  glClearColor(m_backgroundColor.m_r, m_backgroundColor.m_g, m_backgroundColor.m_b, 1.0f);	 //Background
   glClearDepth(1);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   glViewport(0, 0, m_win.width, m_win.height);
@@ -287,22 +287,6 @@ void NGLScene::paintGL()
 
   glDisable(GL_CULL_FACE);  
 
-  //glDisable(GL_STENCIL_TEST);
-  if(m_renderEnvironment)
-  {
-    //glStencilMask(0x00);
-    glDepthFunc(GL_LEQUAL);
-    ngl::ShaderLib::use("Skybox");
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, m_environment->GetEnvironmentCubeMap());
-    ngl::ShaderLib::setUniform("projection", m_camera->GetProjection());
-    ngl::ShaderLib::setUniform("view", m_camera->GetView());
-    m_environment->GetCube()->Draw();
-
-    glDepthFunc(GL_LESS);
-  }
-
     // Now draw selection borders
   if(m_selectedObject && !m_selectedObject->IsLight())
   {
@@ -317,6 +301,22 @@ void NGLScene::paintGL()
     glStencilMask(0xFF);
     glStencilFunc(GL_ALWAYS, 0, 0xFF);
     //glEnable(GL_DEPTH_TEST);
+  }
+
+    //glDisable(GL_STENCIL_TEST);
+  if(m_renderEnvironment)
+  {
+    //glStencilMask(0x00);
+    glDepthFunc(GL_LEQUAL);
+    ngl::ShaderLib::use("Skybox");
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_environment->GetEnvironmentCubeMap());
+    ngl::ShaderLib::setUniform("projection", m_camera->GetProjection());
+    ngl::ShaderLib::setUniform("view", m_camera->GetView());
+    m_environment->GetCube()->Draw();
+
+    glDepthFunc(GL_LESS);
   }
 
   if(m_selectedObject)

@@ -82,7 +82,6 @@ void TextureWidget::paintGL()
         m_vaoMesh->bind();
         m_vaoMesh->draw();
         m_vaoMesh->unbind();
-        //std::cout<<"INDICES "<< m_vaoMesh->numIndices() <<"\n";
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glEnable(GL_CULL_FACE); 
@@ -90,7 +89,7 @@ void TextureWidget::paintGL()
     }
 }
 
-void TextureWidget::SetTexture(GLuint* textureID, std::shared_ptr<ngl::Texture> texture)
+void TextureWidget::SetTexture(GLuint* textureID, std::shared_ptr<ngl::Texture> texture, bool modifyTexture)
 {
     makeCurrent();
     if(!m_initialized)
@@ -122,9 +121,9 @@ void TextureWidget::SetTexture(GLuint* textureID, std::shared_ptr<ngl::Texture> 
 
         m_vaoMesh->unbind();
         m_initialized = true;
-        std::cout<<"INITIALIZED\n";
+        //std::cout<<"INITIALIZED\n";
     }
-    if(texture == nullptr)
+    if(modifyTexture == false)
     {
         m_modifyTexture = false;
     }

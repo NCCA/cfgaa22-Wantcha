@@ -38,6 +38,7 @@ public:
         void OnLoadScene();
         void OnSaveView();
         void OnSaveViewCustom();
+        void OnSelectIndex(int index);
 
 private:
     void PrepareLayouts();
@@ -47,6 +48,7 @@ private:
     QStackedLayout* m_propertiesLayout;
 
     TextureWidget* m_envWidget;
+    ColorPicker* m_backgroundPicker;
 
     TextureWidget* m_albedoWidget;
     TextureWidget* m_roughnessWidget;

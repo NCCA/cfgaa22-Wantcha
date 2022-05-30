@@ -64,6 +64,8 @@ class NGLScene : public QOpenGLWidget
     void resetScene();
     void DeselectAll() { m_selectedObject = nullptr; }
     std::shared_ptr<SceneObject> GetSelectedObject() { return m_selectedObject; }
+    void SetBackgroundColor(const ngl::Vec3& col) { m_backgroundColor = col; }
+    ngl::Vec3 GetBackgroundColor() const { return m_backgroundColor; }
 
     public slots:
       void setPosX(double val);
@@ -90,6 +92,7 @@ class NGLScene : public QOpenGLWidget
         void UpdateTransformUI(Transform);
         void UpdateSceneListUI(const std::vector<std::shared_ptr<SceneObject>>&);
         void UpdatePropertiesBox(std::shared_ptr<SceneObject>);
+        void UpdateSelectedIndex(int index);
 private:
 
     //----------------------------------------------------------------------------------------------------------------------
@@ -143,6 +146,7 @@ private:
     float m_ambientIntensity = 1.0f;
 
     int m_hoveredObjectID = -100;
+    ngl::Vec3 m_backgroundColor = ngl::Vec3(0.14f, 0.14f, 0.18f);
 };
 
 
