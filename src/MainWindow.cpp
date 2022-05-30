@@ -83,7 +83,7 @@ void MainWindow::PrepareLayouts()
     QGridLayout* defaultLayout = new QGridLayout;
     defaultLayout->addWidget( new QLabel("SCENE PROPERTIES"), 0, 0 );
     defaultLayout->addWidget( new QLabel("Environment Texture"), 1, 0 );
-    m_envWidget = new TextureWidget(m_scene->getEnvironmentMap()->GetHDRMapPointer(), 100, 75);
+    m_envWidget = new TextureWidget(m_scene->getEnvironmentMap()->GetHDRMapPointer(), 100, 75, nullptr);
 
     QObject::connect(m_envWidget, qOverload<const std::string&>(&TextureWidget::selectedPath),
     [this](const std::string& path) { m_scene->makeCurrent(); m_scene->getEnvironmentMap()->SetTexture(path); m_scene->doneCurrent(); });
@@ -118,7 +118,6 @@ void MainWindow::PrepareLayouts()
 
     defaultWidget->setLayout(defaultLayout);
     m_propertiesLayout->addWidget(defaultWidget);
-
 
 
     QWidget* meshWidget = new QWidget;
@@ -196,16 +195,17 @@ void MainWindow::OnUpdatePropertiesBox(std::shared_ptr<SceneObject> sceneObject)
 {
     if(sceneObject == nullptr)
     {
+        m_backgroundPicker->SetColor(m_scene->GetBackgroundColor());
         m_envWidget->SetTexture(m_scene->getEnvironmentMap()->GetHDRMapPointer(), nullptr, false);
         m_propertiesLayout->setCurrentIndex(0);
     }
     else if(!sceneObject->IsLight())
     {
-        m_albedoWidget->SetTexture(&sceneObject->GetMaterial().m_albedoID, sceneObject->GetMaterial().m_albedoTexture);
-        m_roughnessWidget->SetTexture(&sceneObject->GetMaterial().m_roughnessID, sceneObject->GetMaterial().m_roughnessTexture);
-        m_normalWidget->SetTexture(&sceneObject->GetMaterial().m_normalID, sceneObject->GetMaterial().m_normalTexture);
-        m_aoWidget->SetTexture(&sceneObject->GetMaterial().m_aoID, sceneObject->GetMaterial().m_aoTexture);
-        m_metallicWidget->SetTexture(&sceneObject->GetMaterial().m_metallicID, sceneObject->GetMaterial().m_metallicTexture);
+        m_albedoWidget->SetTexture(&sceneObject->GetMaterial().m_albedoID, &sceneObject->GetMaterial().m_albedoTexture);
+        m_roughnessWidget->SetTexture(&sceneObject->GetMaterial().m_roughnessID, &sceneObject->GetMaterial().m_roughnessTexture);
+        m_normalWidget->SetTexture(&sceneObject->GetMaterial().m_normalID, &sceneObject->GetMaterial().m_normalTexture);
+        m_aoWidget->SetTexture(&sceneObject->GetMaterial().m_aoID, &sceneObject->GetMaterial().m_aoTexture);
+        m_metallicWidget->SetTexture(&sceneObject->GetMaterial().m_metallicID, &sceneObject->GetMaterial().m_metallicTexture);
 
         m_metallicSlider->setValue(sceneObject->GetMaterial().m_metallic * 100);
         connect(m_metallicSlider, qOverload<int>(&QSlider::valueChanged),

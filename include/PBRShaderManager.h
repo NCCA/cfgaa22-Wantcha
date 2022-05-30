@@ -21,8 +21,6 @@ public:
     PBRShaderManager();
     ~PBRShaderManager() = default;
 
-    //PBRShaderManager (const std::string& name, const std::string& vert, const std::string& frag);
-
     static void Init(const std::string& name,
             const std::string& vert, const std::string& frag);
 
@@ -38,7 +36,6 @@ public:
     static void RemovePointLight( std::shared_ptr<Light> light );
     
     static void UseShader();
-    //static void DrawQuad() { s_quadMesh->bind(); s_quadMesh->draw(); s_quadMesh->unbind(); }
 
     static uint32_t s_whiteTextureID;
     static uint32_t s_blackTextureID;
@@ -53,14 +50,10 @@ public:
     static uint32_t s_directionalShadowMap;
     static uint32_t s_pointShadowMap;
     static std::unique_ptr<FrameBuffer> s_pointShadowBuffer;
-    //static EnvironmentTexture s_envMap;
     static std::vector<std::shared_ptr<Light>> s_directionalLights;
     static std::vector<std::shared_ptr<Light>> s_pointLights;
 
-    //static std::unique_ptr<ngl::AbstractVAO> s_quadMesh;
-
 private:
-    //static SimpleVertData m_vbo[6];
     static std::string m_fragPath;
     static std::string m_vertPath;
     static std::string m_name;
@@ -71,9 +64,6 @@ private:
 
 struct Material
 {
-    //Material() = default;
-    //Material(const Material&);
-
     void SetTexture(TextureType type, std::shared_ptr<ngl::Texture> texture)
     {
         switch(type)

@@ -23,7 +23,7 @@ class TextureWidget : public QOpenGLWidget//, protected QGLFunctions
 Q_OBJECT
 
 public:
-    TextureWidget(GLuint* textureID, int width, int height, std::shared_ptr<ngl::Texture> texture);
+    TextureWidget(GLuint* textureID, int width, int height, std::shared_ptr<ngl::Texture>* texture);
     TextureWidget(GLuint* textureID, int width, int height);
 
     ~TextureWidget() override;
@@ -31,7 +31,7 @@ public:
     void initializeGL() override;
     void paintGL() override;
     void resizeGL(int width, int height) override;
-    void SetTexture(GLuint* textureID, std::shared_ptr<ngl::Texture> texture, bool modifyTexture = true);
+    void SetTexture(GLuint* textureID, std::shared_ptr<ngl::Texture>* texture, bool modifyTexture = true);
     QSize minimumSizeHint() const override;
     QSize sizeHint() const override;
     signals:
@@ -47,7 +47,7 @@ private:
     std::unique_ptr<ngl::AbstractVAO> m_vaoMesh;
 
     QRectF m_target;
-    std::shared_ptr<ngl::Texture> m_texture;
+    std::shared_ptr<ngl::Texture>* m_texture;
 
     bool m_initialized = false;
 };

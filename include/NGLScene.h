@@ -143,7 +143,7 @@ private:
     std::unique_ptr<EnvironmentTexture> m_environment;
     bool m_renderEnvironment = false;
 
-    float m_ambientIntensity = 1.0f;
+    float m_ambientIntensity = 0.5f;
 
     int m_hoveredObjectID = -100;
     ngl::Vec3 m_backgroundColor = ngl::Vec3(0.14f, 0.14f, 0.18f);

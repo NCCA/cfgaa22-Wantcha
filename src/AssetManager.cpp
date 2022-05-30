@@ -80,7 +80,7 @@ std::shared_ptr<ngl::Texture> AssetManager::GetAsset(const std::string& id)
         AssetCache<ngl::Texture>* cache = static_cast<AssetCache<ngl::Texture>*>(s_Caches[type].get());
         std::shared_ptr<ngl::Texture> asset = cache->GetAsset(id);
 
-        if (asset) return asset;
+        if (asset) { std::cout<<"Loading existing asset!\n"; return asset; }
         asset = LoadAsset<ngl::Texture>(id);
         cache->CacheAsset(id, asset);
 

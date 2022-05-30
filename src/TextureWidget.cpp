@@ -4,7 +4,7 @@
 #include <iostream>
 //#include <ngl/Texture.h>
 
-TextureWidget::TextureWidget(GLuint* textureID, int width, int height, std::shared_ptr<ngl::Texture> texture)
+TextureWidget::TextureWidget(GLuint* textureID, int width, int height, std::shared_ptr<ngl::Texture>* texture)
     :m_id(textureID), m_texture(texture)
 {
     m_target.setWidth(width);
@@ -22,38 +22,11 @@ TextureWidget::TextureWidget(GLuint* textureID, int width, int height)
 
 TextureWidget::~TextureWidget()
 {
-  //std::cout<<"Shutting down NGL, removing VAO's and Shaders\n";
-  //glDeleteTextures(1, &m_id);
 }
 
 void TextureWidget::initializeGL()
 {
-    /*struct SimpleVertData
-    {
-        ngl::Vec3 pos;
-        ngl::Vec2 uv;
-    };
 
-    ngl::Vec3 points[4] = { ngl::Vec3{ -1, -1, 0 }, ngl::Vec3{ 1, -1, 0 }, ngl::Vec3{ 1, 1, 0 }, ngl::Vec3{ -1, 1, 0 } };
-    ngl::Vec2 uvs[4] = { ngl::Vec2{ 0,0 }, ngl::Vec2{ 1, 0 }, ngl::Vec2{ 1,1 }, ngl::Vec2{ 0,1 } };
-
-    SimpleVertData vbo[6];
-    vbo[0].pos = points[0]; vbo[0].uv = uvs[0];
-    vbo[1].pos = points[1]; vbo[1].uv = uvs[1];
-    vbo[2].pos = points[2]; vbo[2].uv = uvs[2];
-    vbo[3].pos = points[3]; vbo[3].uv = uvs[3];
-    vbo[4].pos = points[0]; vbo[4].uv = uvs[0];
-    vbo[5].pos = points[2]; vbo[5].uv = uvs[2];
-
-    m_vaoMesh = ngl::VAOFactory::createVAO(ngl::simpleVAO, GL_TRIANGLES);
-    m_vaoMesh->bind();
-
-    m_vaoMesh->setData(ngl::SimpleVAO::VertexData(6*sizeof(SimpleVertData), vbo[0].pos.m_x));
-    m_vaoMesh->setVertexAttributePointer(0, 3, GL_FLOAT, sizeof(SimpleVertData), 0);
-    m_vaoMesh->setVertexAttributePointer(1, 2, GL_FLOAT, sizeof(SimpleVertData), 3);
-    m_vaoMesh->setNumIndices(6);
-
-    m_vaoMesh->unbind();*/
 }
 
 void TextureWidget::resizeGL(int width, int height)
@@ -89,7 +62,7 @@ void TextureWidget::paintGL()
     }
 }
 
-void TextureWidget::SetTexture(GLuint* textureID, std::shared_ptr<ngl::Texture> texture, bool modifyTexture)
+void TextureWidget::SetTexture(GLuint* textureID, std::shared_ptr<ngl::Texture>* texture, bool modifyTexture)
 {
     makeCurrent();
     if(!m_initialized)
@@ -142,9 +115,10 @@ void TextureWidget::mousePressEvent(QMouseEvent *event)
     std::string filepath = q_filepath.toStdString();
     if(m_modifyTexture)
     {
-        m_texture = AssetManager::GetAsset<ngl::Texture>(filepath);
-        m_texture->setMultiTexture(0);
-        *m_id = m_texture->setTextureGL();
+        *m_texture = AssetManager::GetAsset<ngl::Texture>(filepath);
+        m_texture->get()->setMultiTexture(0);
+        *m_id = m_texture->get()->setTextureGL();
+        //std::cout<<m_texture.get()<<"\n";
     }
     emit selectedPath(filepath);
     update();

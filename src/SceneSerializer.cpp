@@ -93,6 +93,13 @@ void SceneSerializer::Serialize(const std::string& file, NGLScene& scene)
             
             writer.Key("MetallicValue");
             writer.Double(objects[i]->GetMaterial().m_metallic);
+
+            writer.Key("BaseColor");
+            writer.StartArray();
+            writer.Double(objects[i]->GetMaterial().m_baseColor.m_x);
+            writer.Double(objects[i]->GetMaterial().m_baseColor.m_y);
+            writer.Double(objects[i]->GetMaterial().m_baseColor.m_z);
+            writer.EndArray();
         }
         else
         {
@@ -161,6 +168,7 @@ void SceneSerializer::Deserialize(const std::string& file, NGLScene& scene)
             switch (objectType[0])
             {
                 case 'M':
+                {
                     scene.OnAddMesh(objects[i]["MeshFilepath"].GetString());
                     //scene.makeCurrent();
                     if(objects[i]["AlbedoTexture"].GetStringLength() != 0)
@@ -188,8 +196,10 @@ void SceneSerializer::Deserialize(const std::string& file, NGLScene& scene)
 
                     sceneObjects[sceneObjects.size() - 1]->GetMaterial().m_roughness = objects[i]["RoughnessValue"].GetDouble();
                     sceneObjects[sceneObjects.size() - 1]->GetMaterial().m_metallic = objects[i]["MetallicValue"].GetDouble();
-
+                    const rj::Value& baseColor = objects[i]["BaseColor"];
+                    sceneObjects[sceneObjects.size() - 1]->GetMaterial().m_baseColor = ngl::Vec3(baseColor[0].GetDouble(), baseColor[1].GetDouble(), baseColor[2].GetDouble());
                     break;
+                }
                 case 'D':
                 {
                     scene.OnAddDirectionalLight();
@@ -221,6 +231,7 @@ void SceneSerializer::Deserialize(const std::string& file, NGLScene& scene)
             sceneObjects[sceneObjects.size() - 1]->SetScale(ngl::Vec3( scale[0].GetDouble(), scale[1].GetDouble(), scale[2].GetDouble() ));
         }
 
+        PBRShaderManager::RefreshCurrentLights();
         scene.update();
         scene.doneCurrent();
     }

@@ -158,9 +158,6 @@ void ObjMesh::Triangulate()
             newUV /= 4.0f;
             newNorm /= 4.0f;
             newNorm.normalize();
-            //std::cout << newNorm.m_x << " " << newNorm.m_y << " " << newNorm.m_z << "\n";
-            //newNorm *= -1.0f;
-            //newNorm = ngl::Vec3(0, 1, 0);
 
             m_verts.push_back(newVert);
             m_uv.push_back(newUV);

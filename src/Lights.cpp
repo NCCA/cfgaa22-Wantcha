@@ -37,8 +37,8 @@ void Light::Initialize()
         m_shadowBuffer = std::make_unique<FrameBuffer>(PBRShaderManager::s_directionalShadowMap, PBRShaderManager::s_curDirShadowIndex);
         ++PBRShaderManager::s_curDirShadowIndex;
 
-        float orthoSize = 10;
-        m_projection = ngl::ortho(-orthoSize, orthoSize, -orthoSize, orthoSize, -10, 10);
+        float orthoSize = 9;
+        m_projection = ngl::ortho(-orthoSize, orthoSize, -orthoSize, orthoSize, -9, 9);
     }
     else
     {

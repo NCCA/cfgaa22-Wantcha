@@ -25,7 +25,7 @@ NGLScene::NGLScene()
   format.setSamples(4);
   #if defined( __APPLE__)
   format.setMajorVersion(4);
-  format.setMinorVersion(3);
+  format.setMinorVersion(1);
   #else
   format.setMajorVersion(4);
   format.setMinorVersion(3);
@@ -90,7 +90,8 @@ void NGLScene::initializeGL()
 
   m_gizmo = std::make_unique<Gizmo>( m_camera );
 
-  m_sceneObjects.push_back(std::make_shared<MeshObject>("meshes/yuri.obj"));
+  // For testing purposes
+  /*m_sceneObjects.push_back(std::make_shared<MeshObject>("meshes/yuri.obj"));
   //static_cast<MeshObject>(m_sceneObjects[0])->GetMesh()->GetMaterial().SetTexture("textures/checkerboard.jpg");
   m_sceneObjects[0]->SetPosition({0.1f, 0.23f, -1.6f});
   m_sceneObjects[0]->SetScale({0.75f, 0.75f, 0.75f});
@@ -120,9 +121,8 @@ void NGLScene::initializeGL()
   m_sceneObjects.push_back(PBRShaderManager::AddDirectionalLight(ngl::Vec3{0, 2.0f, 0.5f}, ngl::Vec3{ 135, 0 ,0 }, ngl::Vec3{1.0f, 1.0f, 1.0f}, 0.5f));
   m_sceneObjects.push_back(PBRShaderManager::AddDirectionalLight(ngl::Vec3{1.0f, 2.0f, 0.5f}, ngl::Vec3{ 45, 90 ,0 }, ngl::Vec3{1.0f, 0.7f, 0.8f}, 0.5f));
   m_sceneObjects.push_back(PBRShaderManager::AddPointLight(ngl::Vec3{-1, 2, 0}, ngl::Vec3{1, 0.5f, 0.7f}, 5.0f));
-  m_sceneObjects.push_back(PBRShaderManager::AddPointLight(ngl::Vec3(0.5f, 2.0f, -1.0f), ngl::Vec3{1,1,1}, 2.0f));
-  //m_sceneObjects.push_back(pl2);
-  //m_sceneObjects.push_back(l3);
+  m_sceneObjects.push_back(PBRShaderManager::AddPointLight(ngl::Vec3(0.5f, 2.0f, -1.0f), ngl::Vec3{1,1,1}, 2.0f));*/
+
   m_environment = std::make_unique<EnvironmentTexture>( PBRShaderManager::s_whiteTextureID );
 
   emit UpdateSceneListUI(m_sceneObjects);
@@ -161,7 +161,7 @@ void NGLScene::paintGL()
     PBRShaderManager::s_directionalLights[i]->GetShadowBuffer()->Unbind();
   }
 
-  // POINT LIGHTS
+  // POINT LIGHT SHADOWS
   PBRShaderManager::s_pointShadowBuffer->Bind();
   glViewport(0,0,PBRShaderManager::s_shadowMapSize, PBRShaderManager::s_shadowMapSize);
   glClear(GL_DEPTH_BUFFER_BIT);
@@ -197,6 +197,7 @@ void NGLScene::paintGL()
   PBRShaderManager::s_pointShadowBuffer->Unbind();
 
 
+  // Render the main scene
   m_viewportFrameBuffer->Bind();
   // clear the screen and depth buffer
   glClearColor(m_backgroundColor.m_r, m_backgroundColor.m_g, m_backgroundColor.m_b, 1.0f);	 //Background
@@ -210,8 +211,6 @@ void NGLScene::paintGL()
   int it = 0;
   
   ngl::Mat4 VP = m_camera->GetProjection() * m_camera->GetView();
-
-  //PBRShaderManager::UseShader();
 
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
@@ -259,18 +258,6 @@ void NGLScene::paintGL()
 
       mesh->GetMaterial().BindTextures();
       mesh->Draw();
-
-      /*if(mesh == m_selectedObject)
-      {
-        ngl::ShaderLib::use(ngl::nglColourShader);
-        ngl::ShaderLib::setUniform("MVP", MVP);
-        ngl::ShaderLib::setUniform("Colour", ngl::Vec4(1.0f, 0.5f, 0.05f, 1.0f));
-        //glPointSize(2);
-        //glLineWidth(1);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        mesh->DrawHighlighted();
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-      }*/
     }
     else
     {
@@ -287,15 +274,13 @@ void NGLScene::paintGL()
 
   glDisable(GL_CULL_FACE);  
 
-    // Now draw selection borders
+  // Now draw selection borders
   if(m_selectedObject && !m_selectedObject->IsLight())
   {
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
     glStencilMask(0x00);
     //glDisable(GL_DEPTH_TEST);
     ngl::ShaderLib::use("StencilTest");
-    //Transform t = m_selectedObject->GetTransform();
-    //t.addScale(0.05f, 0.05f, 0.05f);
     ngl::ShaderLib::setUniform("MVP", VP * m_selectedObject->GetTransform().getMatrix());
     m_selectedObject->Draw();
     glStencilMask(0xFF);
@@ -303,10 +288,8 @@ void NGLScene::paintGL()
     //glEnable(GL_DEPTH_TEST);
   }
 
-    //glDisable(GL_STENCIL_TEST);
   if(m_renderEnvironment)
   {
-    //glStencilMask(0x00);
     glDepthFunc(GL_LEQUAL);
     ngl::ShaderLib::use("Skybox");
 
@@ -339,8 +322,6 @@ void NGLScene::paintGL()
 
 void NGLScene::keyPressEvent(QKeyEvent *_event)
 {
-  // this method is called every time the main window recives a key event.
-  // we then switch on the key value and set the camera in the GLWindow
   switch (_event->key())
   {
     case Qt::Key_W :
