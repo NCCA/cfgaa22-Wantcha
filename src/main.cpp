@@ -3,6 +3,7 @@ basic OpenGL demo modified from http://qt-project.org/doc/qt-5.0/qtgui/openglwin
 ****************************************************************************/
 #include <QtGui/QGuiApplication>
 #include <QApplication>
+#include <QStyleFactory>
 #include <iostream>
 #include "NGLScene.h"
 #include "MainWindow.h"
@@ -14,6 +15,7 @@ int main(int argc, char **argv)
   //QGuiApplication app(argc, argv);
   QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
   QApplication a(argc, argv);
+  QApplication::setStyle(QStyleFactory::create("fusion"));
   // create an OpenGL format specifier
   QSurfaceFormat format;
   // set the number of samples for multisampling

@@ -611,7 +611,7 @@ void NGLScene::RenderFramebuffer(int width, int height)
 
   m_viewportFrameBuffer->Bind();
   // clear the screen and depth buffer
-  glClearColor(0.15f, 0.15f, 0.18f, 1.0f);			   // Grey Background
+  glClearColor(m_backgroundColor.m_r, m_backgroundColor.m_g, m_backgroundColor.m_b, 1.0f);			   // Grey Background
   glClearDepth(1);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glViewport(0, 0, width, height);
@@ -634,6 +634,9 @@ void NGLScene::RenderFramebuffer(int width, int height)
       ngl::ShaderLib::setUniform("camPos", m_camera->GetTransform().getPosition());
       ngl::ShaderLib::setUniform("MVP", MVP);
       ngl::ShaderLib::setUniform("ambientIntensity", m_ambientIntensity);
+      ngl::ShaderLib::setUniform("roughnessValue", mesh->GetMaterial().m_roughness);
+      ngl::ShaderLib::setUniform("metallicValue", mesh->GetMaterial().m_metallic);
+      ngl::ShaderLib::setUniform("baseColor", mesh->GetMaterial().m_baseColor);
       ngl::ShaderLib::setUniform("M", mesh->GetTransform().getMatrix());
       for(int i = 0; i < PBRShaderManager::s_directionalLights.size() && i < PBRShaderManager::s_maxDirectionalShadows; i++)
       {

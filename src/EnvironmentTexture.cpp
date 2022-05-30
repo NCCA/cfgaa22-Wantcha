@@ -5,7 +5,9 @@
 #include <iostream>
 #include <ngl/SimpleVAO.h>
 
+#ifndef _WIN32
 #define STB_IMAGE_IMPLEMENTATION
+#endif
 #include <../3rdparty/stb_image.h>
 
 EnvironmentTexture::EnvironmentTexture(uint32_t textureID)
