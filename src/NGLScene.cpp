@@ -461,6 +461,7 @@ void NGLScene::OnAddDirectionalLight()
   makeCurrent();
   m_sceneObjects.push_back(PBRShaderManager::AddDirectionalLight());
   emit UpdateSceneListUI(m_sceneObjects);
+  update();
   //doneCurrent();
 }
 
@@ -469,6 +470,7 @@ void NGLScene::OnAddPointLight()
   makeCurrent();
   m_sceneObjects.push_back(PBRShaderManager::AddPointLight());
   emit UpdateSceneListUI(m_sceneObjects);
+  update();
   //doneCurrent();
 }
 
