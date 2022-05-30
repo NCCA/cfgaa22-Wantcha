@@ -10,6 +10,13 @@ Camera::Camera(float fov, float aspectRatio, float nearPlane, float farPlane)
     UpdateProjection();
 }
 
+void Camera::Refocus(const Transform& transform)
+{
+    m_focalPoint = transform.getPosition() + ngl::Vec3(0, 0.25f, 0);
+    m_distance = 3.0f;
+    UpdateView();
+}
+
 void Camera::SetViewportSize(float width, float height)
 {
     m_width = width;

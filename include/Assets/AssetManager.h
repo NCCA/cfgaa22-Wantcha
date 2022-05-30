@@ -14,6 +14,9 @@ public:
 
     template<typename T>
     static std::shared_ptr<T> GetAsset(const std::string& id);
+
+    template<typename T>
+    static std::string GetPath(T asset);
     /*{
         AssetType type = T::GetAssetType();
         if (s_Caches.find(type) != s_Caches.end())

@@ -9,6 +9,8 @@
 #include <QDoubleSpinBox>
 #include <QCheckBox>
 #include "TextureWidget.h"
+#include "SceneSerializer.h"
+#include "RenderDialog.h"
 //#include "ui_MainWindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -59,12 +61,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_scene, SIGNAL(UpdatePropertiesBox(QGridLayout*)),
             this, SLOT(OnUpdatePropertiesBox(QGridLayout*)));
 
-    //m_ui->SceneList->addItem(QString::fromStdString("obj.GetName()"));
-    //QCheckBox box = QCheckBox("Enable Cringe 2");
-    //QGridLayout* layout = m_ui->PropertiesBox->layout()->findChild<QGridLayout*>();
-    //QCheckBox* box = new QCheckBox(QString("Enable Cringe 2"));
-    //static_cast<QGridLayout*>(m_ui->PropertiesBox->layout() )->addWidget(box, 0, 1);
-    //m_ui->PropertiesBox->
+    connect(m_ui->actionSave_As, SIGNAL(triggered()), this, SLOT(OnSaveScene()));
+    connect(m_ui->actionLoad, SIGNAL(triggered()), this, SLOT(OnLoadScene()));
+    connect(m_ui->actionCurrent_View, SIGNAL(triggered()), this, SLOT(OnSaveView()));
+    connect(m_ui->actionCustom_Resolution, SIGNAL(triggered()), this, SLOT(OnSaveViewCustom()));
 }
 
 void MainWindow::OnUpdatePropertiesBox(QGridLayout* newLayout)
@@ -77,7 +77,7 @@ void MainWindow::OnUpdatePropertiesBox(QGridLayout* newLayout)
     {
         newLayout->addWidget( new QLabel("SCENE PROPERTIES"), 0, 0 );
         newLayout->addWidget( new QLabel("Environment Texture"), 1, 0 );
-        TextureWidget* envWidget = new TextureWidget(m_scene->getEnvironmentMap()->GetHDRMapPointer(), 100, 75, nullptr);
+        TextureWidget* envWidget = new TextureWidget(m_scene->getEnvironmentMap()->GetHDRMapPointer(), 100, 75);
 
         QObject::connect(envWidget, qOverload<const std::string&>(&TextureWidget::selectedPath),
         [this](const std::string& path) { m_scene->makeCurrent(); m_scene->getEnvironmentMap()->SetTexture(path); m_scene->doneCurrent(); });
@@ -126,6 +126,69 @@ void MainWindow::OnUpdateTransformWidget(const Transform& transform)
     m_ui->m_scaleX->setValue(scale.m_x);
     m_ui->m_scaleY->setValue(scale.m_y);
     m_ui->m_scaleZ->setValue(scale.m_z);
+}
+
+void MainWindow::OnSaveViewCustom()
+{
+    bool ok;
+    QStringList list = RenderDialog::getStrings(this, &ok);
+    if (ok) {
+        int width = list[0].toInt();
+        int height = list[1].toInt();
+
+        QString q_filepath = QFileDialog::getSaveFileName(this, "Render As PNG...", QString::fromStdString(m_lastFilepath), ".png");
+        if(!q_filepath.endsWith(".png", Qt::CaseSensitivity::CaseInsensitive))
+        {
+            q_filepath.append(".png");
+        }
+        std::string filepath = q_filepath.toStdString();
+        auto lastSlashPos = filepath.find_last_of('/');
+        m_lastFilepath = filepath.substr(0, lastSlashPos);
+
+        m_scene->OnSaveFramebufferSize(filepath, width, height);
+    }
+}
+
+void MainWindow::OnSaveView()
+{
+    QString q_filepath = QFileDialog::getSaveFileName(this, "Render As PNG...", QString::fromStdString(m_lastFilepath), ".png");
+    if(!q_filepath.endsWith(".png", Qt::CaseSensitivity::CaseInsensitive))
+    {
+        q_filepath.append(".png");
+    }
+    std::string filepath = q_filepath.toStdString();
+    auto lastSlashPos = filepath.find_last_of('/');
+    m_lastFilepath = filepath.substr(0, lastSlashPos);
+
+    m_scene->OnSaveFramebuffer(filepath);
+}
+
+void MainWindow::OnSaveScene()
+{
+    QString q_filepath = QFileDialog::getSaveFileName(this, "Save Scene As...", QString::fromStdString(m_lastFilepath), ".lol");
+    if(!q_filepath.endsWith(".lol", Qt::CaseSensitivity::CaseInsensitive))
+    {
+        q_filepath.append(".lol");
+    }
+    std::string filepath = q_filepath.toStdString();
+    auto lastSlashPos = filepath.find_last_of('/');
+    m_lastFilepath = filepath.substr(0, lastSlashPos);
+
+    SceneSerializer::Serialize(filepath, *m_scene);
+}
+
+void MainWindow::OnLoadScene()
+{
+    QString q_filepath = QFileDialog::getOpenFileName(this, "Select Scene File", QString::fromStdString(m_lastFilepath));
+    if(!q_filepath.endsWith(".lol", Qt::CaseSensitivity::CaseInsensitive))
+    {
+        QMessageBox::information(this, "Error!", "The selected file is not a .lol file!");
+        return;
+    }
+    std::string filepath = q_filepath.toStdString();
+    auto lastSlashPos = filepath.find_last_of('/');
+    m_lastFilepath = filepath.substr(0, lastSlashPos);
+    SceneSerializer::Deserialize(filepath, *m_scene);
 }
 
 void MainWindow::OnUpdateSceneList(const std::vector<std::shared_ptr<SceneObject>>& objects)

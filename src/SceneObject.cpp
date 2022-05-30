@@ -19,7 +19,10 @@ void SceneObject::DrawHighlighted()
 
 QGridLayout* SceneObject::GetLayout()
 {
-    QGridLayout* layout = new QGridLayout();
-
-    return layout;
+    return new QGridLayout();
 }
+
+/*void SceneObject::BuildLayout()
+{
+    m_layout = new QGridLayout();
+}*/

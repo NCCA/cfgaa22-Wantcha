@@ -24,6 +24,7 @@ Q_OBJECT
 
 public:
     TextureWidget(GLuint* textureID, int width, int height, std::shared_ptr<ngl::Texture> texture);
+    TextureWidget(GLuint* textureID, int width, int height);
 
     ~TextureWidget() override;
 
@@ -41,7 +42,7 @@ private:
     void mouseReleaseEvent(QMouseEvent *event) override;
 
     GLuint* m_id = 0;
-    //SimpleVertData m_vbo[6];
+    bool m_modifyTexture = false;
     std::unique_ptr<ngl::AbstractVAO> m_vaoMesh;
 
     QRectF m_target;

@@ -52,6 +52,18 @@ std::shared_ptr<ObjMesh> AssetManager::GetAsset(const std::string& id)
 }
 
 template<>
+std::string AssetManager::GetPath(std::shared_ptr<ObjMesh> asset)
+{
+    AssetType type = AssetType::Mesh;
+    if (s_Caches.find(type) != s_Caches.end())
+    {
+        AssetCache<ObjMesh>* cache = static_cast<AssetCache<ObjMesh>*>(s_Caches[type].get());
+        return cache->FindAsset(asset);
+    }
+    return "";
+}
+
+template<>
 std::shared_ptr<ngl::Texture> AssetManager::LoadAsset(const std::string& path)
 {
     std::shared_ptr<ngl::Texture> texture = std::make_shared<ngl::Texture>(path);
@@ -75,4 +87,16 @@ std::shared_ptr<ngl::Texture> AssetManager::GetAsset(const std::string& id)
         return asset;
     }
     else return nullptr;
+}
+
+template<>
+std::string AssetManager::GetPath(std::shared_ptr<ngl::Texture> asset)
+{
+    AssetType type = AssetType::Texture2D;
+    if (s_Caches.find(type) != s_Caches.end())
+    {
+        AssetCache<ngl::Texture>* cache = static_cast<AssetCache<ngl::Texture>*>(s_Caches[type].get());
+        return cache->FindAsset(asset);
+    }
+    return "";
 }

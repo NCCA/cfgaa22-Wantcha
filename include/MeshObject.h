@@ -11,15 +11,16 @@ public:
     MeshObject(const std::string& filepath);
     virtual ~MeshObject() = default;
 
-    //virtual void Draw() const override { m_mesh->Draw(); }
-    //virtual void DrawHighlighted() const override { m_mesh->DrawWireframe(); }
     virtual QGridLayout* GetLayout() override;
-public slots:
+    //virtual void BuildLayout() override;
+/*public slots:
     void OnChangeAlbedoTexture(const std::string& path);
     void OnChangeRoughnessTexture(const std::string& path);
     void OnChangeNormalTexture(const std::string& path);
     void OnChangeAOTexture(const std::string& path);
-    void OnChangeMetallicTexture(const std::string& path);
+    void OnChangeMetallicTexture(const std::string& path);*/
+private:
+
 };
 
 #endif

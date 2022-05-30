@@ -72,6 +72,7 @@ public:
 
     void Resize(uint32_t width, uint32_t height);
     int ReadPixel(uint32_t attachmentIndex, int x, int y);
+	void SaveFramebufferToPNG(uint32_t attachmentIndex, const std::string& path, int x, int y, int w, int h);
 
     void ClearAttachment(uint32_t attachmentIndex, int value);
 	void SetAttachment(GLenum attachment, GLenum textureTarget, uint32_t textureID);

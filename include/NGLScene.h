@@ -61,6 +61,8 @@ class NGLScene : public QOpenGLWidget
     std::vector< std::shared_ptr<SceneObject> >& getSceneObjects() { return m_sceneObjects; }
     bool getRenderEnvironment() const { return m_renderEnvironment; }
     void setRenderEnvironment(bool render) { m_renderEnvironment = render; }
+    void resetScene();
+    void DeselectAll() { m_selectedObject = nullptr; }
 
     public slots:
       void setPosX(double val);
@@ -80,6 +82,8 @@ class NGLScene : public QOpenGLWidget
       void OnAddMesh(const std::string& path);
       void OnAddDirectionalLight();
       void OnAddPointLight();
+      void OnSaveFramebuffer(const std::string& filepath);
+      void OnSaveFramebufferSize(const std::string& filepath, int width, int height);
 
     signals:
         void UpdateTransformUI(Transform);
@@ -117,6 +121,8 @@ private:
     /// @param _event the Qt Event structure
     //----------------------------------------------------------------------------------------------------------------------
     void wheelEvent( QWheelEvent *_event) override;
+
+    void RenderFramebuffer(int width, int height);
     /// @brief windows parameters for mouse control etc.
     WinParams m_win;
 

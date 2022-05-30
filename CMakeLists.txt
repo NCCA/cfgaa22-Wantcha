@@ -63,6 +63,7 @@ target_sources(${TargetName} PRIVATE ${PROJECT_SOURCE_DIR}/src/main.cpp
             ${PROJECT_SOURCE_DIR}/src/ColorPicker.cpp 
             ${PROJECT_SOURCE_DIR}/src/EnvironmentTexture.cpp 
             ${PROJECT_SOURCE_DIR}/src/SceneSerializer.cpp 
+            ${PROJECT_SOURCE_DIR}/src/RenderDialog.cpp 
 			${PROJECT_SOURCE_DIR}/include/NGLScene.h 
             ${PROJECT_SOURCE_DIR}/include/MainWindow.h 
             ${PROJECT_SOURCE_DIR}/include/Camera.h 
@@ -82,6 +83,7 @@ target_sources(${TargetName} PRIVATE ${PROJECT_SOURCE_DIR}/src/main.cpp
             ${PROJECT_SOURCE_DIR}/include/ColorPicker.h  
             ${PROJECT_SOURCE_DIR}/include/EnvironmentTexture.h 
             ${PROJECT_SOURCE_DIR}/include/SceneSerializer.h 
+            ${PROJECT_SOURCE_DIR}/include/RenderDialog.h 
             ${PROJECT_SOURCE_DIR}/ui/MainWindow.ui
 )
 

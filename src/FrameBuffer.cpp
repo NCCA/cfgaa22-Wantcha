@@ -1,5 +1,10 @@
 #include "FrameBuffer.h"
 
+//#define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+//#include "stb_image.h"
+#include "stb_image_write.h"
+
 static const uint32_t s_MaxFrameBufferSize = 8192;
 
 // Utility functions
@@ -256,6 +261,28 @@ int FrameBuffer::ReadPixel(uint32_t attachmentIndex, int x, int y)
     //Bind();
 
     return pixelData;
+}
+
+void FrameBuffer::SaveFramebufferToPNG(uint32_t attachmentIndex, const std::string& path, int x, int y, int w, int h)
+{
+    std::cout<<"Saving Image to "<<path<<"!\n";
+    int realWidth=w-x;
+    int realHeight=h-y;
+    int size = 4;
+    GLenum format = GL_RGBA;
+    std::unique_ptr<unsigned char []> data( new unsigned char [realWidth * realHeight * size]);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, m_RendererID);
+
+    glReadBuffer(GL_COLOR_ATTACHMENT0 + attachmentIndex);
+
+    glReadPixels(x,y,realWidth,realHeight,format,GL_UNSIGNED_BYTE,data.get());
+
+    stbi_flip_vertically_on_write(true);
+    stbi_write_png(path.c_str(), realWidth, realHeight, size, data.get(), realWidth * size);
+
+    glReadBuffer(GL_COLOR_ATTACHMENT0);
+    //glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 }
 
 void FrameBuffer::ClearAttachment(uint32_t attachmentIndex, int value)

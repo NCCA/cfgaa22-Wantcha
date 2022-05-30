@@ -72,12 +72,6 @@ void NGLScene::initializeGL()
 	fbSpec.Height = 900;
 	m_viewportFrameBuffer = std::make_unique<FrameBuffer>(fbSpec);
 
-  //std::shared_ptr<Light> l3 = std::make_shared<Light>(LightType::Point, ngl::Vec3{-1, 2, 0}, ngl::Vec3{ 0, 0 ,0 }, ngl::Vec3{1, 0.9f, 1});
-
-
-  //std::shared_ptr<Light> pl1 = std::make_shared<Light>(LightType::Point, ngl::Vec3(0.5f, 2.0f, -1.0f), ngl::Vec3(0, 0, 0), ngl::Vec3{1,1,1});
-  //std::shared_ptr<Light> pl2 = std::make_shared<Light>(LightType::Point, ngl::Vec3(-0.5f, 0.5f, 2.0f), ngl::Vec3(0, 0, 0), ngl::Vec3{1,1,1});
-
   ngl::ShaderLib::loadShader("SimpleDepth", "shaders/SimpleDepthVert.glsl", "shaders/SimpleDepthFrag.glsl");
   ngl::ShaderLib::loadShader("LinearDepth", "shaders/LinearDepthVert.glsl", "shaders/LinearDepthFrag.glsl", "shaders/LinearDepthGeo.glsl");
   ngl::ShaderLib::loadShader("SimpleTexture", "shaders/SimpleTextureVert.glsl", "shaders/SimpleTextureFrag.glsl");
@@ -95,11 +89,11 @@ void NGLScene::initializeGL()
   //static_cast<MeshObject>(m_sceneObjects[0])->GetMesh()->GetMaterial().SetTexture("textures/checkerboard.jpg");
   m_sceneObjects[0]->SetPosition({0.1f, 0.23f, -1.6f});
   m_sceneObjects[0]->SetScale({0.75f, 0.75f, 0.75f});
-  m_sceneObjects[0]->GetMesh()->GetMaterial().SetTexture(TextureType::ALBEDO, AssetManager::GetAsset<ngl::Texture>("textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_albedo.tif"));
+  m_sceneObjects[0]->GetMaterial().SetTexture(TextureType::ALBEDO, AssetManager::GetAsset<ngl::Texture>("textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_albedo.tif"));
   //m_sceneObjects[0]->GetMesh()->GetMaterial().SetTexture(TextureType::ALBEDO, "textures/checkerboard.jpg");
-  m_sceneObjects[0]->GetMesh()->GetMaterial().SetTexture(TextureType::ROUGHNESS, AssetManager::GetAsset<ngl::Texture>("textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_roughness.tif"));
-  m_sceneObjects[0]->GetMesh()->GetMaterial().SetTexture(TextureType::NORMAL, AssetManager::GetAsset<ngl::Texture>("textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_normal.tif"));
-  m_sceneObjects[0]->GetMesh()->GetMaterial().SetTexture(TextureType::AO, AssetManager::GetAsset<ngl::Texture>("textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_ao.tif"));
+  m_sceneObjects[0]->GetMaterial().SetTexture(TextureType::ROUGHNESS, AssetManager::GetAsset<ngl::Texture>("textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_roughness.tif"));
+  m_sceneObjects[0]->GetMaterial().SetTexture(TextureType::NORMAL, AssetManager::GetAsset<ngl::Texture>("textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_normal.tif"));
+  m_sceneObjects[0]->GetMaterial().SetTexture(TextureType::AO, AssetManager::GetAsset<ngl::Texture>("textures/StoneCladding/TexturesCom_Brick_StoneCladding6_1K_ao.tif"));
   m_selectedObject = m_sceneObjects[0];
 
 
@@ -107,21 +101,21 @@ void NGLScene::initializeGL()
   m_sceneObjects[1]->SetPosition({0.0f, 0.5f, 0.0f});
   m_sceneObjects[1]->SetScale({0.75f, 0.75f, 0.75f});
   m_sceneObjects[1]->SetName("Buncf");
-  m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::ALBEDO, AssetManager::GetAsset<ngl::Texture>("textures/Cerberus/Cerberus_A.png"));
-  m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::ROUGHNESS, AssetManager::GetAsset<ngl::Texture>("textures/Cerberus/Cerberus_R.png"));
-  m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::NORMAL, AssetManager::GetAsset<ngl::Texture>("textures/Cerberus/Cerberus_N.png"));
-  m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::AO, AssetManager::GetAsset<ngl::Texture>("textures/Cerberus/Cerberus_AO.png"));
-  m_sceneObjects[1]->GetMesh()->GetMaterial().SetTexture(TextureType::METALLIC, AssetManager::GetAsset<ngl::Texture>("textures/Cerberus/Cerberus_M.png"));
+  m_sceneObjects[1]->GetMaterial().SetTexture(TextureType::ALBEDO, AssetManager::GetAsset<ngl::Texture>("textures/Cerberus/Cerberus_A.png"));
+  m_sceneObjects[1]->GetMaterial().SetTexture(TextureType::ROUGHNESS, AssetManager::GetAsset<ngl::Texture>("textures/Cerberus/Cerberus_R.png"));
+  m_sceneObjects[1]->GetMaterial().SetTexture(TextureType::NORMAL, AssetManager::GetAsset<ngl::Texture>("textures/Cerberus/Cerberus_N.png"));
+  m_sceneObjects[1]->GetMaterial().SetTexture(TextureType::AO, AssetManager::GetAsset<ngl::Texture>("textures/Cerberus/Cerberus_AO.png"));
+  m_sceneObjects[1]->GetMaterial().SetTexture(TextureType::METALLIC, AssetManager::GetAsset<ngl::Texture>("textures/Cerberus/Cerberus_M.png"));
 
   m_sceneObjects.push_back(std::make_shared<MeshObject>("meshes/plane.obj"));
   m_sceneObjects[2]->SetPosition({0.0f, -0.6f, 0.0f});
   m_sceneObjects[2]->SetScale({5.0f, 1.25f, 5.0f});
   m_sceneObjects[2]->SetName("Plane");
 
-  /*m_sceneObjects.push_back(PBRShaderManager::AddDirectionalLight(ngl::Vec3{0, 2.0f, 0.5f}, ngl::Vec3{ 135, 0 ,0 }, ngl::Vec3{1.0f, 1.0f, 1.0f}, 0.5f));
+  m_sceneObjects.push_back(PBRShaderManager::AddDirectionalLight(ngl::Vec3{0, 2.0f, 0.5f}, ngl::Vec3{ 135, 0 ,0 }, ngl::Vec3{1.0f, 1.0f, 1.0f}, 0.5f));
   m_sceneObjects.push_back(PBRShaderManager::AddDirectionalLight(ngl::Vec3{1.0f, 2.0f, 0.5f}, ngl::Vec3{ 45, 90 ,0 }, ngl::Vec3{1.0f, 0.7f, 0.8f}, 0.5f));
   m_sceneObjects.push_back(PBRShaderManager::AddPointLight(ngl::Vec3{-1, 2, 0}, ngl::Vec3{1, 0.5f, 0.7f}, 5.0f));
-  m_sceneObjects.push_back(PBRShaderManager::AddPointLight(ngl::Vec3(0.5f, 2.0f, -1.0f), ngl::Vec3{1,1,1}, 2.0f));*/
+  m_sceneObjects.push_back(PBRShaderManager::AddPointLight(ngl::Vec3(0.5f, 2.0f, -1.0f), ngl::Vec3{1,1,1}, 2.0f));
   //m_sceneObjects.push_back(pl2);
   //m_sceneObjects.push_back(l3);
   m_environment = std::make_unique<EnvironmentTexture>( PBRShaderManager::s_whiteTextureID );
@@ -248,7 +242,7 @@ void NGLScene::paintGL()
       
       ngl::ShaderLib::setUniform("objectID", it);
 
-      mesh->GetMesh()->GetMaterial().BindTextures();
+      mesh->GetMaterial().BindTextures();
       mesh->Draw();
 
       if(mesh == m_selectedObject)
@@ -326,8 +320,8 @@ void NGLScene::keyPressEvent(QKeyEvent *_event)
       m_gizmo->SetType(GizmoType::SCALE); break;
   case Qt::Key_Q :
       m_gizmo->SetType(GizmoType::NONE); break;
-  case Qt::Key_Return :
-      SceneSerializer::Serialize("scene.lol", *this); break;
+  case Qt::Key_F :
+      if(m_selectedObject) m_camera->Refocus(m_selectedObject->GetTransform()); break;
 
   default : break;
   }
@@ -446,7 +440,7 @@ void NGLScene::OnAddMesh(const std::string& path)
   m_sceneObjects[m_sceneObjects.size() - 1]->SetName(path.substr(lastSlashPos + 1, lastDotPos - (lastSlashPos + 1)));
   emit UpdateSceneListUI(m_sceneObjects);
   update();
-  doneCurrent();
+  //doneCurrent();
 }
 
 void NGLScene::OnAddDirectionalLight()
@@ -454,7 +448,7 @@ void NGLScene::OnAddDirectionalLight()
   makeCurrent();
   m_sceneObjects.push_back(PBRShaderManager::AddDirectionalLight());
   emit UpdateSceneListUI(m_sceneObjects);
-  doneCurrent();
+  //doneCurrent();
 }
 
 void NGLScene::OnAddPointLight()
@@ -462,7 +456,7 @@ void NGLScene::OnAddPointLight()
   makeCurrent();
   m_sceneObjects.push_back(PBRShaderManager::AddPointLight());
   emit UpdateSceneListUI(m_sceneObjects);
-  doneCurrent();
+  //doneCurrent();
 }
 
 void NGLScene::OnSceneListItemSelected(int index)
@@ -480,6 +474,8 @@ void NGLScene::OnSceneListItemDeleted(int index)
   if(m_selectedObject == m_sceneObjects[index])
   {
     m_selectedObject = nullptr;
+    emit UpdateTransformUI(Transform());
+    emit UpdatePropertiesBox(new QGridLayout());
   }
   std::vector<std::shared_ptr<SceneObject>>::iterator iterator = m_sceneObjects.begin() + index;
   std::shared_ptr<SceneObject> object = *iterator;
@@ -498,4 +494,174 @@ void NGLScene::OnSceneListItemDeleted(int index)
 
   m_sceneObjects.erase(iterator);
   update();
+  //AssetManager::CollectGarbage();
+}
+
+void NGLScene::OnSaveFramebuffer(const std::string& path)
+{
+  RenderFramebuffer(m_win.width, m_win.height);
+
+  m_viewportFrameBuffer->SaveFramebufferToPNG(0, path, 0, 0,
+            m_viewportFrameBuffer->GetSpecification().Width, m_viewportFrameBuffer->GetSpecification().Height);
+}
+
+void NGLScene::OnSaveFramebufferSize(const std::string& filepath, int width, int height)
+{
+  RenderFramebuffer(width, height);
+
+  m_viewportFrameBuffer->SaveFramebufferToPNG(0, filepath, 0, 0,
+            width, height);
+
+  m_viewportFrameBuffer->Resize(m_win.width, m_win.height);
+}
+
+void NGLScene::resetScene()
+{
+  while(m_sceneObjects.size() != 0)
+  {
+      OnSceneListItemDeleted(0);
+  }
+  emit UpdateSceneListUI(m_sceneObjects);
+  AssetManager::CollectGarbage();
+}
+
+void NGLScene::RenderFramebuffer(int width, int height)
+{
+  makeCurrent();
+  m_camera->SetViewportSize(width, height);
+  m_viewportFrameBuffer->Resize(width, height);
+
+  std::vector<ngl::Mat4> directionalLightSpaceMats;
+  // Render shadow maps
+  glEnable(GL_CULL_FACE);  
+  glCullFace(GL_FRONT);
+  for(int i = 0; i < PBRShaderManager::s_directionalLights.size() && i < PBRShaderManager::s_maxDirectionalShadows; i++)
+  {
+    ngl::Mat4 lightSpaceMat = PBRShaderManager::s_directionalLights[i]->GetProjection() * PBRShaderManager::s_directionalLights[i]->GetView();
+    directionalLightSpaceMats.push_back(lightSpaceMat);
+    PBRShaderManager::s_directionalLights[i]->GetShadowBuffer()->Bind();
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    glViewport(0,0,PBRShaderManager::s_shadowMapSize, PBRShaderManager::s_shadowMapSize);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    ngl::ShaderLib::use("SimpleDepth");
+    for(auto mesh : m_sceneObjects)
+    {
+      if(!mesh->IsLight())
+      {
+        ngl::Mat4 MVP = lightSpaceMat * mesh->GetTransform().getMatrix();      
+        ngl::ShaderLib::setUniform("MVP", MVP);
+        mesh->Draw();
+      }
+    }
+
+    PBRShaderManager::s_directionalLights[i]->GetShadowBuffer()->Unbind();
+  }
+
+  // POINT LIGHTS
+  PBRShaderManager::s_pointShadowBuffer->Bind();
+  glViewport(0,0,PBRShaderManager::s_shadowMapSize, PBRShaderManager::s_shadowMapSize);
+  glClear(GL_DEPTH_BUFFER_BIT);
+  ngl::ShaderLib::use("LinearDepth");
+  ngl::ShaderLib::setUniform("far_plane", 25.0f);
+  ngl::ShaderLib::setUniform("cubemapCount", int(PBRShaderManager::s_pointLights.size()));
+
+  for(int i = 0; i < PBRShaderManager::s_pointLights.size() && i < PBRShaderManager::s_maxPointShadows; i++)
+  {
+    std::array<ngl::Mat4, 6> shadowTransforms;
+    ngl::Mat4 projection = PBRShaderManager::s_pointLights[i]->GetProjection();
+    ngl::Vec3 position = PBRShaderManager::s_pointLights[i]->GetTransform().getPosition();
+    shadowTransforms[0] = projection * ngl::lookAt( position, position + ngl::Vec3( 1, 0, 0 ), ngl::Vec3(0, -1, 0) );
+    shadowTransforms[1] = projection * ngl::lookAt( position, position + ngl::Vec3( -1, 0, 0 ), ngl::Vec3(0, -1, 0) );
+    shadowTransforms[2] = projection * ngl::lookAt( position, position + ngl::Vec3( 0, 1, 0 ), ngl::Vec3(0, 0, 1) );
+    shadowTransforms[3] = projection * ngl::lookAt( position, position + ngl::Vec3( 0, -1, 0 ), ngl::Vec3(0, 0, -1) );
+    shadowTransforms[4] = projection * ngl::lookAt( position, position + ngl::Vec3( 0, 0, 1 ), ngl::Vec3(0, -1, 0) );
+    shadowTransforms[5] = projection * ngl::lookAt( position, position + ngl::Vec3( 0, 0, -1 ), ngl::Vec3(0, -1, 0) );
+    for(int j = 0; j < 6; j++)
+    {
+      ngl::ShaderLib::setUniform("PointSpaceMats[" + std::to_string(i * 6 + j) + "]", shadowTransforms[j]);
+    }
+    ngl::ShaderLib::setUniform("pLightPositions[" + std::to_string(i) + "]", position);
+  }
+  for(auto mesh : m_sceneObjects)
+  {
+    if(!mesh->IsLight())
+    {
+      ngl::ShaderLib::setUniform("model", mesh->GetTransform().getMatrix());     
+      mesh->Draw();
+    }
+  }
+  PBRShaderManager::s_pointShadowBuffer->Unbind();
+
+
+  m_viewportFrameBuffer->Bind();
+  // clear the screen and depth buffer
+  glClearColor(0.15f, 0.15f, 0.18f, 1.0f);			   // Grey Background
+  glClearDepth(1);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glViewport(0, 0, width, height);
+  glCullFace(GL_BACK);
+
+  m_viewportFrameBuffer->ClearAttachment(1, -100);
+
+  int it = 0;
+  
+  ngl::Mat4 VP = m_camera->GetProjection() * m_camera->GetView();
+
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LEQUAL);
+  for(auto mesh : m_sceneObjects)
+  {
+    ngl::Mat4 MVP = VP * mesh->GetTransform().getMatrix();
+    if(!mesh->IsLight())
+    {
+      PBRShaderManager::UseShader();
+      ngl::ShaderLib::setUniform("camPos", m_camera->GetTransform().getPosition());
+      ngl::ShaderLib::setUniform("MVP", MVP);
+      ngl::ShaderLib::setUniform("ambientIntensity", m_ambientIntensity);
+      ngl::ShaderLib::setUniform("M", mesh->GetTransform().getMatrix());
+      for(int i = 0; i < PBRShaderManager::s_directionalLights.size() && i < PBRShaderManager::s_maxDirectionalShadows; i++)
+      {
+        ngl::ShaderLib::setUniform("LightSpaceMats[" + std::to_string(i) + "]", directionalLightSpaceMats[i]);
+      }
+      
+      glActiveTexture(GL_TEXTURE6);
+      glBindTexture(GL_TEXTURE_2D_ARRAY, PBRShaderManager::s_directionalShadowMap);
+      glActiveTexture(GL_TEXTURE7);
+      glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, PBRShaderManager::s_pointShadowMap);
+      glActiveTexture(GL_TEXTURE8);
+      glBindTexture(GL_TEXTURE_CUBE_MAP, m_environment->GetIradianceMap());
+      glActiveTexture(GL_TEXTURE9);
+      glBindTexture(GL_TEXTURE_CUBE_MAP, m_environment->GetPrefilteredMap());
+      glActiveTexture(GL_TEXTURE10);
+      glBindTexture(GL_TEXTURE_2D, m_environment->GetBRDFMap());
+      
+      ngl::ShaderLib::setUniform("objectID", it);
+
+      mesh->GetMaterial().BindTextures();
+      mesh->Draw();
+    } 
+    ++it;
+  }
+  glDisable(GL_CULL_FACE);  
+
+  if(m_renderEnvironment)
+  {
+    glDepthFunc(GL_LEQUAL);
+    ngl::ShaderLib::use("Skybox");
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_environment->GetEnvironmentCubeMap());
+    ngl::ShaderLib::setUniform("projection", m_camera->GetProjection());
+    ngl::ShaderLib::setUniform("view", m_camera->GetView());
+    m_environment->GetCube()->Draw();
+
+    glDepthFunc(GL_LESS);
+  }
+
+  //m_viewportFrameBuffer->BlitToScreen(defaultFramebufferObject());
+
+  m_viewportFrameBuffer->Unbind();
+
+  m_camera->SetViewportSize(m_win.width, m_win.height);
 }

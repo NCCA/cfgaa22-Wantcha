@@ -33,16 +33,7 @@ int main(int argc, char **argv)
   format.setProfile(QSurfaceFormat::CoreProfile);
   // now set the depth buffer to 24 bits
   format.setDepthBufferSize(24);
-  // now we are going to create our scene window
-  //NGLScene window;
-  // and set the OpenGL format
-  //window.setFormat(format);
-  // we can now query the version to see if it worked
   std::cout<<"Profile is "<<format.majorVersion()<<" "<<format.minorVersion()<<"\n";
-  // set the window size
-  //window.resize(1024, 720);
-  // and finally show
-  //window.show();
 
   MainWindow w;
   w.resize(1600, 900);

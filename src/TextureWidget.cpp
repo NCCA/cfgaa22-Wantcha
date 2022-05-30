@@ -9,6 +9,15 @@ TextureWidget::TextureWidget(GLuint* textureID, int width, int height, std::shar
 {
     m_target.setWidth(width);
     m_target.setHeight(height);
+    m_modifyTexture = true;
+}
+
+TextureWidget::TextureWidget(GLuint* textureID, int width, int height)
+    :m_id(textureID)
+{
+    m_target.setWidth(width);
+    m_target.setHeight(height);
+    m_modifyTexture = false;
 }
 
 TextureWidget::~TextureWidget()
@@ -81,18 +90,12 @@ void TextureWidget::paintGL()
 void TextureWidget::mousePressEvent(QMouseEvent *event)
 {
     QString q_filepath = QFileDialog::getOpenFileName(this, "Select texture file");
-    /*if(!q_filepath.endsWith(".obj", Qt::CaseSensitivity::CaseInsensitive))
-    {
-        QMessageBox::information(this, "Error!", "The selected file is not an .obj!");
-        return;
-    }*/
     std::string filepath = q_filepath.toStdString();
-    if(m_texture != nullptr)
+    if(m_modifyTexture)
     {
         m_texture = AssetManager::GetAsset<ngl::Texture>(filepath);
         m_texture->setMultiTexture(0);
         *m_id = m_texture->setTextureGL();
-        std::cout<<"AAAAAA\n";
     }
     emit selectedPath(filepath);
     update();

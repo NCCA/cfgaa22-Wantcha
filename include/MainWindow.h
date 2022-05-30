@@ -31,6 +31,10 @@ public:
         void OnEraseItem();
         void OnCreateMesh();
         void OnUpdatePropertiesBox(QGridLayout* newLayout);
+        void OnSaveScene();
+        void OnLoadScene();
+        void OnSaveView();
+        void OnSaveViewCustom();
 
 private:
     Ui::MainWindow *m_ui;

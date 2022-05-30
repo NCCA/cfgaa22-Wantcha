@@ -21,6 +21,7 @@ public:
     ngl::Mat4 GetProjection();
     float GetWidth() const { return m_width; }
     float GetHeight() const { return m_height; }
+    void Refocus(const Transform& transform);
     Transform GetTransform() const { return m_transform; }
 
 

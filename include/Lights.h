@@ -28,6 +28,7 @@ public:
     FrameBuffer* GetShadowBuffer() { return m_shadowBuffer.get(); }
     void RecalculateShadowBuffer(uint32_t texture3DIndex);
     virtual QGridLayout* GetLayout() override;
+    //virtual void BuildLayout() override;
 
     //virtual void Draw() const override {}
     //virtual void DrawHighlighted() const override {}

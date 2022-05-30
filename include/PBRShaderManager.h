@@ -79,7 +79,7 @@ struct Material
         switch(type)
         {
             case TextureType::ALBEDO:
-                m_albedoTexture = texture; /*std::make_shared<ngl::Texture>(path)*/;
+                m_albedoTexture = texture;
                 m_albedoTexture->setMultiTexture(0);
                 m_albedoID = m_albedoTexture->setTextureGL();
                 break;
@@ -133,7 +133,7 @@ struct Material
         glBindTexture(GL_TEXTURE_2D, m_metallicID);
     }
 
-    ngl::Vec4 m_baseColor = {1.0f, 1.0f, 1.0f, 1.0f};
+    ngl::Vec3 m_baseColor = {1.0f, 1.0f, 1.0f};
 
     std::shared_ptr<ngl::Texture> m_albedoTexture;
     std::shared_ptr<ngl::Texture> m_roughnessTexture;
@@ -148,7 +148,6 @@ struct Material
     GLuint m_metallicID = PBRShaderManager::s_blackTextureID;
 
     float m_roughness = 0.5f;
-    float m_specular = 0.5f;
     float m_metallic = 1.0f;
 };
 

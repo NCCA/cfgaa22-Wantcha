@@ -68,7 +68,6 @@ public:
 
     virtual bool Load(const std::string &_fname) noexcept { return false; }
     void SetVertices(const std::vector<ngl::Vec3>& verts);
-    Material& GetMaterial() { return m_material; }
 
     GLuint getVAOBufferID() {return m_vaoMesh->getID();}
 
@@ -88,8 +87,6 @@ protected:
     bool m_hasVAO = false;
     bool m_hasVBO = false;
     bool m_loaded = false;
-
-    Material m_material;
 };
 
 #endif

@@ -7,6 +7,7 @@ class SceneSerializer
 {
 public:
     static void Serialize(const std::string& file, NGLScene& scene);
+    static void Deserialize(const std::string& file, NGLScene& scene);
 };
 
 #endif

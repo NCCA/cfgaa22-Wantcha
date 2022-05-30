@@ -8,6 +8,7 @@
 #include "Asset.h"
 #include "ngl/Texture.h"
 #include <string>
+#include <iostream>
 #include <memory>
 
 class IAssetCache
@@ -53,15 +54,26 @@ public:
         return (found != m_Cache.end()/* && found->second*/);
     }
 
+    std::string FindAsset(std::shared_ptr<T> asset) const
+    {
+        for (auto it = m_Cache.begin(); it != m_Cache.end(); ++it)
+        {
+            if (it->second == asset) return it->first;
+        }
+        return "";
+    }
+
     void CollectGarbage() override
     {
         for (auto iter = m_Cache.begin(); iter != m_Cache.end();)
         {
+            std::cout<<iter->second.use_count()<<"\n";
             if (iter->second.use_count() <= 1/* || iter->second == nullptr*/)
             {
                 // in this case the only reference left is the cache reference
                 // we can free the asset from the cache
                 iter = m_Cache.erase(iter);
+                std::cout<<"DELETING RESOURCE!\n";
             }
             else
             {
