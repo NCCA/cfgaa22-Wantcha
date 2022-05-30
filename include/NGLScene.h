@@ -141,7 +141,7 @@ private:
     std::unique_ptr<FrameBuffer> m_viewportFrameBuffer;
 
     std::unique_ptr<EnvironmentTexture> m_environment;
-    bool m_renderEnvironment = true;
+    bool m_renderEnvironment = false;
 
     float m_ambientIntensity = 1.0f;
 
