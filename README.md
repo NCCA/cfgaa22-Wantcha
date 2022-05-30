@@ -38,12 +38,12 @@ After some more thought and research, I decided to scrap that system and instead
 This approach increased performance significantly and made the selection process almost instantaneous.
 In addition, I've also had to implement a few custom widgets for my needs, as QT didn't have built-in functionality for them, such as a Texture Selector widget, a custom Color Picker widget, and a few others.
 
-<img src="report/material_proprties.png" width="300"> <img src="report/layouts.png" width="650">
+<img src="report/material_proprties.png" width="250"> <img src="report/layouts.png" width="700">
 
 ### Shadows
 There are many sources online offering tutorials regarding implementing ONE shadow-casting light of each type, however there are very little covering multiple light shadows. After looking at my options, I decided that using Texture Arrays would probably suit best my forward-rendered, as they offer me the benefit of storing the shadow maps of each type of light in a single texture slot. Directional lights each have a framebuffer with an attachment linked to a layer of a Texture 2D array. Point lights use Texture Cube Arrays, which is stored ony my static PBR Manager, on which I use a geometry shader to loop through the first 4 and render the cube maps respectively. Integrating them into the PBR shader was just a matter of binding their texture arrays and accessing the appropriate index of the array based on which light we are rendering.
 
-<img src="report/pbr_shadows.png" width="500">
+<img src="report/pbr_shadows.png" width="600">
 
 ### Environment Lighting
 In order to feel like I have a complete PBR render engine, I felt the need of adding support for HDR environment maps. Luckily, the rather lengthy and cumbersome process is well documented on the LearnOpenGL website, which I used as reference to implement it into my systems. I couldn't make use of ngl::Texture, as it didn't allow for HDR texture loading, so I imported stbi_image into my project and used it to do the processing. I then hooked the system up to QT and placed in the Scene Properties layout.
@@ -53,9 +53,9 @@ In order to feel like I have a complete PBR render engine, I felt the need of ad
 ### Scene Serialization
 After getting the hang of RapidJSON, I wrote a serialization system which takes the current scene and writes its properties and objects' properties into a scene file. Deserialization was just a matter of discarding everything in the current scene and re-creating objects based on the information found in the scene file.
 
-<img src="report/json_serialize.png" width="400">
+<img src="report/json_serialize.png" width="500">
 
-<img src="report/jsonfile.png" width="500">
+<img src="report/jsonfile.png" width="550">
 
 ### Asset Manager
 The program makes use of an Asset Manager, which stores shared pointers to either meshes or textures in unordered_map-based caches, which are accessed through their filepath that acts as the Key. This system allows for efficient memory usage, as the user can add as many of a resource as they want, whilst only allocating one. The manager also has a Garbage Collection system that deletes from memory any unused resources, but at the time of submission it isn't always working consistently, so I resorted to only calling it when Deserializing scene to discard all current resources.
@@ -79,4 +79,4 @@ I also feel that I could have improved parts of my implementation, to make bette
 
 ## Sample Scenes
 
-In the repository I have left a folder with a few pre-made sample scenes to easily test out the program's capabilities. By default the software saves the paths to the resources using absolute paths, which would make it very difficult to send projects across other platforms. These scenes have their paths manually edited to be relative to the executable, so in order for them to run properly, the Sample Projects folder need to be in the same directory as the program.
+In the repository I have left a folder with a couple of simple pre-made sample scenes to easily test out the program's capabilities. By default the software saves the paths to the resources using absolute paths, which would make it very difficult to send projects across other platforms. These scenes have their paths manually edited to be relative to the executable, one directory above it. This means that running the executable from the build folder of the project should be able to successfully load those projects.
