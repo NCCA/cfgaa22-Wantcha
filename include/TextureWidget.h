@@ -31,6 +31,7 @@ public:
     void initializeGL() override;
     void paintGL() override;
     void resizeGL(int width, int height) override;
+    void SetTexture(GLuint* textureID, std::shared_ptr<ngl::Texture> texture);
     QSize minimumSizeHint() const override;
     QSize sizeHint() const override;
     signals:
@@ -47,6 +48,8 @@ private:
 
     QRectF m_target;
     std::shared_ptr<ngl::Texture> m_texture;
+
+    bool m_initialized = false;
 };
 
 #endif

@@ -82,12 +82,14 @@ struct Material
                 m_albedoTexture = texture;
                 m_albedoTexture->setMultiTexture(0);
                 m_albedoID = m_albedoTexture->setTextureGL();
+                m_baseColor = ngl::Vec3(1,1,1);
                 break;
 
             case TextureType::ROUGHNESS:
                 m_roughnessTexture = texture;
                 m_roughnessTexture->setMultiTexture(0);
                 m_roughnessID = m_roughnessTexture->setTextureGL();
+                m_roughness = 1.0f;
                 break;
 
             case TextureType::NORMAL:
@@ -106,6 +108,7 @@ struct Material
                 m_metallicTexture = texture;
                 m_metallicTexture->setMultiTexture(0);
                 m_metallicID = m_metallicTexture->setTextureGL();
+                m_metallic = 1.0f;
                     break;
         }
         // mip map the textures
@@ -145,7 +148,7 @@ struct Material
     GLuint m_roughnessID = PBRShaderManager::s_whiteTextureID;
     GLuint m_normalID = PBRShaderManager::s_blueTextureID;
     GLuint m_aoID = PBRShaderManager::s_whiteTextureID;
-    GLuint m_metallicID = PBRShaderManager::s_blackTextureID;
+    GLuint m_metallicID = PBRShaderManager::s_whiteTextureID;
 
     float m_roughness = 0.5f;
     float m_metallic = 1.0f;

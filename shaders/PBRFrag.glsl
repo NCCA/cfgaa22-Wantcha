@@ -35,6 +35,9 @@ uniform int objectID;
 uniform vec3 camPos;
 
 uniform float ambientIntensity;
+uniform float roughnessValue;
+uniform float metallicValue;
+uniform vec3 baseColor;
 
 in vec3 Normal;
 in vec2 UV;
@@ -178,10 +181,10 @@ float PointShadowCalculation(vec3 fragPos, int index)
 
 void main()
 {
-    vec3 albedo     = PowerVec3( texture(albedoMap, UV).rgb, 2.2);
+    vec3 albedo     = PowerVec3( texture(albedoMap, UV).rgb, 2.2) * baseColor;
     vec3 normal     = getNormalFromNormalMap();
-    float metallic  = texture(metallicMap, UV).r;
-    float roughness = texture(roughnessMap, UV).r;
+    float metallic  = texture(metallicMap, UV).r * metallicValue;
+    float roughness = texture(roughnessMap, UV).r * roughnessValue;
     float ao        = texture(aoMap, UV).r;
 
     vec3 N = /*normalize(Normal)*/ normal;

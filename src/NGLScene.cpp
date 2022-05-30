@@ -13,6 +13,7 @@
 #include "Assets/AssetManager.h"
 #include "SceneSerializer.h"
 #include <Lights.h>
+#include "MainWindow.h"
 
 NGLScene::NGLScene()
 {
@@ -64,7 +65,7 @@ void NGLScene::initializeGL()
   glEnable(GL_DEPTH_TEST);
   // enable multisampling for smoother drawing
   glEnable(GL_MULTISAMPLE);
-  glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS); 
+  glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
   FramebufferSpecification fbSpec;
 	fbSpec.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };
@@ -148,7 +149,6 @@ void NGLScene::paintGL()
       {
         ngl::Mat4 MVP = lightSpaceMat * mesh->GetTransform().getMatrix();      
         ngl::ShaderLib::setUniform("MVP", MVP);
-        //ngl::ShaderLib::setUniform("M", mesh->GetTransform().getMatrix());
         mesh->Draw();
       }
     }
@@ -156,7 +156,6 @@ void NGLScene::paintGL()
     PBRShaderManager::s_directionalLights[i]->GetShadowBuffer()->Unbind();
   }
 
-  //std::vector<std::array<ngl::Mat4, 6>> pointLightSpaceMats;
   // POINT LIGHTS
   PBRShaderManager::s_pointShadowBuffer->Bind();
   glViewport(0,0,PBRShaderManager::s_shadowMapSize, PBRShaderManager::s_shadowMapSize);
@@ -182,7 +181,6 @@ void NGLScene::paintGL()
     }
     ngl::ShaderLib::setUniform("pLightPositions[" + std::to_string(i) + "]", position);
   }
-  //pointLightSpaceMats.push_back(shadowTransforms);
   for(auto mesh : m_sceneObjects)
   {
     if(!mesh->IsLight())
@@ -220,6 +218,9 @@ void NGLScene::paintGL()
       ngl::ShaderLib::setUniform("camPos", m_camera->GetTransform().getPosition());
       ngl::ShaderLib::setUniform("MVP", MVP);
       ngl::ShaderLib::setUniform("ambientIntensity", m_ambientIntensity);
+      ngl::ShaderLib::setUniform("roughnessValue", mesh->GetMaterial().m_roughness);
+      ngl::ShaderLib::setUniform("metallicValue", mesh->GetMaterial().m_metallic);
+      ngl::ShaderLib::setUniform("baseColor", mesh->GetMaterial().m_baseColor);
       ngl::ShaderLib::setUniform("M", mesh->GetTransform().getMatrix());
       for(int i = 0; i < PBRShaderManager::s_directionalLights.size() && i < PBRShaderManager::s_maxDirectionalShadows; i++)
       {
@@ -236,9 +237,6 @@ void NGLScene::paintGL()
       glBindTexture(GL_TEXTURE_CUBE_MAP, m_environment->GetPrefilteredMap());
       glActiveTexture(GL_TEXTURE10);
       glBindTexture(GL_TEXTURE_2D, m_environment->GetBRDFMap());
-      //ngl::Mat4 normalMatrix = m_camera->GetView() * mesh->GetTransform().getMatrix();
-      //normalMatrix.inverse().transpose();
-      //ngl::ShaderLib::setUniform("NormalMatrix", normalMatrix);
       
       ngl::ShaderLib::setUniform("objectID", it);
 
@@ -255,8 +253,6 @@ void NGLScene::paintGL()
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         mesh->DrawHighlighted();
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        //ngl::ShaderLib::setUniform("MVP", VP);
-        //PBRShaderManager::s_envMap.GetCube()->Draw();
       }
     }
     else
@@ -464,7 +460,7 @@ void NGLScene::OnSceneListItemSelected(int index)
   std::cout<<"SELECTED "<<index<<"\n";
   m_selectedObject = m_sceneObjects[index];
   emit UpdateTransformUI(m_selectedObject->GetTransform());
-  emit UpdatePropertiesBox(m_selectedObject->GetLayout());
+  emit UpdatePropertiesBox(m_selectedObject);
   //emit UpdatePropertiesUI(m_selectedObject);
 }
 
@@ -475,7 +471,7 @@ void NGLScene::OnSceneListItemDeleted(int index)
   {
     m_selectedObject = nullptr;
     emit UpdateTransformUI(Transform());
-    emit UpdatePropertiesBox(new QGridLayout());
+    emit UpdatePropertiesBox(nullptr);
   }
   std::vector<std::shared_ptr<SceneObject>>::iterator iterator = m_sceneObjects.begin() + index;
   std::shared_ptr<SceneObject> object = *iterator;

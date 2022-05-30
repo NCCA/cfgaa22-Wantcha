@@ -11,6 +11,8 @@
 #include "TextureWidget.h"
 #include "SceneSerializer.h"
 #include "RenderDialog.h"
+#include "ColorPicker.h"
+#include <ngl/NGLInit.h>
 //#include "ui_MainWindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -58,19 +60,108 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_scene, SIGNAL(UpdateSceneListUI(const std::vector<std::shared_ptr<SceneObject>>&)),
             this, SLOT(OnUpdateSceneList(const std::vector<std::shared_ptr<SceneObject>>&)));
 
-    connect(m_scene, SIGNAL(UpdatePropertiesBox(QGridLayout*)),
-            this, SLOT(OnUpdatePropertiesBox(QGridLayout*)));
+    connect(m_scene, SIGNAL(UpdatePropertiesBox(std::shared_ptr<SceneObject>)),
+            this, SLOT(OnUpdatePropertiesBox(std::shared_ptr<SceneObject>)));
 
     connect(m_ui->actionSave_As, SIGNAL(triggered()), this, SLOT(OnSaveScene()));
     connect(m_ui->actionLoad, SIGNAL(triggered()), this, SLOT(OnLoadScene()));
     connect(m_ui->actionCurrent_View, SIGNAL(triggered()), this, SLOT(OnSaveView()));
     connect(m_ui->actionCustom_Resolution, SIGNAL(triggered()), this, SLOT(OnSaveViewCustom()));
+
+    //PrepareLayouts();
 }
 
-void MainWindow::OnUpdatePropertiesBox(QGridLayout* newLayout)
+void MainWindow::PrepareLayouts()
+{
+    m_propertiesLayout = new QStackedLayout;
+
+    std::cout<<"ABSBUS";
+    QWidget* defaultWidget = new QWidget;
+    QGridLayout* defaultLayout = new QGridLayout;
+    defaultLayout->addWidget( new QLabel("SCENE PROPERTIES"), 0, 0 );
+    defaultLayout->addWidget( new QLabel("Environment Texture"), 1, 0 );
+    TextureWidget* envWidget = new TextureWidget(m_scene->getEnvironmentMap()->GetHDRMapPointer(), 100, 75);
+
+    QObject::connect(envWidget, qOverload<const std::string&>(&TextureWidget::selectedPath),
+    [this](const std::string& path) { m_scene->makeCurrent(); m_scene->getEnvironmentMap()->SetTexture(path); m_scene->doneCurrent(); });
+    defaultLayout->addWidget(envWidget, 1, 1, Qt::AlignLeft);
+
+    QCheckBox* display = new QCheckBox();
+    display->setText("Render Environment"); display->setChecked(m_scene->getRenderEnvironment());
+    QObject::connect(display, qOverload<bool>(&QCheckBox::clicked),
+    [this](bool arg) { m_scene->setRenderEnvironment(arg); m_scene->update(); });
+
+    defaultLayout->addWidget( display, 2, 0, Qt::AlignLeft );
+
+    defaultLayout->addWidget( new QLabel("Ambient Intensity"), 3, 0 );
+    QDoubleSpinBox* intensity = new QDoubleSpinBox();
+    intensity->setMaximum(10); intensity->setMinimum(0); intensity->setSingleStep(0.1f); intensity->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::PlusMinus);
+    intensity->setValue(m_scene->getAmbientIntensity());
+
+    QObject::connect(intensity, qOverload<double>(&QDoubleSpinBox::valueChanged),
+    [this](double arg) { m_scene->setAmbientIntensity( arg ); m_scene->update(); });
+    defaultLayout->addWidget( intensity, 3, 1, Qt::AlignLeft );
+
+    defaultWidget->setLayout(defaultLayout);
+    m_propertiesLayout->addWidget(defaultWidget);
+
+
+
+    QWidget* meshWidget = new QWidget;
+    QGridLayout* meshLayout = new QGridLayout();
+    meshLayout->addWidget( new QLabel("MATERIAL PROPERTIES"), 0, 0 );
+
+    meshLayout->addWidget( new QLabel("Albedo"), 1, 0 );
+    TextureWidget* albedoWidget = new TextureWidget(nullptr, 50, 50, nullptr);
+    meshLayout->addWidget(albedoWidget, 1, 1, Qt::AlignLeft);
+
+    meshLayout->addWidget( new QLabel("Color"), 2, 0 );
+    ColorPicker* picker = new ColorPicker( ngl::Vec3(1,1,1) );
+    
+    /*connect(picker, qOverload<const ngl::Vec3&>(&ColorPicker::PickedColor),
+       [this, picker](const ngl::Vec3& arg) { m_material.m_baseColor = arg; });*/
+
+    meshLayout->addWidget( picker, 2, 1, Qt::AlignLeft );
+    
+    meshLayout->addWidget( new QLabel("Roughness"), 3, 0 );
+    TextureWidget* roughnessWidget = new TextureWidget(nullptr, 50, 50, nullptr);
+    meshLayout->addWidget(roughnessWidget, 3, 1, Qt::AlignLeft);
+
+    QSlider* roughnessSlider = new QSlider(Qt::Orientation::Horizontal);
+    roughnessSlider->setMinimum(0); roughnessSlider->setMaximum(100); //roughnessSlider->setValue(m_material.m_roughness * 100);
+    /*QObject::connect(roughnessSlider, qOverload<int>(&QSlider::valueChanged),
+       [this](int arg) { m_material.m_roughness = float(arg) / 100.0f; });*/
+    meshLayout->addWidget(roughnessSlider, 3, 2, Qt::AlignLeft);
+
+    meshLayout->addWidget( new QLabel("Normal"), 4, 0 );
+    TextureWidget* normalWidget = new TextureWidget(nullptr, 50, 50, nullptr);
+    meshLayout->addWidget(normalWidget, 4, 1, Qt::AlignLeft);
+
+    meshLayout->addWidget( new QLabel("Ambient Occlusion"), 5, 0 );
+    TextureWidget* aoWidget = new TextureWidget(nullptr, 50, 50, nullptr);
+    meshLayout->addWidget(aoWidget, 5, 1, Qt::AlignLeft);
+
+    meshLayout->addWidget( new QLabel("Metallic"), 6, 0 );
+    TextureWidget* metallicWidget = new TextureWidget(nullptr, 50, 50, nullptr);
+    meshLayout->addWidget(metallicWidget, 6, 1, Qt::AlignLeft);
+    QSlider* metallicSlider = new QSlider(Qt::Orientation::Horizontal);
+    metallicSlider->setMinimum(0); metallicSlider->setMaximum(100); //metallicSlider->setValue(m_material.m_metallic * 100);
+    /*QObject::connect(metallicSlider, qOverload<int>(&QSlider::valueChanged),
+       [this](int arg) { m_material.m_metallic= float(arg) / 100.0f; });*/
+    meshLayout->addWidget(metallicSlider, 6, 2, Qt::AlignLeft);
+
+    meshWidget->setLayout(meshLayout);
+    m_propertiesLayout->addWidget(meshWidget);
+
+    m_propertiesLayout->setCurrentIndex(0);
+
+    m_ui->PropertiesBox->setLayout(m_propertiesLayout);
+}
+
+void MainWindow::OnUpdatePropertiesBox(std::shared_ptr<SceneObject> sceneObject)
 {
 
-    qDeleteAll(m_ui->PropertiesBox->children());
+    /*qDeleteAll(m_ui->PropertiesBox->children());
     delete m_ui->PropertiesBox->layout();
 
     if(newLayout->count() == 0)
@@ -104,9 +195,9 @@ void MainWindow::OnUpdatePropertiesBox(QGridLayout* newLayout)
         //newLayout->addWidget( new QLabel("No object selected"), 1, 0 );
     }
     QSpacerItem* spacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
-    newLayout->addItem(spacer, newLayout->rowCount(), 0);
+    newLayout->addItem(spacer, newLayout->rowCount(), 0);*/
     
-    m_ui->PropertiesBox->setLayout(newLayout);
+    dynamic_cast<QStackedLayout*>(m_ui->PropertiesBox->layout())->setCurrentIndex(0);
 }
 
 void MainWindow::OnUpdateTransformWidget(const Transform& transform)

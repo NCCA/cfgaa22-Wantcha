@@ -73,18 +73,29 @@ void TextureWidget::paintGL()
     glClear(GL_COLOR_BUFFER_BIT);
     glViewport(0, 0, m_target.size().width(), m_target.size().height());
 
-    ngl::ShaderLib::use("SimpleTexture");
-    ngl::ShaderLib::setUniform("colorTexture", 0);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, *m_id);
+    if(m_id)
+    {
+        ngl::ShaderLib::use("SimpleTexture");
+        ngl::ShaderLib::setUniform("colorTexture", 0);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, *m_id);
 
-    m_vaoMesh->bind();
-    m_vaoMesh->draw();
-    m_vaoMesh->unbind();
+        m_vaoMesh->bind();
+        m_vaoMesh->draw();
+        m_vaoMesh->unbind();
+    }
     //std::cout<<"ID "<< m_id <<"\n";
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     doneCurrent();
+}
+
+void TextureWidget::SetTexture(GLuint* textureID, std::shared_ptr<ngl::Texture> texture)
+{
+    if(!m_initialized)
+    {
+        
+    }
 }
 
 void TextureWidget::mousePressEvent(QMouseEvent *event)

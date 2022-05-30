@@ -88,7 +88,7 @@ class NGLScene : public QOpenGLWidget
     signals:
         void UpdateTransformUI(Transform);
         void UpdateSceneListUI(const std::vector<std::shared_ptr<SceneObject>>&);
-        void UpdatePropertiesBox(QGridLayout*);
+        void UpdatePropertiesBox(std::shared_ptr<SceneObject>);
 private:
 
     //----------------------------------------------------------------------------------------------------------------------

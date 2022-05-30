@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QStackedLayout>
 #include "NGLScene.h"
 #include "ui_MainWindow.h"
 
@@ -30,17 +31,18 @@ public:
         void OnShowSceneObjectContextMenu(const QPoint&);
         void OnEraseItem();
         void OnCreateMesh();
-        void OnUpdatePropertiesBox(QGridLayout* newLayout);
+        void OnUpdatePropertiesBox(std::shared_ptr<SceneObject> sceneObject);
         void OnSaveScene();
         void OnLoadScene();
         void OnSaveView();
         void OnSaveViewCustom();
 
 private:
+    void PrepareLayouts();
     Ui::MainWindow *m_ui;
     NGLScene* m_scene;
     std::string m_lastFilepath = "C://";
-
+    QStackedLayout* m_propertiesLayout;
     
 };
 
