@@ -28,14 +28,17 @@ I added mouse picking functionality by using a second color attachment to my fra
 
 ### Gizmos
 One feature I wanted to implement as a quality of life addition was a transformation gizmo that would allow the user to easily manipulate selected objects. I couldn't find many online sources on how to approach this, but after collecting information from various scattered sources, I decided I would have my gizmo as a mesh that I procedurally create at the start of the program, and then draw it on top of everything else when an object is selected, using mouse picking to detect when I am clicking on it. Most solutions I've found online use raycasting from the mouse to detect collision with the gizmo, but since I already the picking system, I decided to integrate it into it.
+
 I had a few problems with configuring the rotation to work on local axis, as the rotation matrix multiplication ordered made the axis dependent on eachother, so I implemented my own RotateByAxis function that makes use of quaternions.
 
 <img src="report/gizmo.png" width="600">
 
 ### GUI
 I designed a layout using QT Designer and integrated my existing scene into it, hooking up a simple transformation widget to my objects and using a ListView as a scene outliner. This process was rather straightforward, however I had a few issues with building QT widgets and layouts on the fly in order to display the properties of each type of individual object. I got a working system that built an entirely new layout every time the user would select an object and passed it to QT to integrate it into the Properties layout, however, as I started building more and more complex layouts, this process turned out to be rather slow, sometimes taking up to 0.5 seconds just to select a mesh.
+
 After some more thought and research, I decided to scrap that system and instead use a QStackedLayout, which allows me to store multiple layouts at the same time and only display each one when needed. I used this to "cache" the various types of layouts I can display as Properties and made it so that selecting an object simply checks its type and decides which layout to use, updating it with the proper connections and values.
 This approach increased performance significantly and made the selection process almost instantaneous.
+
 In addition, I've also had to implement a few custom widgets for my needs, as QT didn't have built-in functionality for them, such as a Texture Selector widget, a custom Color Picker widget, and a few others.
 
 <img src="report/material_proprties.png" width="250"> <img src="report/layouts.png" width="700">
@@ -75,11 +78,14 @@ I am also making use of a custom-implemented camera, which works very similar to
 ## Reflection and Self-Evaluation
 
 For the final submission, I managed to implement all of the features I had in mind for a Minimum-Viable-Product fully-usable real-time PBR render engine. Functionality-wise, I believe it was almost everything an artist may need to generate quick renders of their meshes. However, there is still a lot of room for improvement and missing quality-of-life features. Some of them include: the ability to remove/revert textures to their initial solid-white state, the transformation gizmo being made up of 2D meshes, making it difficult to access from certain angles, ability to set a custom FOV of the camera, and the lack of a toggle to select whether a light should cast shadows. A few of them could have been easily implemented with a bit more of development time, but were deemed unnecessarry for the core functionality.
+
 I also feel that I could have improved parts of my implementation, to make better use of polymorphism and to rely less on either down-casting or avoidable if statements in some scenarios, which I am aware can be a bad practice.
 
 <img src="report/final.png" width="600">
 
-## Sample Scenes
+## Sample Scenes and Executable
+
+The submitted executable was built for Linux and works on university lab PCs. The code can be built for Windows as well, it has been tested, however Mac is not supported due to the OpenGL version being capped at 4.1.
 
 In the repository I have left a folder with a couple of simple pre-made sample scenes to easily test out the program's capabilities. By default the software saves the paths to the resources using absolute paths, which would make it very difficult to send projects across other platforms. These scenes have their paths manually edited to be relative to the executable, one directory above it. This means that running the executable from the build folder of the project should be able to successfully load those projects.
 
