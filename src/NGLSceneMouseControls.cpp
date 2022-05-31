@@ -15,8 +15,7 @@ void NGLScene::mouseMoveEvent( QMouseEvent* _event )
   {
     float diffx = _event->x() - m_win.origX;
     float diffy = _event->y() - m_win.origY;
-    //m_win.spinXFace += static_cast<int>( 0.5f * diffy );
-    //m_win.spinYFace += static_cast<int>( 0.5f * diffx );
+
     m_win.origX = _event->x();
     m_win.origY = _event->y();
     if(m_win.rotate)
@@ -44,10 +43,6 @@ void NGLScene::mouseMoveEvent( QMouseEvent* _event )
     m_win.origYPos = _event->y();
 
     m_camera->MousePan( ngl::Vec2(diffX, diffY ));
-
-    //m_modelPos.m_x += INCREMENT * diffX;
-    //m_modelPos.m_y -= INCREMENT * diffY;
-    //update();
   }
   update();
 }
@@ -62,14 +57,12 @@ void NGLScene::mousePressEvent( QMouseEvent* _event )
   m_win.origX = _event->x();
   m_win.origY = _event->y();
 
-  if ( _event->button() == Qt::LeftButton/* && _event->modifiers() == Qt::AltModifier*/)
+  // IDs are -100 = no object; 0 to sceneObjects.size() = object; -1 to -3 = gizmo axis
+  if ( _event->button() == Qt::LeftButton)
   {
-    //std::cout<<m_viewportFrameBuffer->ReadPixel( 1, _event->x(), m_win.height - _event->y() ) << " at "<< _event->x() << " "<< _event->y() << "\n";
-
     if(m_hoveredObjectID < 0 && m_hoveredObjectID > -100)
     {
       m_gizmo->StartManipulate(m_selectedObject->GetTransform(), -(m_hoveredObjectID + 1), ngl::Vec2( m_win.origX, m_win.origY ));
-      //std::cout<<-(m_hoveredObjectID + 1)<<"\n";
     }
     else
     {
@@ -79,7 +72,7 @@ void NGLScene::mousePressEvent( QMouseEvent* _event )
     }
   }
   // right mouse translate mode
-  else if ( _event->button() == Qt::RightButton/* && _event->modifiers() == Qt::AltModifier*/)
+  else if ( _event->button() == Qt::RightButton)
   {
     m_win.origXPos  = _event->x();
     m_win.origYPos  = _event->y();

@@ -77,8 +77,6 @@ EnvironmentTexture::EnvironmentTexture(uint32_t textureID)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);  
 
     SetTexture(textureID);
-    //SetTexture("textures/HDRI/Factory_Catwalk_2k.hdr");
-    // SetTexture("textures/HDRI/Factory_Catwalk_2k.hdr");
 }
 
 void EnvironmentTexture::SetTexture(const std::string& path)

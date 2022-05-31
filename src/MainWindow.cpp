@@ -74,6 +74,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::PrepareLayouts()
 {
+    // "caching" layouts so we don't have to build them every time
+
     qDeleteAll(m_ui->PropertiesBox->children());
     delete m_ui->PropertiesBox->layout();
 
@@ -305,7 +307,7 @@ void MainWindow::OnSaveScene()
     QString q_filepath = QFileDialog::getSaveFileName(this, "Save Scene As...", QString::fromStdString(m_lastFilepath), ".lol");
     if(!q_filepath.endsWith(".lol", Qt::CaseSensitivity::CaseInsensitive))
     {
-        q_filepath.append(".lol");
+        q_filepath.append(".lol"); //Lightweight OpenGL Loader - L.O.L.
     }
     std::string filepath = q_filepath.toStdString();
     auto lastSlashPos = filepath.find_last_of('/');
@@ -339,10 +341,10 @@ void MainWindow::OnUpdateSceneList(const std::vector<std::shared_ptr<SceneObject
 
 void MainWindow::OnSceneListItemSelect(QListWidgetItem* item)
 {
-    //std::cout<<m_ui->SceneList->row(item)<<"OOOOOOOOOOOOOO\n";
     emit SelectSceneListItem(m_ui->SceneList->row(item));
 }
 
+// Source for this function taken from
 // https://stackoverflow.com/questions/31383519/qt-rightclick-on-qlistwidget-opens-contextmenu-and-delete-item
 void MainWindow::OnShowSceneObjectContextMenu(const QPoint& pos)
 {
@@ -351,7 +353,7 @@ void MainWindow::OnShowSceneObjectContextMenu(const QPoint& pos)
 
     // Create menu and insert some actions
     QMenu myMenu;
-    //myMenu.addAction("Insert", this, SLOT(addItem()));
+
     myMenu.addAction("Add Mesh",  this, SLOT(OnCreateMesh()));
     myMenu.addAction("Add Directional Light",  m_scene, SLOT(OnAddDirectionalLight()));
     myMenu.addAction("Add Point Light",  m_scene, SLOT(OnAddPointLight()));

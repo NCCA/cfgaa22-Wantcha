@@ -4,6 +4,7 @@
 Gizmo::Gizmo(std::shared_ptr<Camera> camera)
     :m_camera(camera)
 {
+    // Procedurally building the gizmo meshes
     for(int i = 0 ; i < 3; ++i)
     {
         m_translateMeshes[i] = std::make_unique<Mesh>(GL_TRIANGLES);
@@ -136,13 +137,10 @@ Gizmo::Gizmo(std::shared_ptr<Camera> camera)
     m_colors[2] = {0, 0, 1, 1};
 
     ngl::ShaderLib::loadShader("UnlitConstantSize", "shaders/UnlitVert.glsl", "shaders/UnlitFrag.glsl");
-    //ngl::ShaderLib::use(m_name);
 }
 
 void Gizmo::Draw(const ngl::Mat4& vp, int windowWidth)
 {
-    //m_transform.setScale(ngl::Vec3{1.0f,1.0f,1.0f});
-
     std::unique_ptr<Mesh>* meshesToDraw = nullptr;
 
     switch (m_type){
@@ -176,10 +174,6 @@ void Gizmo::Draw(const ngl::Mat4& vp, int windowWidth)
             
             ngl::ShaderLib::setUniform("objectID", -(i + 1));
             meshesToDraw[i]->DrawWireframe();
-                //glLineWidth(6);
-                //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE_STRIP);
-                //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-                //glLineWidth(1);
             
         }
         glEnable(GL_DEPTH_TEST);
@@ -223,30 +217,16 @@ void Gizmo::Manipulate(Transform& objectTransform, float dx, float dy)
             {
                 case 0:
                     moveDirection = objectTransform.getMatrix().getRightVector();
-                    //axis = dx;
                     break;
                 case 1:
                     moveDirection = objectTransform.getMatrix().getUpVector();
-                    //axis = -dy;
                     break;
                 case 2:
                     moveDirection = objectTransform.getMatrix().getBackVector();
-                    //axis = -dx;
                     break;
             }
-            /*Matrix projectionMatrix, int width, int height) {
 
-            Matrix4 viewProjectionMatrix = projectionMatrix * viewMatrix;
-            //transform world to clipping coordinates
-            point3D = viewProjectionMatrix.multiply(point3D);
-            int winX = (int) Math.round((( point3D.getX() + 1 ) / 2.0) *
-                                        width );
-            //we calculate -point3D.getY() because the screen Y axis is
-            //oriented top->down 
-            int winY = (int) Math.round((( 1 - point3D.getY() ) / 2.0) *
-                                        height );
-            return new Point2D(winX, winY);*/
-
+            // Checking distance along the move axis projected in screen space
             pos1 = MVP * m_originalObjectTransform.getPosition();
             pos2 = MVP * (m_originalObjectTransform.getPosition() + moveDirection);
 
@@ -254,8 +234,6 @@ void Gizmo::Manipulate(Transform& objectTransform, float dx, float dy)
             screenSpaceVector.m_y = pos2.m_y - pos1.m_y;
             screenSpaceVector.normalize();
 
-            //std::cout<<"Screen Space Vector: "<<screenSpaceVector.m_x<<" "<<screenSpaceVector.m_y<<"\n";
-            //std::cout<<"Mouse Delta: "<<dx<<" "<<dy<<"\n";
             projectedVector = deltaMovement.dot(screenSpaceVector) / screenSpaceVector.length() * screenSpaceVector;
             if(screenSpaceVector.dot(projectedVector) < 0)
             {
@@ -270,17 +248,14 @@ void Gizmo::Manipulate(Transform& objectTransform, float dx, float dy)
                 case 0:
                     moveDirection = ngl::Vec3(1, 0, 0);
                     along = objectTransform.getMatrix().getRightVector();
-                    //axis = dx;
                     break;
                 case 1:
                     moveDirection = ngl::Vec3(0, 1, 0);
                     along = objectTransform.getMatrix().getUpVector();
-                    //axis = -dy;
                     break;
                 case 2:
                     moveDirection = ngl::Vec3(0, 0, 1);
                     along = objectTransform.getMatrix().getBackVector();
-                    //axis = dx;
                     break;
             }
 
@@ -302,22 +277,19 @@ void Gizmo::Manipulate(Transform& objectTransform, float dx, float dy)
             switch (m_selectedAxis)
             {
                 case 0:
-                    moveDirection = /*ngl::Vec3(1, 0, 0);*/m_originalObjectTransform.getMatrix().getRightVector();
-                    //axis = dx;
+                    moveDirection = m_originalObjectTransform.getMatrix().getRightVector();
                     break;
                 case 1:
-                    moveDirection = /*ngl::Vec3(0, 1, 0);*/m_originalObjectTransform.getMatrix().getUpVector();
-                    //axis = dy;
+                    moveDirection = m_originalObjectTransform.getMatrix().getUpVector();
                     break;
                 case 2:
-                    moveDirection = /*ngl::Vec3(0, 0, 1);*/m_originalObjectTransform.getMatrix().getForwardVector();
-                    //axis = dx;
+                    moveDirection = m_originalObjectTransform.getMatrix().getForwardVector();
                     break;
             }
+            // Checking angle difference between initial screenspace vector and current one
             moveDirection.normalize();
             pos1 = MVP * m_originalObjectTransform.getPosition();
             pos2 = ngl::Vec3( m_initialMousePos.m_x + deltaMovement.m_x, m_initialMousePos.m_y + deltaMovement.m_y, 0);
-
 
             screenSpaceVector.m_x = pos2.m_x - pos1.m_x;
             screenSpaceVector.m_y = pos2.m_y - pos1.m_y;
