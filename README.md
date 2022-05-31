@@ -1,4 +1,4 @@
-# Vlad Oancea's Assignment - the Lightweight-OpenGL-Loader software (L.O.L.)
+# Vlad Oancea's Assignment - Lightweight OpenGL Loader
 
 ## Project Summary
 My projects consists of a real-time 3D PBR forward-render engine, able to interactively load and position meshes through an interface, assign them textures and display them using multiple types of lights or HDR environment maps and custom backgrounds. The lighting system supports multiple shadow-casting lights, reaching up to 4 point shadows and 8 directional shadows.
@@ -77,6 +77,28 @@ I am also making use of a custom-implemented camera, which works very similar to
 For the final submission, I managed to implement all of the features I had in mind for a Minimum-Viable-Product fully-usable real-time PBR render engine. Functionality-wise, I believe it was almost everything an artist may need to generate quick renders of their meshes. However, there is still a lot of room for improvement and missing quality-of-life features. Some of them include: the ability to remove/revert textures to their initial solid-white state, the transformation gizmo being made up of 2D meshes, making it difficult to access from certain angles, ability to set a custom FOV of the camera, and the lack of a toggle to select whether a light should cast shadows. A few of them could have been easily implemented with a bit more of development time, but were deemed unnecessarry for the core functionality.
 I also feel that I could have improved parts of my implementation, to make better use of polymorphism and to rely less on either down-casting or avoidable if statements in some scenarios, which I am aware can be a bad practice.
 
+<img src="report/final.png" width="600">
+
 ## Sample Scenes
 
 In the repository I have left a folder with a couple of simple pre-made sample scenes to easily test out the program's capabilities. By default the software saves the paths to the resources using absolute paths, which would make it very difficult to send projects across other platforms. These scenes have their paths manually edited to be relative to the executable, one directory above it. This means that running the executable from the build folder of the project should be able to successfully load those projects.
+
+
+## References
+[0] learnopengl.com. (n.d.). LearnOpenGL - Lighting. [online] Available at: https://learnopengl.com/PBR/Lighting [Accessed 1 May 2022].
+‌[1] learnopengl.com. (n.d.). LearnOpenGL - Specular IBL. [online] Available at: https://learnopengl.com/PBR/IBL/Specular-IBL [Accessed 1 May 2022].
+[2] Hdrlabs.com. (2012). sIBL Archive. [online] Available at: http://www.hdrlabs.com/sibl/archive.html.
+[3] www.turbosquid.com. (n.d.). Free 3D Plant Monster - TurboSquid 1873474. [online] Available at: https://www.turbosquid.com/3d-models/3d-plant-monster-1873474 [Accessed 31 May 2022].
+[4] RenderHub. (n.d.). Biomechanical Mutant - Free 3D Model by Game-Ready Studios. [online] Available at: https://www.renderhub.com/game-ready-studios/free-biomechanical-mutant [Accessed 31 May 2022].
+[5] artisaverb.info. (n.d.). Art Is A Verb - ‘Physically Based Next-gen Texturing for Artists’ by Andrew Maximov. [online] Available at: http://artisaverb.info/PBT.html [Accessed 3 May 2022].
+[6] learnopengl.com. (n.d.). LearnOpenGL - Shadow Mapping. [online] Available at: https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping.
+[7] learnopengl.com. (n.d.). LearnOpenGL - Point Shadows. [online] Available at: https://learnopengl.com/Advanced-Lighting/Shadows/Point-Shadows.
+
+‌
+‌
+‌
+‌
+
+‌
+
+‌
