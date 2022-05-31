@@ -86,19 +86,18 @@ In the repository I have left a folder with a couple of simple pre-made sample s
 
 ## References
 [0] learnopengl.com. (n.d.). LearnOpenGL - Lighting. [online] Available at: https://learnopengl.com/PBR/Lighting [Accessed 1 May 2022].
+
 ‌[1] learnopengl.com. (n.d.). LearnOpenGL - Specular IBL. [online] Available at: https://learnopengl.com/PBR/IBL/Specular-IBL [Accessed 1 May 2022].
+
 [2] Hdrlabs.com. (2012). sIBL Archive. [online] Available at: http://www.hdrlabs.com/sibl/archive.html.
+
 [3] www.turbosquid.com. (n.d.). Free 3D Plant Monster - TurboSquid 1873474. [online] Available at: https://www.turbosquid.com/3d-models/3d-plant-monster-1873474 [Accessed 31 May 2022].
+
 [4] RenderHub. (n.d.). Biomechanical Mutant - Free 3D Model by Game-Ready Studios. [online] Available at: https://www.renderhub.com/game-ready-studios/free-biomechanical-mutant [Accessed 31 May 2022].
+
 [5] artisaverb.info. (n.d.). Art Is A Verb - ‘Physically Based Next-gen Texturing for Artists’ by Andrew Maximov. [online] Available at: http://artisaverb.info/PBT.html [Accessed 3 May 2022].
+
 [6] learnopengl.com. (n.d.). LearnOpenGL - Shadow Mapping. [online] Available at: https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping.
+
 [7] learnopengl.com. (n.d.). LearnOpenGL - Point Shadows. [online] Available at: https://learnopengl.com/Advanced-Lighting/Shadows/Point-Shadows.
 
-‌
-‌
-‌
-‌
-
-‌
-
-‌
