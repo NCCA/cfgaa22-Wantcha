@@ -1,6 +1,6 @@
-# Vlad Oancea's Assignment - Lightweight OpenGL Loader
+# Lightweight OpenGL Loader
 
-## Project Summary
+## Summary
 My projects consists of a real-time 3D PBR forward-render engine, able to interactively load and position meshes through an interface, assign them textures and display them using multiple types of lights or HDR environment maps and custom backgrounds. The lighting system supports multiple shadow-casting lights, reaching up to 4 point shadows and 8 directional shadows.
 The software has Scene Serialization capabilities, being able to save scene files using the JSON format, as well as load them back in. Do be warned that the resources are saved by their absolute filepath, so changing a resource's directory will cause it to be unable to load.
 The program allows you to render the resulted composition as a PNG, either by instantly capturing the current viewport as-is, or allowing you to specify a custom resolution going up to 4096x4096.
@@ -85,9 +85,9 @@ I also feel that I could have improved parts of my implementation, to make bette
 
 ## Sample Scenes and Executable
 
-The submitted executable was built for Linux and works on university lab PCs. The code can be built for Windows as well, it has been tested, however Mac is not supported due to the OpenGL version being capped at 4.1.
+The code can be built for Windows and Linux, it has been tested, however Mac is not supported due to the OpenGL version being capped at 4.1.
 
-In the repository I have left a folder with a couple of simple pre-made sample scenes to easily test out the program's capabilities. By default the software saves the paths to the resources using absolute paths, which would make it very difficult to send projects across other platforms. These scenes have their paths manually edited to be relative to the executable, one directory above it. This means that running the executable from the build folder of the project should be able to successfully load those projects.
+In the repository I have left a folder with a couple of simple pre-made sample scenes to easily test out the program's capabilities. By default the software saves the paths to the resources using absolute paths, which would make it very difficult to send projects across other platforms. These scenes have their paths manually edited to be relative to the executable, one directory above it. This means that running the executable from the build folder of the project should be able to successfully load those projects. For some reason, some textures from the sample scenes cannot be opened properly on Windows due to Qt's image loader acting strange, so I recommend running this program on Linux.
 
 
 ## References
